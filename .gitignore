@@ -1,0 +1,7 @@
+# Ignore
+bin/*
+runtime/*
+
+# dont ignore
+!bin/.gitkeep
+!runtime/.gitkeep
