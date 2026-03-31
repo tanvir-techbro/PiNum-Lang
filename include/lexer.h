@@ -9,11 +9,13 @@
 
 // All the tokentypes
 typedef enum {
-        TOKEN_INT,         // int data type
-        TOKEN_FLOAT,       // float data type
-        TOKEN_DOUBLE,      // double data type
-        TOKEN_ID,          // 'x' 'y' 'result' 'print'
-        TOKEN_NUM,         // numbers. 10 50 42 etc.
+        TOKEN_ID,  // 'x' 'y' 'result' 'print'
+        TOKEN_NUM, // numbers. 10 50 42 etc.
+        // Data types
+        TOKEN_INT,   // int datatype
+        TOKEN_FLOAT, // float datatype
+        TOKEN_CHAR,  // char datatype
+        // single character tokens
         TOKEN_EQUAL,       // "=" equal
         TOKEN_PLUS,        // "+" plus
         TOKEN_MINUS,       // "-" mius
@@ -38,8 +40,13 @@ typedef enum {
         TOKEN_TILDE,       // "~" tilde
         TOKEN_SQUOTE,      // ' single quotation mark
         TOKEN_DQUOTE,      // " double quotation mark
-        TOKEN_EOF,         // End of file
-        TOKEN_UNKNOWN      // unknown
+        // special character tokens
+        TOKEN_NTERMINATOR, // '\0' null terminator
+        TOKEN_NLINE,       // '\n' newline character
+        TOKEN_TAB,         // '\t' tab
+        // EOF and unknown
+        TOKEN_EOF,    // End of file
+        TOKEN_UNKNOWN // unknown
 } tokenType;
 
 // Holds the token
@@ -58,6 +65,6 @@ typedef struct {
 */
 
 // functions
-token **lexer_tokenizer(FILE *buffer);
+token lexer_tokenizer(FILE *buffer);
 
 #endif // !LEXER_H

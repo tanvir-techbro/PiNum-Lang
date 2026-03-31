@@ -13,7 +13,6 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
         }
 
-        int ch; // holds the ASCII value of current char
         char *filename = argv[1];
         char *extention = strrchr(argv[1], '.');
         FILE *buffer;
@@ -22,16 +21,14 @@ int main(int argc, char *argv[]) {
         if (extention == NULL) {
                 fprintf(stderr, "Filetype not valid...\n");
                 exit(EXIT_FAILURE);
-        } else if (strcmp(extention, ".pn")) {
+        } else if (!(strcmp(extention, ".pn"))) {
 
                 // checking if the file can be opened or not
                 if ((buffer = fopen(filename, "r")) == NULL) {
                         perror("Error opening file...\n");
                         exit(EXIT_FAILURE);
-                } else {
-                        // Opening the file after checking all
-                        buffer = fopen(filename, "r");
                 }
+                // If the file open is succesful it will continue with rest of the program.
 
         } else {
                 fprintf(stderr, "Filetype not valid...\n");
@@ -39,8 +36,19 @@ int main(int argc, char *argv[]) {
         }
 
         // Running the loop till we hit EOF (End Of File).
-        while ((ch = fgetc(buffer)) != EOF) {
-                token **tokens = lexer_tokenizer(buffer);
+        token tokens;
+        while (true) {
+                tokens = lexer_tokenizer(buffer);
+
+                if (tokens.type == TOKEN_EOF) {
+                        if (tokens.value) {
+                                free(tokens.value);
+                        }
+                        break;
+                }
+
+                // freeing the value
+                free(tokens.value);
         }
 
         // closing the file buffer
