@@ -9,6 +9,7 @@ all: $(TARGET)
 
 # Rule to link the program
 $(TARGET): $(SRC)
+	@mkdir -p bin
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
 # Rule to clean up the binary
