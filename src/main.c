@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
                         break;
                 }
 
+                // NOTE: this function call is temporary for debugging purposes.
                 lexer_print_token(tokens);
                 // freeing the value
                 if (tokens.value) {
