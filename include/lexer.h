@@ -89,6 +89,7 @@ typedef struct {
 // functions
 token lexer_tokenizer(FILE *buffer);
 token lexer_tokenize_numbers(FILE *buffer);
+// NOTE: these two functions are for debugging purposes and temporary.
 const char *lexer_token_type_to_string(tokenType type);
 void lexer_print_token(token t);
 
