@@ -47,8 +47,11 @@ int main(int argc, char *argv[]) {
                         break;
                 }
 
+                lexer_print_token(tokens);
                 // freeing the value
-                free(tokens.value);
+                if (tokens.value) {
+                        free(tokens.value);
+                }
         }
 
         // closing the file buffer

@@ -9,13 +9,33 @@
 
 // All the tokentypes
 typedef enum {
-        TOKEN_ID,  // 'x' 'y' 'result' 'print'
-        TOKEN_NUM, // numbers. 10 50 42 etc.
+        TOKEN_VERIABLE, // 'x' 'y' 'result' etc
+        TOKEN_INUM,     // intager numbers: 10, 50, 42 etc.
+        TOKEN_FNUM,     // floating point numbers: 3.14, 0.5 etc.
+        TOKEN_ID,       // normal tokens maybe strings and characters inside print function
+        TOKEN_IMPORT,   // token import, can be used at the starting of the file after atsign to import files and libreries
+        // Libreries
+        TOKEN_LIB_STDLIB, // if user does not include `@for engine` then user need to include `@import stdlib` to use standard librery features
+        TOKEN_LIB_MATH,   // if user does not include `@for engine` then user need to include `@import stdlib` to use standard math features
+        // Keywords
+        TOKEN_IF,     // kewword if
+        TOKEN_ELSE,   // Keyword else
+        TOKEN_PRINT,  // keyword print
+        TOKEN_READ,   // keyword read, takes input from user
+        TOKEN_RETURN, // keyword return
         // Data types
-        TOKEN_INT,   // int datatype
-        TOKEN_FLOAT, // float datatype
-        TOKEN_CHAR,  // char datatype
+        TOKEN_LONG,     // long prefix
+        TOKEN_SHORT,    // short prefix
+        TOKEN_SIGNED,   // signed prefix
+        TOKEN_UNSIGNED, // unsigned prefix
+        TOKEN_BOOL,     // boolean data type
+        TOKEN_INT,      // int datatype
+        TOKEN_FLOAT,    // float datatype
+        TOKEN_DOUBLE,   // double datatype
+        TOKEN_CHAR,     // char datatype
+        TOKEN_STRING,   // string datatype, basiclly char array in the transpiled code
         // single character tokens
+        TOKEN_DOT,         // "." dot
         TOKEN_EQUAL,       // "=" equal
         TOKEN_PLUS,        // "+" plus
         TOKEN_MINUS,       // "-" mius
@@ -52,7 +72,9 @@ typedef enum {
 // Holds the token
 typedef struct {
         tokenType type;
-        char *value; // stores the token as string
+        char *value;        // stores the token as string
+        int int_value;      // stores the token as intager value
+        double float_value; // stores the token as float value
 } token;
 
 /*
@@ -66,5 +88,8 @@ typedef struct {
 
 // functions
 token lexer_tokenizer(FILE *buffer);
+token lexer_tokenize_numbers(FILE *buffer);
+const char *lexer_token_type_to_string(tokenType type);
+void lexer_print_token(token t);
 
 #endif // !LEXER_H
