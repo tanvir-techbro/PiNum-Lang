@@ -1,0 +1,37 @@
+{
+  "name": "PiNum",
+  "scopeName": "source.pn",
+  "patterns": [
+    {
+      "name": "keyword.control.directive.pn",
+      "match": "@(import|for|engine)\\b"
+    },
+    {
+      "name": "storage.type.pn",
+      "match": "\\b(int|float|double|char|string|bool|long|short|signed|unsigned|vec)\\b"
+    },
+    {
+      "name": "keyword.control.pn",
+      "match": "\\b(if|else|print|read|return)\\b"
+    },
+    {
+      "name": "constant.numeric.pn",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    {
+      "name": "string.quoted.double.pn",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.pn",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "comment.line.hashtag.pn",
+      "match": "#.*$"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "pinum-lang",
+  "displayName": "PiNum Language Support",
+  "description": "Syntax highlighting for the PiNum transpiler.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "pinum",
+      "aliases": ["PiNum", "pinum"],
+      "extensions": [".pn"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "pinum",
+      "scopeName": "source.pn",
+      "path": "./syntaxes/pinum.tmLanguage.json"
+    }]
+  }
+}
