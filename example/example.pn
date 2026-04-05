@@ -1,4 +1,4 @@
 int x = 67
-int y = 3
+int y = 3.21
 int result = x + y
 print(result)

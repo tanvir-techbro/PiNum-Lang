@@ -9,15 +9,14 @@
 
 // All the tokentypes
 typedef enum {
-        TOKEN_VERIABLE, // 'x' 'y' 'result' etc
-        TOKEN_INUM,     // intager numbers: 10, 50, 42 etc.
-        TOKEN_FNUM,     // floating point numbers: 3.14, 0.5 etc.
-        TOKEN_ID,       // normal tokens maybe strings and characters inside print function
-        TOKEN_IMPORT,   // token import, can be used at the starting of the file after atsign to import files and libreries
+        TOKEN_ID,   // normal tokens maybe strings and characters inside print function, also can be veriables.
+        TOKEN_INUM, // intager numbers: 10, 50, 42 etc.
+        TOKEN_FNUM, // floating point numbers: 3.14, 0.5 etc.
         // Libreries
         TOKEN_LIB_STDLIB, // if user does not include `@for engine` then user need to include `@import stdlib` to use standard librery features
         TOKEN_LIB_MATH,   // if user does not include `@for engine` then user need to include `@import stdlib` to use standard math features
         // Keywords
+        TOKEN_IMPORT, // token import, can be used at the starting of the file after atsign to import files and libreries
         TOKEN_IF,     // kewword if
         TOKEN_ELSE,   // Keyword else
         TOKEN_PRINT,  // keyword print
@@ -89,6 +88,7 @@ typedef struct {
 // functions
 token lexer_tokenizer(FILE *buffer);
 token lexer_tokenize_numbers(FILE *buffer);
+token lexer_tokenize_words(FILE *buffer);
 // NOTE: these two functions are for debugging purposes and temporary.
 const char *lexer_token_type_to_string(tokenType type);
 void lexer_print_token(token t);

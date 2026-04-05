@@ -24,9 +24,10 @@ token lexer_tokenizer(FILE *buffer) {
                 return tokens;
         }
 
-        // - Veriable handling -
+        // ID, keywords, veriable and others handling.
         if (isalpha(ch) || ch == '_') {
-                // TODO: Implement word/keyword tokenization
+                ungetc(ch, buffer);
+                return lexer_tokenize_words(buffer);
         }
 
         // - number handling -
@@ -158,19 +159,96 @@ token lexer_tokenizer(FILE *buffer) {
         return tokens;
 }
 
+// ID, keywords, veriable and others handling.
+// Triggered when the current char we are reading is a letter or a non-numerical character.
+token lexer_tokenize_words(FILE *buffer) {
+        int ch, i = 0; // i is also used for size ditermination.
+        token tokens;
+        tokens.value = NULL;
+
+        int capacity = 2; // capacity will be doubled everytime the size is close to the capacity.
+        char *char_buffer = malloc(capacity);
+
+        // - reading the characters and putting them in the char_buffer -
+        ch = fgetc(buffer);
+
+        while (ch != EOF && (isalnum(ch) || ch == '_')) {
+                if (i + 1 >= capacity) {
+                        capacity *= 2;
+                        char_buffer = realloc(char_buffer, capacity);
+                }
+
+                char_buffer[i++] = (char)ch;
+                ch = fgetc(buffer);
+        }
+        char_buffer[i] = '\0';
+
+        if (ch != EOF) {
+                ungetc(ch, buffer);
+        }
+
+        // - Identifying and handling ID, veriable and datatypes -
+        tokens.value = char_buffer;
+
+        if (strcmp(char_buffer, "int") == 0) {
+                tokens.type = TOKEN_INT;
+        } else if (strcmp(char_buffer, "float") == 0) {
+                tokens.type = TOKEN_FLOAT;
+        } else if (strcmp(char_buffer, "print") == 0) {
+                tokens.type = TOKEN_PRINT;
+        } else if (strcmp(char_buffer, "if") == 0) {
+                tokens.type = TOKEN_IF;
+        } else if (strcmp(char_buffer, "else") == 0) {
+                tokens.type = TOKEN_ELSE;
+        } else if (strcmp(char_buffer, "return") == 0) {
+                tokens.type = TOKEN_RETURN;
+        } else if (strcmp(char_buffer, "import") == 0) {
+                tokens.type = TOKEN_IMPORT;
+        } else if (strcmp(char_buffer, "read") == 0) {
+                tokens.type = TOKEN_READ;
+        } else if (strcmp(char_buffer, "long") == 0) {
+                tokens.type = TOKEN_LONG;
+        } else if (strcmp(char_buffer, "short") == 0) {
+                tokens.type = TOKEN_SHORT;
+        } else if (strcmp(char_buffer, "signed") == 0) {
+                tokens.type = TOKEN_SIGNED;
+        } else if (strcmp(char_buffer, "unsigned") == 0) {
+                tokens.type = TOKEN_UNSIGNED;
+        } else if (strcmp(char_buffer, "bool") == 0) {
+                tokens.type = TOKEN_BOOL;
+        } else if (strcmp(char_buffer, "double") == 0) {
+                tokens.type = TOKEN_DOUBLE;
+        } else if (strcmp(char_buffer, "char") == 0) {
+                tokens.type = TOKEN_CHAR;
+        } else if (strcmp(char_buffer, "string") == 0) {
+                tokens.type = TOKEN_STRING;
+        } else if (strcmp(char_buffer, "stdlib") == 0) {
+                tokens.type = TOKEN_LIB_STDLIB;
+        } else if (strcmp(char_buffer, "math") == 0) {
+                tokens.type = TOKEN_LIB_MATH;
+        } else {
+                tokens.type = TOKEN_ID;
+        }
+
+        return tokens;
+}
+
+// number tokenization, triggered when stumbled upon a digit.
 token lexer_tokenize_numbers(FILE *buffer) {
         int ch, i = 0;
         token tokens;
         tokens.value = NULL;
         char char_buffer[64];
 
+        // would be true id there is a dot in the number.
         bool is_float = false;
 
-        // --- reading the numbers and putting them in the char_buffer ---
+        // - reading the numbers and putting them in the char_buffer -
         ch = fgetc(buffer);
 
         while (ch != EOF && (isdigit(ch) || ch == '.')) {
                 if (ch == '.') {
+                        // break if we hit second dot in the sngle number.
                         if (is_float) {
                                 break;
                         }
@@ -186,7 +264,6 @@ token lexer_tokenize_numbers(FILE *buffer) {
         if (ch != EOF) {
                 ungetc(ch, buffer);
         }
-        // -----------------------------------------------------------------
 
         // - Number handling -
         // int_value and float_value members are only used for storing numbers which is handled by this block of code below
@@ -211,8 +288,6 @@ token lexer_tokenize_numbers(FILE *buffer) {
 // NOTE: this function is temporary and is only for debugging purposes.
 const char *lexer_token_type_to_string(tokenType type) {
         switch (type) {
-        case TOKEN_VERIABLE:
-                return "TOKEN_VERIABLE";
         case TOKEN_INUM:
                 return "TOKEN_INUM";
         case TOKEN_FNUM:

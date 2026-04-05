@@ -1,0 +1,27 @@
+@import stdlib
+@import math
+
+int i = 10;
+float f = 3.14;
+double d = 2.718;
+char c = 'a';
+string s = "hello";
+bool b = true;
+
+long signed int ls = -1;
+unsigned short int us = 1;
+
+if (i == 10) {
+    print(i);
+} else {
+    read(i);
+}
+
+int result = (i + 5) * 2 / 1 - i;
+result % 2;
+result ^ 2;
+!b;
+&i;
+$ # % ^ & ? ~
+
+return 0;
