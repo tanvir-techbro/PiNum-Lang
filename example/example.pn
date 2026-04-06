@@ -1,4 +1,23 @@
 int x = 67
-int y = 3.21
+float y = 3.21
 int result = x + y
 print(result)
+
+# this is a comment.
+
+string str = "This is a string, I guess...."
+
+for (int i = 0; i < 1; i++){
+        print("This is a for loop\n")
+}
+
+
+
+
+<<<<<<<<<>>>>>>
+
+
+int count = 0
+while (count > 1){
+        print("This is a while loop\n")
+}

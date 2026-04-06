@@ -90,6 +90,14 @@ token lexer_tokenizer(FILE *buffer) {
                 tokens.type = TOKEN_RSPAREN;
                 tokens.value = strdup("]");
                 break;
+        case '<':
+                tokens.type = TOKEN_LABRACKET;
+                tokens.value = strdup("<");
+                break;
+        case '>':
+                tokens.type = TOKEN_RABRACKET;
+                tokens.value = strdup(">");
+                break;
         case '!':
                 tokens.type = TOKEN_EXCLAMATION;
                 tokens.value = strdup("!");
@@ -358,6 +366,10 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_LSPAREN";
         case TOKEN_RSPAREN:
                 return "TOKEN_RSPAREN";
+        case TOKEN_LABRACKET:
+                return "TOKEN_LABRACKET";
+        case TOKEN_RABRACKET:
+                return "TOKEN_RABRACKET";
         case TOKEN_EXCLAMATION:
                 return "TOKEN_EXCLAMATION";
         case TOKEN_ATSIGN:

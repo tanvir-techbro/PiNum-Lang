@@ -48,6 +48,8 @@ typedef enum {
         TOKEN_RCPAREN,     // "}" right curly parenthesis
         TOKEN_LSPAREN,     // "[" left stright parenthesis
         TOKEN_RSPAREN,     // "]" right straight parenthesis
+        TOKEN_LABRACKET,   // "<" left angle bracket
+        TOKEN_RABRACKET,   // ">" right angle bracket
         TOKEN_EXCLAMATION, // "!" exclamation mark
         TOKEN_ATSIGN,      // "@" at sign
         TOKEN_HASHTAG,     // "#" hashtag
