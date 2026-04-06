@@ -13,7 +13,7 @@ token lexer_tokenizer(FILE *buffer) {
         int ch = fgetc(buffer);
 
         // Ignore white spaces
-        while (ch != EOF && isspace(ch)) {
+        while (ch != EOF && isspace(ch) && ch != '\n' && ch != '\t') {
                 ch = fgetc(buffer);
         }
 
@@ -154,6 +154,24 @@ token lexer_tokenizer(FILE *buffer) {
         case '\t':
                 tokens.type = TOKEN_TAB;
                 tokens.value = strdup("\\t");
+                break;
+        // For physically written newline, tab and null terminator;
+        case '\\':
+                ch = fgetc(buffer);
+                if (ch == 'n') {
+                        tokens.type = TOKEN_NLINE;
+                        tokens.value = strdup("\\n");
+                } else if (ch == 't') {
+                        tokens.type = TOKEN_TAB;
+                        tokens.value = strdup("\\t");
+                } else if (ch == '0') {
+                        tokens.type = TOKEN_NTERMINATOR;
+                        tokens.value = strdup("\\0");
+                } else {
+                        ungetc(ch, buffer);
+                        tokens.type = TOKEN_UNKNOWN;
+                        tokens.value = strdup("\\");
+                }
                 break;
         default:
                 tokens.type = TOKEN_UNKNOWN;
