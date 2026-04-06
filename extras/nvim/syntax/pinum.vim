@@ -39,7 +39,11 @@ syntax match pinumDelimiter "[()\[\]{};,.]"
 highlight link pinumOperator Operator
 highlight link pinumDelimiter Delimiter
 
-" 7. Special Escapes (the \n, \t stuff)
+" 7. Comments
+syntax match pinumComment "#.*$"
+highlight link pinumComment Comment
+
+" 8. Special Escapes (the \n, \t stuff)
 syntax match pinumSpecial "\\n\|\\t\|\\0"
 highlight link pinumSpecial SpecialChar
 

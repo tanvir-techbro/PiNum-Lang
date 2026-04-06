@@ -13,7 +13,7 @@ token lexer_tokenizer(FILE *buffer) {
         int ch = fgetc(buffer);
 
         // Ignore white spaces
-        while (ch != EOF && isspace(ch) && ch != '\n' && ch != '\t') {
+        while (ch != EOF && isspace(ch) && ch != '\n') {
                 ch = fgetc(buffer);
         }
 
