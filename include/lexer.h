@@ -33,6 +33,8 @@ typedef enum {
         TOKEN_DOUBLE,   // double datatype
         TOKEN_CHAR,     // char datatype
         TOKEN_STRING,   // string datatype, basiclly char array in the transpiled code
+        TOKEN_TRUE,     // boolean literal true
+        TOKEN_FALSE,    // boolean literal false
         // single character tokens
         TOKEN_DOT,         // "." dot
         TOKEN_EQUAL,       // "=" equal
@@ -61,6 +63,11 @@ typedef enum {
         TOKEN_TILDE,       // "~" tilde
         TOKEN_SQUOTE,      // ' single quotation mark
         TOKEN_DQUOTE,      // " double quotation mark
+        // Multi-character operators
+        TOKEN_EEQUAL, // "==" double equal
+        TOKEN_NEQUAL, // "!=" not equal
+        TOKEN_LEQUAL, // "<=" less than or equal
+        TOKEN_GEQUAL, // ">=" greater than or equal
         // special character tokens
         TOKEN_NTERMINATOR, // '\0' null terminator
         TOKEN_NLINE,       // '\n' newline character

@@ -248,7 +248,13 @@ token lexer_tokenize_words(FILE *buffer) {
                 tokens.type = TOKEN_CHAR;
         } else if (strcmp(char_buffer, "string") == 0) {
                 tokens.type = TOKEN_STRING;
-        } else if (strcmp(char_buffer, "stdlib") == 0) {
+        } else if (strcmp(char_buffer, "true") == 0) {
+                tokens.type = TOKEN_TRUE;
+        } else if (strcmp(char_buffer, "false") == 0) {
+                tokens.type = TOKEN_FALSE;
+        }
+        /* LIBRERIES */
+        else if (strcmp(char_buffer, "stdlib") == 0) {
                 tokens.type = TOKEN_LIB_STDLIB;
         } else if (strcmp(char_buffer, "math") == 0) {
                 tokens.type = TOKEN_LIB_MATH;
