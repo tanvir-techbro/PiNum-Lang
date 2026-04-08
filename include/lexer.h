@@ -59,6 +59,9 @@ typedef enum {
         TOKEN_PERCENT,     // "%" persent
         TOKEN_CARET,       // "^" caret also known as upward arrow
         TOKEN_AMPERSAND,   // "&" ampersand
+        TOKEN_AND,         // "&&" and operator
+        TOKEN_PIPE,        // "|" pipe
+        TOKEN_OR,          // "||" or operator
         TOKEN_QUESTION,    // "?" question mark
         TOKEN_TILDE,       // "~" tilde
         TOKEN_SQUOTE,      // ' single quotation mark

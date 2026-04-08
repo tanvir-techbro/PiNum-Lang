@@ -36,8 +36,6 @@ token lexer_tokenizer(FILE *buffer) {
                 return lexer_tokenize_numbers(buffer);
         }
 
-        // TODO: add multi character operators
-
         // --------------- SINGLE CHARACTER TOKEN ---------------
         switch (ch) {
         case '=':
@@ -153,9 +151,28 @@ token lexer_tokenizer(FILE *buffer) {
                 tokens.value = strdup("^");
                 break;
         case '&':
-                tokens.type = TOKEN_AMPERSAND;
-                tokens.value = strdup("&");
+                ch = fgetc(buffer);
+                if (ch == ' ' || ch != '&') {
+                        ungetc(ch, buffer);
+                        tokens.type = TOKEN_AMPERSAND;
+                        tokens.value = strdup("&");
+                } else if (ch == '&') {
+                        tokens.type = TOKEN_AND;
+                        tokens.value = strdup("&&");
+                }
                 break;
+        case '|':
+                ch = fgetc(buffer);
+                if (ch == ' ' || ch != '|') {
+                        ungetc(ch, buffer);
+                        tokens.type = TOKEN_PIPE;
+                        tokens.value = strdup("|");
+                } else if (ch == '|') {
+                        tokens.type = TOKEN_OR;
+                        tokens.value = strdup("||");
+                }
+                break;
+
         case '?':
                 tokens.type = TOKEN_QUESTION;
                 tokens.value = strdup("?");
@@ -444,6 +461,12 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_CARET";
         case TOKEN_AMPERSAND:
                 return "TOKEN_AMPERSAND";
+        case TOKEN_AND:
+                return "TOKEN_AND";
+        case TOKEN_PIPE:
+                return "TOKEN_PIPE";
+        case TOKEN_OR:
+                return "TOKEN_OR";
         case TOKEN_QUESTION:
                 return "TOKEN_QUESTION";
         case TOKEN_TILDE:
