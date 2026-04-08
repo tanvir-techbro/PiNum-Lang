@@ -12,7 +12,7 @@ token lexer_tokenizer(FILE *buffer) {
         tokens.value = NULL;
         int ch = fgetc(buffer);
 
-        // Ignore white spaces
+        // Ignore white spaces, untill we hit EOF or newline
         while (ch != EOF && isspace(ch) && ch != '\n') {
                 ch = fgetc(buffer);
         }
@@ -36,11 +36,20 @@ token lexer_tokenizer(FILE *buffer) {
                 return lexer_tokenize_numbers(buffer);
         }
 
+        // TODO: add multi character operators
+
         // --------------- SINGLE CHARACTER TOKEN ---------------
         switch (ch) {
         case '=':
-                tokens.type = TOKEN_EQUAL;
-                tokens.value = strdup("=");
+                ch = fgetc(buffer);
+                if (ch == ' ' || ch != '=') {
+                        ungetc(ch, buffer);
+                        tokens.type = TOKEN_EQUAL;
+                        tokens.value = strdup("=");
+                } else if (ch == '=') {
+                        tokens.type = TOKEN_EEQUAL;
+                        tokens.value = strdup("==");
+                }
                 break;
         case '+':
                 tokens.type = TOKEN_PLUS;
@@ -91,16 +100,37 @@ token lexer_tokenizer(FILE *buffer) {
                 tokens.value = strdup("]");
                 break;
         case '<':
-                tokens.type = TOKEN_LABRACKET;
-                tokens.value = strdup("<");
+                ch = fgetc(buffer);
+                if (ch == ' ' || ch != '=') {
+                        ungetc(ch, buffer);
+                        tokens.type = TOKEN_LABRACKET;
+                        tokens.value = strdup("<");
+                } else if (ch == '=') {
+                        tokens.type = TOKEN_LEQUAL;
+                        tokens.value = strdup("<=");
+                }
                 break;
         case '>':
-                tokens.type = TOKEN_RABRACKET;
-                tokens.value = strdup(">");
+                ch = fgetc(buffer);
+                if (ch == ' ' || ch != '=') {
+                        ungetc(ch, buffer);
+                        tokens.type = TOKEN_RABRACKET;
+                        tokens.value = strdup(">");
+                } else if (ch == '=') {
+                        tokens.type = TOKEN_GEQUAL;
+                        tokens.value = strdup(">=");
+                }
                 break;
         case '!':
-                tokens.type = TOKEN_EXCLAMATION;
-                tokens.value = strdup("!");
+                ch = fgetc(buffer);
+                if (ch == ' ' || ch != '=') {
+                        ungetc(ch, buffer);
+                        tokens.type = TOKEN_EXCLAMATION;
+                        tokens.value = strdup("!");
+                } else if (ch == '=') {
+                        tokens.type = TOKEN_NEQUAL;
+                        tokens.value = strdup("!=");
+                }
                 break;
         case '@':
                 tokens.type = TOKEN_ATSIGN;
@@ -258,7 +288,9 @@ token lexer_tokenize_words(FILE *buffer) {
                 tokens.type = TOKEN_LIB_STDLIB;
         } else if (strcmp(char_buffer, "math") == 0) {
                 tokens.type = TOKEN_LIB_MATH;
-        } else {
+        }
+        /* If nothing matches */
+        else {
                 tokens.type = TOKEN_ID;
         }
 
@@ -272,7 +304,7 @@ token lexer_tokenize_numbers(FILE *buffer) {
         tokens.value = NULL;
         char char_buffer[64];
 
-        // would be true id there is a dot in the number.
+        // would be true if there is a dot in the number.
         bool is_float = false;
 
         // - reading the numbers and putting them in the char_buffer -
@@ -362,6 +394,10 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_CHAR";
         case TOKEN_STRING:
                 return "TOKEN_STRING";
+        case TOKEN_TRUE:
+                return "TOKEN_TRUE";
+        case TOKEN_FALSE:
+                return "TOKEN_FALSE";
         case TOKEN_DOT:
                 return "TOKEN_DOT";
         case TOKEN_EQUAL:
@@ -416,6 +452,14 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_SQUOTE";
         case TOKEN_DQUOTE:
                 return "TOKEN_DQUOTE";
+        case TOKEN_EEQUAL:
+                return "TOKEN_EEQUAL";
+        case TOKEN_NEQUAL:
+                return "TOKEN_NEQUAL";
+        case TOKEN_LEQUAL:
+                return "TOKEN_LEQUAL";
+        case TOKEN_GEQUAL:
+                return "TOKEN_GEQUAL";
         case TOKEN_NTERMINATOR:
                 return "TOKEN_NTERMINATOR";
         case TOKEN_NLINE:
