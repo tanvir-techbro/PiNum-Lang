@@ -1,6 +1,6 @@
 # Variables
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -O3
 SRC = src/main.c src/lexer.c src/parser.c src/codegen.c src/helper.c
 TARGET = bin/pinum
 
