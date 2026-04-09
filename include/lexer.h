@@ -74,6 +74,7 @@ typedef enum {
         // special character tokens
         TOKEN_NTERMINATOR, // '\0' null terminator
         TOKEN_NLINE,       // '\n' newline character
+        TOKEN_UNLINE,      // '\n' user defined newline character
         TOKEN_TAB,         // '\t' tab
         // EOF and unknown
         TOKEN_EOF,    // End of file
@@ -88,6 +89,13 @@ typedef struct {
         double float_value; // stores the token as float value
 } token;
 
+// Holds a list of tokens
+typedef struct {
+        token *tokens;
+        size_t size;
+        size_t capacity;
+} token_list;
+
 /*
 // Keeping track of reading
 typedef struct {
@@ -98,6 +106,11 @@ typedef struct {
 */
 
 // functions
+// NOTE: below 4 functions are helper functions and will be defined in src/helper.c
+void token_list_init(token_list *list);
+void token_list_add(token_list *list, token t);
+void token_list_free(token_list *list);
+// NOTE: 3 functions below are main function and will be defined in src/lexer.c
 token lexer_tokenizer(FILE *buffer);
 token lexer_tokenize_numbers(FILE *buffer);
 token lexer_tokenize_words(FILE *buffer);

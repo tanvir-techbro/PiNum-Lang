@@ -206,7 +206,7 @@ token lexer_tokenizer(FILE *buffer) {
         case '\\':
                 ch = fgetc(buffer);
                 if (ch == 'n') {
-                        tokens.type = TOKEN_NLINE;
+                        tokens.type = TOKEN_UNLINE;
                         tokens.value = strdup("\\n");
                 } else if (ch == 't') {
                         tokens.type = TOKEN_TAB;
@@ -487,6 +487,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_NTERMINATOR";
         case TOKEN_NLINE:
                 return "TOKEN_NLINE";
+        case TOKEN_UNLINE:
+                return "TOKEN_UNLINE";
         case TOKEN_TAB:
                 return "TOKEN_TAB";
         case TOKEN_EOF:

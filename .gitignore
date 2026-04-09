@@ -1,6 +1,7 @@
 # Ignore
 bin/*
 runtime/*
+test/
 
 # dont ignore
 !bin/.gitkeep

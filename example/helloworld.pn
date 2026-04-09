@@ -1,0 +1,5 @@
+@import stdlib
+@for engine
+
+print("Hello, world!\n")
+

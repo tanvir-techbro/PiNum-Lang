@@ -1,0 +1,9 @@
+---
+# Real Sigma Config
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 8
+TabWidth: 8
+UseTab: Never # Or 'Never' if you want 8 spaces
+ColumnLimit: 0 # Optional: Helps manage the extra wide indents
+---

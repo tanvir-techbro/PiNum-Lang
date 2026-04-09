@@ -1,4 +1,5 @@
 #include "../include/lexer.h"
+#include "../include/mode.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
