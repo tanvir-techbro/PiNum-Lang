@@ -12,7 +12,7 @@ bool ENGINE_MODE = false;
 bool check_program_mode(token_list *list) {
         if (list->size == 3 && list->tokens[0].type == TOKEN_ATSIGN) {
                 if (list->tokens[1].type == TOKEN_ID && list->tokens[2].type == TOKEN_ID) {
-                        if (strcmp("for", list->tokens[1].value) == 0 && strcmp("engine", list->tokens[2].value)) {
+                        if (strcmp("for", list->tokens[1].value) != 0 && strcmp("engine", list->tokens[2].value) != 0) {
                                 ENGINE_MODE = true;
                         }
                 }
