@@ -37,7 +37,6 @@ int main(int argc, char *argv[]) {
         }
 
         // Running the loop till we hit EOF (End Of File).
-        // TODO: add listing logic.
         token tokens = lexer_tokenizer(buffer);
         while (tokens.type != TOKEN_EOF) {
                 token_list list;
