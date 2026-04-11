@@ -120,3 +120,5 @@ PiNum is currently in its early stages:
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+I use Neovim BTW.
