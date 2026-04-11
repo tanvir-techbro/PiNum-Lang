@@ -4,6 +4,7 @@
 #include "lexer.h"
 #include <stdbool.h>
 
+extern bool ENGINE_MODE;
 // checks if ENGINE_MODE can be enabled or not
 bool check_program_mode(token_list *list);
 

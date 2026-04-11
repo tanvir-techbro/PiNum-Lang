@@ -10,7 +10,8 @@ bool ENGINE_MODE = false;
 
 // NOTE: The below function is from include/mode.h
 bool check_program_mode(token_list *list) {
-        if (list->size == 3 && list->tokens[0].type == TOKEN_ATSIGN) {
+        // The size will be 4 because the newline character is included in the list
+        if (list->size == 4 && list->tokens[0].type == TOKEN_ATSIGN) {
                 if (list->tokens[1].type == TOKEN_ID && list->tokens[2].type == TOKEN_ID) {
                         if (strcmp("for", list->tokens[1].value) == 0 && strcmp("engine", list->tokens[2].value) == 0) {
                                 ENGINE_MODE = true;
@@ -39,6 +40,12 @@ void token_list_add(token_list *list, token t) {
 }
 
 void token_list_free(token_list *list) {
+        for (size_t i = 0; i < list->size; i++) {
+                if (list->tokens[i].value) {
+                        free(list->tokens[i].value);
+                        list->tokens[i].value = NULL;
+                }
+        }
         free(list->tokens);
         list->tokens = NULL;
         list->size = 0;

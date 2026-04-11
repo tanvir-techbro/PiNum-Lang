@@ -37,23 +37,48 @@ int main(int argc, char *argv[]) {
         }
 
         // Running the loop till we hit EOF (End Of File).
-        token tokens;
-        while (true) {
-                tokens = lexer_tokenizer(buffer);
+        // TODO: add listing logic.
+        token tokens = lexer_tokenizer(buffer);
+        while (tokens.type != TOKEN_EOF) {
+                token_list list;
+                token_list_init(&list);
 
-                if (tokens.type == TOKEN_EOF) {
-                        if (tokens.value) {
-                                free(tokens.value);
-                        }
-                        break;
+                while (tokens.type != TOKEN_NLINE && tokens.type != TOKEN_EOF) {
+                        token_list_add(&list, tokens);
+
+                        // NOTE: this function call is temporary for debugging purposes.
+                        lexer_print_token(tokens);
+
+                        // Update tokens for the next iteration
+                        tokens = lexer_tokenizer(buffer);
                 }
 
-                // NOTE: this function call is temporary for debugging purposes.
-                lexer_print_token(tokens);
-                // freeing the value
-                if (tokens.value) {
-                        free(tokens.value);
+                // If we stopped at a newline, we might want to add it to the list or just skip it
+                if (tokens.type == TOKEN_NLINE) {
+                        token_list_add(&list, tokens);
+                        lexer_print_token(tokens);
+                        // Get next token for the next line
+                        tokens = lexer_tokenizer(buffer);
                 }
+
+                // NOTE: 2 if statement below are temporary and for debugging purposes.
+                if (ENGINE_MODE) {
+                        printf("Enabled.\n");
+                } else {
+                        printf("Disabled.\n");
+                }
+
+                // checking program mode if ENGINE_MODE is not enabled
+                if (!ENGINE_MODE) {
+                        check_program_mode(&list);
+                }
+                // freeing the list and its tokens' values
+                token_list_free(&list);
+        }
+
+        // Clean up final EOF token value
+        if (tokens.value) {
+                free(tokens.value);
         }
 
         // closing the file buffer
