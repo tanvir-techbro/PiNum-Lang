@@ -10,7 +10,11 @@ PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programm
 - **Rich Operator Set:** Includes standard arithmetic, logical, and bitwise operators, as well as pointer-like syntax (`&`).
 - **Editor Support:** Built-in syntax highlighting for:
   - **VS Code:** Extension available in `extras/vscode/`.
-  - **Neovim:** Lua/Vim syntax files in `extras/nvim/`.
+  - **Neovim:** Lua/Vim syntax files in `extras/nvim/`. To enable it, run the setup script:
+    ```bash
+    chmod +x activate_syntax.sh
+    ./activate_syntax.sh
+    ```
 
 ## 🚀 Getting Started
 
