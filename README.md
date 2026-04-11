@@ -1,4 +1,4 @@
-# PiNum-Lang 🥧🔢
+# PiNum-Lang
 
 PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programming language currently under development. It features a custom lexer, parser, and code generation pipeline designed for simplicity and potential transpilation or embedding.
 
@@ -37,25 +37,64 @@ To execute a `.pn` file:
 ./bin/pinum example/helloworld.pn
 ```
 
-## 📝 Syntax Example (`example/all_tokens.pn`)
+## 📝 Syntax
 
+Even though its under development, the syntax (to some extent) is defined.
+
+# Comments
 ```pinum
+# this is a comment!
+# there is only single line comments.
+```
+
+# Libreries
+```pinum
+# includes standard librery in transpiled code
 @import stdlib
+# includes math librery in transpiled librery
 @import math
+
+# this flag enables this language to be transpiled into bare C
+# if you include this flag you can't import any libreries
 @for engine
+```
 
-int i = 10;
-float f = 3.14;
-string s = "hello";
-bool b = true;
+# Veriable declaration
+```pinum
+# it has keywords like long, short, unsigned and signed
 
-if (i == 10) {
-    print("Hello, PiNum!\n");
+# declares an intager veriable
+int number
+# declares floating point veriable
+float num
+# declares a duble type verible
+double numero
+```
+
+# Conditions
+```pinum
+if (condition) {
+        # task 1
+} else if (condition) {
+        # task 2
 } else {
-    read(i);
+        # default task
+}
+```
+
+# Loops
+```pinum
+# there is 2 loops while and for
+
+# for loop
+for (veriable; condition; increment or decrement) {
+        # task
 }
 
-return 0;
+# while loop
+while (condition) {
+        # task
+}
 ```
 
 ## 🛠 Project Structure
@@ -65,7 +104,6 @@ return 0;
 - `bin/`: Compiled binaries.
 - `example/`: Sample programs demonstrating language features.
 - `extras/`: Editor extensions and syntax highlighting.
-- `test/`: Testing suite for language components.
 
 ## 🚧 Development Status
 
