@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="extras/assets/pinum_logo.svg" alt="PiNum Logo" width="200" />
+</p>
+
 # PiNum-Lang
 
 PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programming language currently under development. It features a custom lexer, parser, and code generation pipeline designed for simplicity and potential transpilation or embedding.
