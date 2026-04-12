@@ -1,2 +1,8 @@
 @for engine
-#
+
+int __ivar
+float __fvar
+
+double __67
+
+# this should be ignored

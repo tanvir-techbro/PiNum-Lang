@@ -43,7 +43,17 @@ int main(int argc, char *argv[]) {
                 token_list_init(&list);
 
                 while (tokens.type != TOKEN_NLINE && tokens.type != TOKEN_EOF) {
-                        token_list_add(&list, tokens);
+                        // checking the tokens for specific types before adding it to the list
+                        if (tokens.type == TOKEN_HASHTAG) {
+                                tokens = token_ignore_comment(tokens, buffer);
+                                if (tokens.type == TOKEN_NLINE || tokens.type == TOKEN_EOF) {
+                                        break;
+                                }
+                        }
+                        // just normally add it to the list if it matches none of the condition above
+                        else {
+                                token_list_add(&list, tokens);
+                        }
 
                         // NOTE: this function call is temporary for debugging purposes.
                         lexer_print_token(tokens);

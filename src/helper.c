@@ -24,13 +24,11 @@ bool check_program_mode(token_list *list) {
 // ===============================================
 
 // NOTE: The below functions are from include/lexer.h
-
 void token_list_init(token_list *list) {
         list->size = 0;
         list->capacity = 16;
         list->tokens = malloc(list->capacity * sizeof(token));
 }
-
 void token_list_add(token_list *list, token t) {
         if (list->size >= list->capacity) {
                 list->capacity *= 2;
@@ -38,7 +36,6 @@ void token_list_add(token_list *list, token t) {
         }
         list->tokens[list->size++] = t;
 }
-
 void token_list_free(token_list *list) {
         for (size_t i = 0; i < list->size; i++) {
                 if (list->tokens[i].value) {
@@ -51,5 +48,4 @@ void token_list_free(token_list *list) {
         list->size = 0;
         list->capacity = 0;
 }
-
 // ==================================================

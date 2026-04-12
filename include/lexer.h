@@ -105,11 +105,13 @@ typedef struct {
 } lexer;
 */
 
-// functions
+/* --- FUNCTIONS --- */
 // NOTE: below 4 functions are helper functions and will be defined in src/helper.c
-void token_list_init(token_list *list);
-void token_list_add(token_list *list, token t);
-void token_list_free(token_list *list);
+void token_list_init(token_list *list);         // initializes the token
+void token_list_add(token_list *list, token t); // adds a token to the list
+void token_list_free(token_list *list);         // frees the list so we dont cause memory leak
+// NOTE: below functions are for filtering tokens and will be defined in src/lexer_filter.c
+token token_ignore_comment(token t, FILE *buffer); // ignores everything after a hashtag
 // NOTE: 3 functions below are main function and will be defined in src/lexer.c
 token lexer_tokenizer(FILE *buffer);
 token lexer_tokenize_numbers(FILE *buffer);
