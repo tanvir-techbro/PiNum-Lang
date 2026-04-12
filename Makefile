@@ -26,3 +26,11 @@ $(TEST_TARGET): $(TEST_SRC)
 # Rule to clean up the binary
 clean:
 	rm -f $(TARGET) $(TEST_TARGET)
+
+# Neovim syntax activation
+nvim:
+	@mkdir -p bin
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+	chmod +x activate_syntax.sh && ./activate_syntax.sh
+
+.PHONY: all test clean nvim
