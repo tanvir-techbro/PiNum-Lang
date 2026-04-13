@@ -1,5 +1,6 @@
 {
   "name": "pinum-lang",
+  "publisher": "tanvir",
   "displayName": "PiNum Language Support",
   "description": "Syntax highlighting for the PiNum transpiler.",
   "version": "1.0.0",

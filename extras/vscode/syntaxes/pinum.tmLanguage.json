@@ -3,16 +3,24 @@
   "scopeName": "source.pn",
   "patterns": [
     {
+      "name": "comment.line.hashtag.pn",
+      "match": "#.*$"
+    },
+    {
       "name": "keyword.control.directive.pn",
-      "match": "@(import|for|engine)\\b"
+      "match": "@\\w+"
+    },
+    {
+      "name": "keyword.control.pn",
+      "match": "\\b(if|else|print|read|return|import|include|while|for)\\b"
     },
     {
       "name": "storage.type.pn",
       "match": "\\b(int|float|double|char|string|bool|long|short|signed|unsigned|vec)\\b"
     },
     {
-      "name": "keyword.control.pn",
-      "match": "\\b(if|else|print|read|return)\\b"
+      "name": "constant.language.pn",
+      "match": "\\b(true|false|stdlib|math|engine)\\b"
     },
     {
       "name": "constant.numeric.pn",
@@ -30,8 +38,8 @@
       ]
     },
     {
-      "name": "comment.line.hashtag.pn",
-      "match": "#.*$"
+      "name": "keyword.operator.pn",
+      "match": "[+=\\-\\*/%&^|!<>?~]"
     }
   ]
 }
