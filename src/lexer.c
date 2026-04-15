@@ -411,6 +411,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_CHAR";
         case TOKEN_STRING:
                 return "TOKEN_STRING";
+        case TOKEN_QUOTED_STRING:
+                return "TOKEN_QUOTED_STRING";
         case TOKEN_TRUE:
                 return "TOKEN_TRUE";
         case TOKEN_FALSE:
