@@ -24,28 +24,37 @@ token token_ignore_comment(token t, FILE *buffer) {
 token token_quote_handler(token t, FILE *buffer) {
         char quote_char = (t.type == TOKEN_SQUOTE) ? '\'' : '\"';
 
-        // Free the initial quote character string (" or ')
-        if (t.value) {
-                free(t.value);
-        }
-
         int size = 0;
         int capacity = 16;
         char *content = malloc(capacity);
+
+        // Add the opening quote
+        content[size++] = quote_char;
+
         int ch = fgetc(buffer);
 
         // Read characters until we find the closing quote or hit EOF
         while (ch != EOF && ch != quote_char) {
-                if (size + 1 >= capacity) {
+                if (size + 2 >= capacity) { // +2 to ensure space for closing quote and \0
                         capacity *= 2;
                         content = realloc(content, capacity);
                 }
                 content[size++] = (char)ch;
                 ch = fgetc(buffer);
         }
+
+        // Add the closing quote if found
+        if (ch == quote_char) {
+                content[size++] = quote_char;
+        }
         content[size] = '\0';
 
-        // Update the token to be a TOKEN_ID with the captured string content
+        // Free the initial quote character string (" or ')
+        if (t.value) {
+                free(t.value);
+        }
+
+        // Update the token to be a TOKEN_QUOTED_STRING with the captured string content
         t.type = TOKEN_QUOTED_STRING;
         t.value = content;
 
