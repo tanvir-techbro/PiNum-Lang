@@ -1,9 +1,15 @@
 #include "../include/lexer.h"
+#include "../include/mode.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// quote mode, will be true if we encounter TOKEN_SQUOTE or TOKEN_DQUOTE for first time;
+// if we encounter those tokens second time quote mode will be disabled.
+bool SQUOTE_MODE = false; // single quote mode
+bool DQUOTE_MODE = false; // double quote mode
 
 // This function tokenizes all the words, keywords and characters in the provided .pn file.
 // The tokens are then handed to the parser to be grammer checked.
@@ -39,157 +45,309 @@ token lexer_tokenizer(FILE *buffer) {
         // --------------- SINGLE CHARACTER TOKEN ---------------
         switch (ch) {
         case '=':
-                ch = fgetc(buffer);
-                if (ch == ' ' || ch != '=') {
-                        ungetc(ch, buffer);
-                        tokens.type = TOKEN_EQUAL;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("=");
-                } else if (ch == '=') {
-                        tokens.type = TOKEN_EEQUAL;
-                        tokens.value = strdup("==");
+                } else {
+                        ch = fgetc(buffer);
+                        if (ch == ' ' || ch != '=') {
+                                ungetc(ch, buffer);
+                                tokens.type = TOKEN_EQUAL;
+                                tokens.value = strdup("=");
+                        } else if (ch == '=') {
+                                tokens.type = TOKEN_EEQUAL;
+                                tokens.value = strdup("==");
+                        }
                 }
                 break;
         case '+':
-                tokens.type = TOKEN_PLUS;
-                tokens.value = strdup("+");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("+");
+                } else {
+                        tokens.type = TOKEN_PLUS;
+                        tokens.value = strdup("+");
+                }
                 break;
         case '-':
-                tokens.type = TOKEN_MINUS;
-                tokens.value = strdup("-");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("-");
+                } else {
+                        tokens.type = TOKEN_MINUS;
+                        tokens.value = strdup("-");
+                }
                 break;
         case '*':
-                tokens.type = TOKEN_STAR;
-                tokens.value = strdup("*");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("*");
+                } else {
+                        tokens.type = TOKEN_STAR;
+                        tokens.value = strdup("*");
+                }
                 break;
         case '/':
-                tokens.type = TOKEN_FSLASH;
-                tokens.value = strdup("/");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("/");
+                } else {
+                        tokens.type = TOKEN_FSLASH;
+                        tokens.value = strdup("/");
+                }
                 break;
         case ',':
-                tokens.type = TOKEN_COMMA;
-                tokens.value = strdup(",");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup(",");
+                } else {
+                        tokens.type = TOKEN_COMMA;
+                        tokens.value = strdup(",");
+                }
                 break;
         case ';':
-                tokens.type = TOKEN_SEMICOLON;
-                tokens.value = strdup(";");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup(";");
+                } else {
+                        tokens.type = TOKEN_SEMICOLON;
+                        tokens.value = strdup(";");
+                }
                 break;
         case '(':
-                tokens.type = TOKEN_LRPAREN;
-                tokens.value = strdup("(");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("(");
+                } else {
+                        tokens.type = TOKEN_LRPAREN;
+                        tokens.value = strdup("(");
+                }
                 break;
         case ')':
-                tokens.type = TOKEN_RRPAREN;
-                tokens.value = strdup(")");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup(")");
+                } else {
+                        tokens.type = TOKEN_RRPAREN;
+                        tokens.value = strdup(")");
+                }
                 break;
         case '{':
-                tokens.type = TOKEN_LCPAREN;
-                tokens.value = strdup("{");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("{");
+                } else {
+                        tokens.type = TOKEN_LCPAREN;
+                        tokens.value = strdup("{");
+                }
                 break;
         case '}':
-                tokens.type = TOKEN_RCPAREN;
-                tokens.value = strdup("}");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("}");
+                } else {
+                        tokens.type = TOKEN_RCPAREN;
+                        tokens.value = strdup("}");
+                }
                 break;
         case '[':
-                tokens.type = TOKEN_LSPAREN;
-                tokens.value = strdup("[");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("[");
+                } else {
+                        tokens.type = TOKEN_LSPAREN;
+                        tokens.value = strdup("[");
+                }
                 break;
         case ']':
-                tokens.type = TOKEN_RSPAREN;
-                tokens.value = strdup("]");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("]");
+                } else {
+                        tokens.type = TOKEN_RSPAREN;
+                        tokens.value = strdup("]");
+                }
                 break;
         case '<':
-                ch = fgetc(buffer);
-                if (ch == ' ' || ch != '=') {
-                        ungetc(ch, buffer);
-                        tokens.type = TOKEN_LABRACKET;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("<");
-                } else if (ch == '=') {
-                        tokens.type = TOKEN_LEQUAL;
-                        tokens.value = strdup("<=");
+                } else {
+                        ch = fgetc(buffer);
+                        if (ch == ' ' || ch != '=') {
+                                ungetc(ch, buffer);
+                                tokens.type = TOKEN_LABRACKET;
+                                tokens.value = strdup("<");
+                        } else if (ch == '=') {
+                                tokens.type = TOKEN_LEQUAL;
+                                tokens.value = strdup("<=");
+                        }
                 }
                 break;
         case '>':
-                ch = fgetc(buffer);
-                if (ch == ' ' || ch != '=') {
-                        ungetc(ch, buffer);
-                        tokens.type = TOKEN_RABRACKET;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup(">");
-                } else if (ch == '=') {
-                        tokens.type = TOKEN_GEQUAL;
-                        tokens.value = strdup(">=");
+                } else {
+                        ch = fgetc(buffer);
+                        if (ch == ' ' || ch != '=') {
+                                ungetc(ch, buffer);
+                                tokens.type = TOKEN_RABRACKET;
+                                tokens.value = strdup(">");
+                        } else if (ch == '=') {
+                                tokens.type = TOKEN_GEQUAL;
+                                tokens.value = strdup(">=");
+                        }
                 }
                 break;
         case '!':
-                ch = fgetc(buffer);
-                if (ch == ' ' || ch != '=') {
-                        ungetc(ch, buffer);
-                        tokens.type = TOKEN_EXCLAMATION;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("!");
-                } else if (ch == '=') {
-                        tokens.type = TOKEN_NEQUAL;
-                        tokens.value = strdup("!=");
+                } else {
+                        ch = fgetc(buffer);
+                        if (ch == ' ' || ch != '=') {
+                                ungetc(ch, buffer);
+                                tokens.type = TOKEN_EXCLAMATION;
+                                tokens.value = strdup("!");
+                        } else if (ch == '=') {
+                                tokens.type = TOKEN_NEQUAL;
+                                tokens.value = strdup("!=");
+                        }
                 }
                 break;
         case '@':
-                tokens.type = TOKEN_ATSIGN;
-                tokens.value = strdup("@");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("@");
+                } else {
+                        tokens.type = TOKEN_ATSIGN;
+                        tokens.value = strdup("@");
+                }
                 break;
         case '#':
-                tokens.type = TOKEN_HASHTAG;
-                tokens.value = strdup("#");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("#");
+                } else {
+                        tokens.type = TOKEN_HASHTAG;
+                        tokens.value = strdup("#");
+                }
                 break;
         case '$':
-                tokens.type = TOKEN_DOLLAR;
-                tokens.value = strdup("$");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("$");
+                } else {
+                        tokens.type = TOKEN_DOLLAR;
+                        tokens.value = strdup("$");
+                }
                 break;
         case '%':
-                tokens.type = TOKEN_PERCENT;
-                tokens.value = strdup("%");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("%");
+                } else {
+                        tokens.type = TOKEN_PERCENT;
+                        tokens.value = strdup("%");
+                }
                 break;
         case '^':
-                tokens.type = TOKEN_CARET;
-                tokens.value = strdup("^");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("^");
+                } else {
+                        tokens.type = TOKEN_CARET;
+                        tokens.value = strdup("^");
+                }
                 break;
         case '&':
-                ch = fgetc(buffer);
-                if (ch == ' ' || ch != '&') {
-                        ungetc(ch, buffer);
-                        tokens.type = TOKEN_AMPERSAND;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("&");
-                } else if (ch == '&') {
-                        tokens.type = TOKEN_AND;
-                        tokens.value = strdup("&&");
+                } else {
+                        ch = fgetc(buffer);
+                        if (ch == ' ' || ch != '&') {
+                                ungetc(ch, buffer);
+                                tokens.type = TOKEN_AMPERSAND;
+                                tokens.value = strdup("&");
+                        } else if (ch == '&') {
+                                tokens.type = TOKEN_AND;
+                                tokens.value = strdup("&&");
+                        }
                 }
                 break;
         case '|':
-                ch = fgetc(buffer);
-                if (ch == ' ' || ch != '|') {
-                        ungetc(ch, buffer);
-                        tokens.type = TOKEN_PIPE;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("|");
-                } else if (ch == '|') {
-                        tokens.type = TOKEN_OR;
-                        tokens.value = strdup("||");
+                } else {
+                        ch = fgetc(buffer);
+                        if (ch == ' ' || ch != '|') {
+                                ungetc(ch, buffer);
+                                tokens.type = TOKEN_PIPE;
+                                tokens.value = strdup("|");
+                        } else if (ch == '|') {
+                                tokens.type = TOKEN_OR;
+                                tokens.value = strdup("||");
+                        }
                 }
                 break;
 
         case '?':
-                tokens.type = TOKEN_QUESTION;
-                tokens.value = strdup("?");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("?");
+                } else {
+                        tokens.type = TOKEN_QUESTION;
+                        tokens.value = strdup("?");
+                }
                 break;
         case '~':
-                tokens.type = TOKEN_TILDE;
-                tokens.value = strdup("~");
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("~");
+                } else {
+                        tokens.type = TOKEN_TILDE;
+                        tokens.value = strdup("~");
+                }
                 break;
         // SPECIAL CHARACTER TOKENS
         case '\'':
-                tokens.type = TOKEN_SQUOTE;
-                tokens.value = strdup("'");
+                // enabling or disabling SQUOTE_MODE
+                if (SQUOTE_MODE) {
+                        SQUOTE_MODE = false;
+                } else {
+                        SQUOTE_MODE = true;
+                }
+
+                // Identifying the token
+                if (DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("'");
+                } else {
+                        tokens.type = TOKEN_SQUOTE;
+                        tokens.value = strdup("'");
+                }
                 break;
         case '\"':
-                tokens.type = TOKEN_DQUOTE;
-                tokens.value = strdup("\"");
+                // enabling or disabling DQUOTE_MODE
+                if (DQUOTE_MODE) {
+                        DQUOTE_MODE = false;
+                } else {
+                        DQUOTE_MODE = true;
+                }
+
+                // Identifying the token
+                if (SQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup("\"");
+                } else {
+                        tokens.type = TOKEN_DQUOTE;
+                        tokens.value = strdup("\"");
+                }
                 break;
+        // NOTE: quote modes should not be implemented for 3 cases below
         case '\0':
                 tokens.type = TOKEN_NTERMINATOR;
                 tokens.value = strdup("\\0");
@@ -216,15 +374,27 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.value = strdup("\\0");
                 } else {
                         ungetc(ch, buffer);
-                        tokens.type = TOKEN_UNKNOWN;
-                        tokens.value = strdup("\\");
+                        if (SQUOTE_MODE || DQUOTE_MODE) {
+                                tokens.type = TOKEN_QSTRING;
+                                tokens.value = strdup("\\");
+                        } else {
+                                tokens.type = TOKEN_BSLASH;
+                                tokens.value = strdup("\\");
+                        }
                 }
                 break;
         default:
-                tokens.type = TOKEN_UNKNOWN;
-                tokens.value = (char *)malloc(2);
-                tokens.value[0] = (char)ch;
-                tokens.value[1] = '\0';
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = (char *)malloc(2);
+                        tokens.value[0] = (char)ch;
+                        tokens.value[1] = '\0';
+                } else {
+                        tokens.type = TOKEN_UNKNOWN;
+                        tokens.value = (char *)malloc(2);
+                        tokens.value[0] = (char)ch;
+                        tokens.value[1] = '\0';
+                }
                 break;
         }
         // ------------------------------------------------------
@@ -373,6 +543,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_INUM";
         case TOKEN_FNUM:
                 return "TOKEN_FNUM";
+        case TOKEN_QSTRING:
+                return "TOKEN_QSTRING";
         case TOKEN_ID:
                 return "TOKEN_ID";
         case TOKEN_IMPORT:
