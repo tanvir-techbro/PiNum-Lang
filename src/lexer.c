@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+// quote mode, will be true if we encounter TOKEN_SQUOTE or TOKEN_DQUOTE for first time;
+// if we encounter those tokens second time quote mode will be disabled.
+bool QUOTE_MODE = false;
+
 // This function tokenizes all the words, keywords and characters in the provided .pn file.
 // The tokens are then handed to the parser to be grammer checked.
 token lexer_tokenizer(FILE *buffer) {

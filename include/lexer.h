@@ -2,10 +2,13 @@
 #define LEXER_H
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+extern bool QUOTE_MODE;
 
 // All the tokentypes
 typedef enum {
