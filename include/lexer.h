@@ -115,7 +115,6 @@ void token_list_add(token_list *list, token t); // adds a token to the list
 void token_list_free(token_list *list);         // frees the list so we dont cause memory leak
 // NOTE: below functions are for filtering tokens and will be defined in src/lexer_filter.c
 token token_ignore_comment(token t, FILE *buffer); // ignores everything after a hashtag
-token token_quote_handler(token t, FILE *buffer);  // turns what ever is in a TOKEN_DQUOTE or TOKEN_SQUOTE into a TOKEN_ID
 // NOTE: 3 functions below are main function and will be defined in src/lexer.c
 token lexer_tokenizer(FILE *buffer);
 token lexer_tokenize_numbers(FILE *buffer);

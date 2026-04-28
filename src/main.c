@@ -50,14 +50,6 @@ int main(int argc, char *argv[]) {
                                         break;
                                 }
                         }
-                        // Checking for quoted text, and turnig them into TOKEN_ID
-                        else if (tokens.type == TOKEN_SQUOTE || tokens.type == TOKEN_DQUOTE) {
-                                tokens = token_quote_handler(tokens, buffer);
-                                if (tokens.type == TOKEN_NLINE || tokens.type == TOKEN_EOF) {
-                                        break;
-                                }
-                                token_list_add(&list, tokens);
-                        }
                         // just normally add it to the list
                         else {
                                 token_list_add(&list, tokens);
