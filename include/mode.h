@@ -4,7 +4,12 @@
 #include "lexer.h"
 #include <stdbool.h>
 
+// engine mode
 extern bool ENGINE_MODE;
+// quote modes
+extern bool SQUOTE_MODE; // single quote mode
+extern bool DQUOTE_MODE; // duble quote mode
+
 // checks if ENGINE_MODE can be enabled or not
 bool check_program_mode(token_list *list);
 

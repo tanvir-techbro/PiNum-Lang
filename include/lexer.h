@@ -8,13 +8,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern bool QUOTE_MODE;
-
 // All the tokentypes
 typedef enum {
-        TOKEN_ID,   // normal tokens maybe strings and characters inside print function, also can be veriables.
-        TOKEN_INUM, // intager numbers: 10, 50, 42 etc.
-        TOKEN_FNUM, // floating point numbers: 3.14, 0.5 etc.
+        TOKEN_ID,      // normal tokens maybe strings and characters inside print function, also can be veriables.
+        TOKEN_INUM,    // intager numbers: 10, 50, 42 etc.
+        TOKEN_FNUM,    // floating point numbers: 3.14, 0.5 etc.
+        TOKEN_QSTRING, // quoted string, tokens inside quotes
         // Libreries
         TOKEN_LIB_STDLIB, // if user does not include `@for engine` then user need to include `@import stdlib` to use standard librery features
         TOKEN_LIB_MATH,   // if user does not include `@for engine` then user need to include `@import stdlib` to use standard math features
@@ -45,6 +44,7 @@ typedef enum {
         TOKEN_MINUS,       // "-" mius
         TOKEN_STAR,        // "*" star, can be used for multiplications
         TOKEN_FSLASH,      // "/" forward slash, can be use for division
+        TOKEN_BSLASH,      // "\" back slash
         TOKEN_COMMA,       // "," comma
         TOKEN_SEMICOLON,   // ";" semicolon
         TOKEN_LRPAREN,     // "(" left round parenthesis
