@@ -434,51 +434,135 @@ token lexer_tokenize_words(FILE *buffer) {
         tokens.value = char_buffer;
 
         if (strcmp(char_buffer, "int") == 0) {
-                tokens.type = TOKEN_INT;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_INT;
+                }
         } else if (strcmp(char_buffer, "float") == 0) {
-                tokens.type = TOKEN_FLOAT;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_FLOAT;
+                }
         } else if (strcmp(char_buffer, "print") == 0) {
-                tokens.type = TOKEN_PRINT;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_PRINT;
+                }
         } else if (strcmp(char_buffer, "if") == 0) {
-                tokens.type = TOKEN_IF;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_IF;
+                }
         } else if (strcmp(char_buffer, "else") == 0) {
-                tokens.type = TOKEN_ELSE;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_ELSE;
+                }
         } else if (strcmp(char_buffer, "return") == 0) {
-                tokens.type = TOKEN_RETURN;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_RETURN;
+                }
         } else if (strcmp(char_buffer, "import") == 0) {
-                tokens.type = TOKEN_IMPORT;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_IMPORT;
+                }
         } else if (strcmp(char_buffer, "read") == 0) {
-                tokens.type = TOKEN_READ;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_READ;
+                }
         } else if (strcmp(char_buffer, "long") == 0) {
-                tokens.type = TOKEN_LONG;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_LONG;
+                }
         } else if (strcmp(char_buffer, "short") == 0) {
-                tokens.type = TOKEN_SHORT;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_SHORT;
+                }
         } else if (strcmp(char_buffer, "signed") == 0) {
-                tokens.type = TOKEN_SIGNED;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_SIGNED;
+                }
         } else if (strcmp(char_buffer, "unsigned") == 0) {
-                tokens.type = TOKEN_UNSIGNED;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_UNSIGNED;
+                }
         } else if (strcmp(char_buffer, "bool") == 0) {
-                tokens.type = TOKEN_BOOL;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_BOOL;
+                }
         } else if (strcmp(char_buffer, "double") == 0) {
-                tokens.type = TOKEN_DOUBLE;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_DOUBLE;
+                }
         } else if (strcmp(char_buffer, "char") == 0) {
-                tokens.type = TOKEN_CHAR;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_CHAR;
+                }
         } else if (strcmp(char_buffer, "string") == 0) {
-                tokens.type = TOKEN_STRING;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_STRING;
+                }
         } else if (strcmp(char_buffer, "true") == 0) {
-                tokens.type = TOKEN_TRUE;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_TRUE;
+                }
         } else if (strcmp(char_buffer, "false") == 0) {
-                tokens.type = TOKEN_FALSE;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_FALSE;
+                }
         }
         /* LIBRERIES */
         else if (strcmp(char_buffer, "stdlib") == 0) {
-                tokens.type = TOKEN_LIB_STDLIB;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_LIB_STDLIB;
+                }
         } else if (strcmp(char_buffer, "math") == 0) {
-                tokens.type = TOKEN_LIB_MATH;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_LIB_MATH;
+                }
         }
         /* If nothing matches */
         else {
-                tokens.type = TOKEN_ID;
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_ID;
+                }
         }
 
         return tokens;
