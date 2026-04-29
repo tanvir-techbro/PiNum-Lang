@@ -317,7 +317,7 @@ token lexer_tokenizer(FILE *buffer) {
                 // enabling or disabling SQUOTE_MODE
                 if (SQUOTE_MODE) {
                         SQUOTE_MODE = false;
-                } else {
+                } else if (!DQUOTE_MODE) {
                         SQUOTE_MODE = true;
                 }
 
@@ -334,7 +334,7 @@ token lexer_tokenizer(FILE *buffer) {
                 // enabling or disabling DQUOTE_MODE
                 if (DQUOTE_MODE) {
                         DQUOTE_MODE = false;
-                } else {
+                } else if (!SQUOTE_MODE) {
                         DQUOTE_MODE = true;
                 }
 
