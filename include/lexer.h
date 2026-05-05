@@ -13,6 +13,7 @@ typedef enum {
         TOKEN_ID,      // normal tokens maybe strings and characters inside print function, also can be veriables.
         TOKEN_INUM,    // intager numbers: 10, 50, 42 etc.
         TOKEN_FNUM,    // floating point numbers: 3.14, 0.5 etc.
+        TOKEN_WSPACE,  // white space inside quotes
         TOKEN_QSTRING, // quoted string, tokens inside quotes
         // Libreries
         TOKEN_LIB_STDLIB, // if user does not include `@for engine` then user need to include `@import stdlib` to use standard librery features

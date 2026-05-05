@@ -1,11 +1,5 @@
 @for engine
 
-# Breaking case 1: Quote state desync
-# This will set DQUOTE_MODE=true, then SQUOTE_MODE=true, then DQUOTE_MODE=false.
-# SQUOTE_MODE will remain true, making everything after it a QSTRING.
-" ' " 
-int should_be_keyword_but_is_qstring = 1
-
-# Breaking case 2: Buffer overflow
-# The lexer has a 64-byte buffer for numbers without bounds checking.
-12345678901234567890123456789012345678901234567890123456789012345678901234567890
+# Testing quote escaping
+string s = "This is a \"quote\" inside a string"
+# The " after \ will end the string mode, and 'quote' will be seen as identifiers.
