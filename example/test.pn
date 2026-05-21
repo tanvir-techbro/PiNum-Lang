@@ -1,5 +1,0 @@
-@for engine
-
-# Testing quote escaping
-string s = "This is a \"quote\" inside a string"
-# The " after \ will end the string mode, and 'quote' will be seen as identifiers.
