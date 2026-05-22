@@ -683,6 +683,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_STAR";
         case TOKEN_FSLASH:
                 return "TOKEN_FSLASH";
+        case TOKEN_BSLASH:
+                return "TOKEN_BSLASH";
         case TOKEN_COMMA:
                 return "TOKEN_COMMA";
         case TOKEN_SEMICOLON:

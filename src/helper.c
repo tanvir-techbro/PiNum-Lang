@@ -11,6 +11,7 @@ bool ENGINE_MODE = false;
 // NOTE: The below function is from include/mode.h
 bool check_program_mode(token_list *list) {
         // The size will be 4 because the newline character is included in the list
+        // The list would be something like ["@", "for", "engine", '\n']
         if (!(list->size == 4 && list->tokens[0].type == TOKEN_ATSIGN)) {
                 return false; // return engine mode which is false
         }
