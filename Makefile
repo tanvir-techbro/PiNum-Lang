@@ -12,6 +12,8 @@ $(TARGET): $(SRC)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
+# To install it locally to /usr/local/bin/ directory
+# NOTE: requires sudo.
 install:
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 	mv $(TARGET) /usr/local/bin/
@@ -34,7 +36,7 @@ clean:
 # Neovim syntax activation
 nvim:
 	@mkdir -p bin
-	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+	# $(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 	chmod +x activate_syntax.sh && ./activate_syntax.sh
 
 .PHONY: all test clean nvim
