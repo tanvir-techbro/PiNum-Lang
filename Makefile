@@ -12,6 +12,10 @@ $(TARGET): $(SRC)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
+install:
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+	mv $(TARGET) /usr/local/bin/
+
 # Test rules
 TEST_SRC = tests/test_lexer.c src/lexer.c src/helper.c
 TEST_TARGET = bin/test_lexer
