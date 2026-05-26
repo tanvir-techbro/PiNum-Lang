@@ -7,13 +7,13 @@ TARGET = bin/pinum
 # The default rule
 all: $(TARGET)
 
-# Rule to link the program
+# Compile it to PiNum-Lang/bin/ directory
 $(TARGET): $(SRC)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
 # To install it locally to /usr/local/bin/ directory
-# NOTE: requires sudo.
+# NOTE: requires sudo. also i have tested it in linux, works on it; can't tell for Windows or Mac.
 install:
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 	mv $(TARGET) /usr/local/bin/
