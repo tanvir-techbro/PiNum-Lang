@@ -43,6 +43,19 @@ make
 echo "Installing to /usr/local/bin (requires sudo)..."
 sudo make install
 
+# 5. Neovim Syntax (Optional)
+if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
+    echo ""
+    echo "Neovim detected!"
+    # When piped from curl, stdin is the pipe. We need to read from the terminal (/dev/tty).
+    read -p "Do you want to activate PiNum syntax highlighting for Neovim? (y/n): " -n 1 -r < /dev/tty
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Activating Neovim syntax..."
+        make nvim
+    fi
+fi
+
 echo ""
 echo "------------------------------------------"
 echo "Successfully installed PiNum-Lang!"

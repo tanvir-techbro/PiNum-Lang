@@ -30,6 +30,7 @@ The fastest way to install PiNum-Lang on your system:
 ```bash
 curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash
 ```
+*This will build the language and ask if you want to activate Neovim syntax highlighting automatically.*
 
 #### Windows (PowerShell)
 ```powershell
