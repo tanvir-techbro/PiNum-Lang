@@ -24,8 +24,11 @@ PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programm
 
 ### Prerequisites
 
-- A C compiler (e.g., `gcc`)
-- `make`
+- **Linux/macOS:** A C compiler (e.g., `gcc`) and `make`.
+- **Windows:** 
+  - **Option 1 (Recommended):** [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install). Follow the Linux instructions.
+  - **Option 2 (Native):** [MinGW-w64](https://www.mingw-w64.org/) or [MSYS2](https://www.msys2.org/) to get `gcc` and `make`.
+  - **Option 3:** Any C compiler (like MSVC) if you want to compile manually.
 
 ### Building from Source
 
@@ -36,6 +39,22 @@ make
 ```
 
 The compiled binary will be located in the `bin/` directory.
+
+### Installation
+
+To install `pinum` to your system path:
+
+#### Linux/macOS
+```bash
+sudo make install
+```
+This moves the binary to `/usr/local/bin/`.
+
+#### Windows
+```bash
+make install
+```
+This copies the binary to `%USERPROFILE%\bin\`. You will need to manually add this directory to your system's **PATH** environment variable if it's not already there.
 
 ### Running a Program
 
