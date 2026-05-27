@@ -1,5 +1,6 @@
 #include "../include/lexer.h"
 #include "../include/mode.h"
+#include "../include/version.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +13,12 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "No file provided...\n");
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
                 exit(EXIT_FAILURE);
+        }
+
+        // Handle version flag
+        if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
+                printf("PiNum-Lang version %s\n", PINUM_VERSION);
+                return EXIT_SUCCESS;
         }
 
         char *filename = argv[1];

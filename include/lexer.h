@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// All the tokentypes
 typedef enum {
         TOKEN_ID,      // normal tokens maybe strings and characters inside print function, also can be veriables.
         TOKEN_INUM,    // intager numbers: 10, 50, 42 etc.
