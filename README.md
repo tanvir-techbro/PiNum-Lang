@@ -22,6 +22,21 @@ PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programm
 
 ## 🚀 Getting Started
 
+### One-line Installation
+
+The fastest way to install PiNum-Lang on your system:
+
+#### Linux/macOS (bash/zsh)
+```bash
+curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash
+```
+
+#### Windows (PowerShell)
+```powershell
+iwr -useb https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | iex
+```
+*(Note: Windows users need a bash-compatible environment like Git Bash or WSL for the script above, or they can follow the manual instructions below.)*
+
 ### Prerequisites
 
 - **Linux/macOS:** A C compiler (e.g., `gcc`) and `make`.
