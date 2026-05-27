@@ -19,8 +19,15 @@ token lexer_tokenizer(FILE *buffer) {
         int ch = fgetc(buffer);
 
         // Ignore white spaces, untill we hit EOF or newline
-        while (ch != EOF && isspace(ch) && ch != '\n') {
+        while (ch != EOF && isspace(ch) && !(DQUOTE_MODE || SQUOTE_MODE) && ch != '\n') {
                 ch = fgetc(buffer);
+        }
+
+        // Identifies whispace as valid token when they are inside quotes or counted as strings.
+        if (isspace(ch) && (DQUOTE_MODE || SQUOTE_MODE)) {
+                tokens.type = TOKEN_WSPACE;
+                tokens.value = strdup(" ");
+                return tokens;
         }
 
         // check for end of file (EOF)
