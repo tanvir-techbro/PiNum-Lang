@@ -37,11 +37,11 @@ fi
 
 # 3. Build
 echo "Building PiNum..."
-make
+make -s > /dev/null
 
 # 4. Install
 echo "Installing to /usr/local/bin (requires sudo)..."
-sudo make install
+sudo make -s install > /dev/null
 
 # 5. Neovim Syntax (Optional)
 if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
@@ -52,7 +52,7 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
                 echo "Activating Neovim syntax..."
-                make nvim
+                make -s nvim > /dev/null
         fi
 fi
 
