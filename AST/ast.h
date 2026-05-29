@@ -5,16 +5,31 @@
 
 // Possible nodetypes parser can build
 typedef enum {
-        NODE_PROGRAM,  // root node containing all statements
-        NODE_VAR_DECL, // declaring a veriable
-        NODE_ASSIGN,   // modifying veriable, eg. x = x + 1
+        NODE_PROGRAM,   // root node containing all statements
+        NODE_VAR_DECL,  // declaring a veriable
+        NODE_ASSIGN,    // modifying veriable, eg. x = x + 1
+        NODE_FUNC_CALL, // function call
+        // accessing elements
+        NODE_MEMBER_ACCESS, // member access
+        NODE_ARRAY_ACCESS,  // array element access
         // literals and identifier nodes
         NODE_INT_LITERAL,    // intager constants, eg. 13
         NODE_FLOAT_LITERAL,  // decimal constants, eg. 6.7
         NODE_STRING_LITERAL, // quoted strings, eg. "Hello"
         NODE_BOOL_LITERAL,   // true/false or 1/0
         NODE_CHAR_LITERAL,   // single characters, eg. 'a'
-        NODE_IDENTIFIER      // to represent variable names when they show up in expressions, eg. x + 1 (where x is identifier)
+        NODE_IDENTIFIER,     // to represent variable names when they show up in expressions, eg. x + 1 (where x is identifier)
+        // Expressions
+        NODE_BINARY_EXPRESSION, // expressions with 2 sides, eg. + - = etc.
+        NODE_UNARY_EXPRESSION,  // expressions with 1 sides, eg. !isTrue (here ! is the expression)
+        // control flow and blocks
+        NODE_BLOCK,   // to group multiple statements inside a curly brace
+        NODE_IF_STAT, // to sotre the condition, then_block and else_block
+        // Built in statements/functions
+        NODE_IMPORT,
+        NODE_RETURN,
+        NODE_PRINT,
+        NODE_READ
 } nodeType;
 
 // forword declaration so the struct can reference itself
@@ -40,6 +55,21 @@ struct ASTnode {
                         char *name;     // veriable name
                         ASTnode *value; // veriable value
                 } assign;
+                struct {
+                        char *name;
+                        ASTnode **args;
+                        int arg_count;
+                } func_call;
+
+                // --- accessing elements ---
+                struct {
+                        ASTnode *object;
+                        char *member;
+                } memeber_access;
+                struct {
+                        char *name;
+                        ASTnode *index;
+                } array_access;
 
                 // --- Literals and Identifier ---
                 // NODE_INT_LITERAL: e.g., 42
@@ -66,6 +96,42 @@ struct ASTnode {
                 struct {
                         char *name;
                 } identifier;
+
+                // --- expressions ---
+                struct {
+                        ASTnode *left;
+                        tokenType op;
+                        ASTnode *rght;
+                } binary_expression;
+                struct {
+                        tokenType op;
+                        ASTnode *left;
+                } unary_expression;
+
+                // --- Control flow and blocks ---
+                struct {
+                        ASTnode **statements;
+                        int count;
+                } blocks;
+                struct {
+                        ASTnode *condition;
+                        ASTnode *then_block;
+                        ASTnode *else_block; // can be NULL
+                } if_stat;
+
+                // --- built in statements/functions
+                struct {
+                        char *lib_name;
+                } import;
+                struct {
+                        ASTnode *expression;
+                } returns;
+                struct {
+                        ASTnode *expression;
+                } print;
+                struct {
+                        char *name;
+                } read;
         } data;
 };
 
