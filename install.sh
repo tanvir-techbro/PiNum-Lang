@@ -14,25 +14,25 @@ echo "------------------------------------------"
 
 # 1. Check for dependencies
 echo "Checking for GCC and Make..."
-if ! command -v gcc &> /dev/null; then
-    echo "Error: gcc not found. Please install a C compiler."
-    exit 1
+if ! command -v gcc &>/dev/null; then
+        echo "Error: gcc not found. Please install a C compiler."
+        exit 1
 fi
 
-if ! command -v make &> /dev/null; then
-    echo "Error: make not found. Please install 'make'."
-    exit 1
+if ! command -v make &>/dev/null; then
+        echo "Error: make not found. Please install 'make'."
+        exit 1
 fi
 
 # 2. Clone or Update
 if [ -d "$INSTALL_DIR" ]; then
-    echo "Updating existing installation in $INSTALL_DIR..."
-    cd "$INSTALL_DIR"
-    git pull
+        echo "Updating existing installation in $INSTALL_DIR..."
+        cd "$INSTALL_DIR"
+        git pull
 else
-    echo "Cloning repository to $INSTALL_DIR..."
-    git clone "$REPO_URL" "$INSTALL_DIR"
-    cd "$INSTALL_DIR"
+        echo "Cloning repository to $INSTALL_DIR..."
+        git clone --quiet "$REPO_URL" "$INSTALL_DIR"
+        cd "$INSTALL_DIR"
 fi
 
 # 3. Build
@@ -45,15 +45,15 @@ sudo make install
 
 # 5. Neovim Syntax (Optional)
 if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
-    echo ""
-    echo "Neovim detected!"
-    # When piped from curl, stdin is the pipe. We need to read from the terminal (/dev/tty).
-    read -p "Do you want to activate PiNum syntax highlighting for Neovim? (y/n): " -n 1 -r < /dev/tty
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "Activating Neovim syntax..."
-        make nvim
-    fi
+        echo ""
+        echo "Neovim detected!"
+        # When piped from curl, stdin is the pipe. We need to read from the terminal (/dev/tty).
+        read -p "Do you want to activate PiNum syntax highlighting for Neovim? (y/n): " -n 1 -r </dev/tty
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+                echo "Activating Neovim syntax..."
+                make nvim
+        fi
 fi
 
 echo ""
