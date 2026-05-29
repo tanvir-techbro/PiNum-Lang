@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
                 } else {
                         printf("update failed.\n");
                 }
+                return EXIT_SUCCESS;
         }
 
         char *filename = argv[1];
