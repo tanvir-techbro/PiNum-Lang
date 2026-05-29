@@ -22,9 +22,9 @@ int main(int argc, char *argv[]) {
         }
 
         // Handle updates
+        // NOTE: works only for linux/mac.
         if (strcmp(argv[1], "--update") == 0 || strcmp(argv[1], "-u") == 0) {
                 printf("Checking for updates...\n");
-
                 // running curl command to update the system
                 int result = system("curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash");
 

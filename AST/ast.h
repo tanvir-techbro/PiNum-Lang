@@ -1,6 +1,8 @@
 #ifndef AST_H
 #define AST_H
 
+#include "../include/lexer.h"
+
 // Possible nodetypes parser can build
 typedef enum {
         NODE_PROGRAM,  // root node containing all statements
@@ -28,18 +30,42 @@ struct ASTnode {
                         int count;
                         int capacity;
                 } program;
-
                 // veriable declaration
                 struct {
                         char *name;     // veriable name
                         ASTnode *value; // pointer to the expression node or value
                 } var_decl;
-
                 // value assign
                 struct {
                         char *name;     // veriable name
                         ASTnode *value; // veriable value
                 } assign;
+
+                // --- Literals and Identifier ---
+                // NODE_INT_LITERAL: e.g., 42
+                struct {
+                        int value;
+                } int_literal;
+                // NODE_FLOAT_LITERAL: e.g., 3.14
+                struct {
+                        double value;
+                } float_literal;
+                // NODE_STRING_LITERAL: e.g., "Hello"
+                struct {
+                        char *value;
+                } string_literal;
+                // NODE_BOOL_LITERAL: e.g., true/false
+                struct {
+                        bool value;
+                } bool_literal;
+                // NODE_CHAR_LITERAL: e.g., 'a'
+                struct {
+                        char value;
+                } char_literal;
+                // NODE_IDENTIFIER: e.g., myVariable
+                struct {
+                        char *name;
+                } identifier;
         } data;
 };
 
