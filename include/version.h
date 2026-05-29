@@ -1,6 +1,6 @@
 #ifndef PINUM_VERSION_H
 #define PINUM_VERSION_H
 
-#define PINUM_VERSION "0.1.3"
+#define PINUM_VERSION "0.1.4"
 
 #endif // PINUM_VERSION_H
