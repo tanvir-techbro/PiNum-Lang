@@ -21,6 +21,21 @@ int main(int argc, char *argv[]) {
                 return EXIT_SUCCESS;
         }
 
+        // Handle updates
+        if (strcmp(argv[1], "--update") == 0 || strcmp(argv[1], "-u") == 0) {
+                printf("Checking for updates...\n");
+
+                // running curl command to update the system
+                int result = system("curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash");
+
+                // checking if the update ran successfully
+                if (result == 0) {
+                        printf("pinum up to date!\n");
+                } else {
+                        printf("update failed.\n");
+                }
+        }
+
         char *filename = argv[1];
         char *extention = strrchr(argv[1], '.');
         FILE *buffer;
