@@ -28,7 +28,7 @@ fi
 if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation in $INSTALL_DIR..."
         cd "$INSTALL_DIR"
-        git pull
+        git pull --quiet
 else
         echo "Cloning repository to $INSTALL_DIR..."
         git clone --quiet "$REPO_URL" "$INSTALL_DIR"

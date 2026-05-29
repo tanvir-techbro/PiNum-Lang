@@ -31,10 +31,11 @@ int main(int argc, char *argv[]) {
                 // checking if the update ran successfully
                 if (result == 0) {
                         printf("pinum up to date!\n");
+                        return EXIT_SUCCESS;
                 } else {
                         printf("update failed.\n");
+                        return EXIT_SUCCESS;
                 }
-                return EXIT_SUCCESS;
         }
 
         char *filename = argv[1];
