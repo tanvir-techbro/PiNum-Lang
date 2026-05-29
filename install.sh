@@ -8,10 +8,6 @@ set -e
 REPO_URL="https://github.com/tanvir-techbro/PiNum-Lang"
 INSTALL_DIR="$HOME/.pinum-lang"
 
-echo "------------------------------------------"
-echo "   Installing PiNum-Lang...               "
-echo "------------------------------------------"
-
 # 1. Check for dependencies
 echo "Checking for GCC and Make..."
 if ! command -v gcc &>/dev/null; then
@@ -30,6 +26,10 @@ if [ -d "$INSTALL_DIR" ]; then
         cd "$INSTALL_DIR"
         git pull --quiet
 else
+        echo "------------------------------------------"
+        echo "   Installing PiNum-Lang...               "
+        echo "------------------------------------------"
+        echo ""
         echo "Cloning repository to $INSTALL_DIR..."
         git clone --quiet "$REPO_URL" "$INSTALL_DIR"
         cd "$INSTALL_DIR"
@@ -57,7 +57,7 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
 fi
 
 echo ""
-echo "------------------------------------------"
+echo "----------------------------------"
 echo "Successfully installed PiNum-Lang!"
 echo "Try running: pinum"
-echo "------------------------------------------"
+echo "----------------------------------"
