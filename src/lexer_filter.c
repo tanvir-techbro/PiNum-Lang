@@ -2,6 +2,7 @@
 // These functions are used to filter unusual tokens and refine tokens.
 
 #include "../include/lexer.h"
+#include "../include/mode.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +12,7 @@
 // We only support 1 line comment.
 token token_ignore_comment(token t, FILE *buffer) {
         while (t.type != TOKEN_NLINE && t.type != TOKEN_EOF) {
+                DQUOTE_MODE = false;
                 if (t.value) {
                         free(t.value);
                 }
