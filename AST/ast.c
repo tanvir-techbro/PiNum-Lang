@@ -42,6 +42,11 @@ ASTnode *make_char_node(char value) {
         node->data.char_literal.value = value;
         return node;
 }
+ASTnode *make_identifier_node(char *name) {
+        ASTnode *node = create_ast_node(NODE_IDENTIFIER);
+        node->data.identifier.name = strdup(name);
+        return node;
+}
 ASTnode *make_binary_node(ASTnode *left, tokenType op, ASTnode *right) {
         ASTnode *node = create_ast_node(NODE_BINARY_EXPRESSION);
         node->data.binary_expression.left = left;
@@ -55,9 +60,34 @@ ASTnode *make_unary_node(tokenType op, ASTnode *left) {
         node->data.unary_expression.left = left;
         return node;
 }
+ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *else_block) {
+        ASTnode *node = create_ast_node(NODE_IF_STAT);
+        node->data.if_stat.condition = condition;
+        node->data.if_stat.then_block = then_block;
+        node->data.if_stat.else_block = else_block;
+        return node;
+}
 ASTnode *make_var_decl_node(char *name, ASTnode *value) {
         ASTnode *node = create_ast_node(NODE_VAR_DECL);
         node->data.var_decl.name = strdup(name);
         node->data.var_decl.value = value;
         return node;
+}
+ASTnode *make_assign_node(char *name, ASTnode *value) {
+        ASTnode *node = create_ast_node(NODE_ASSIGN);
+        node->data.assign.name = strdup(name);
+        node->data.assign.value = value;
+        return node;
+}
+ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count) {
+        ASTnode *node = create_ast_node(NODE_FUNC_CALL);
+        node->data.func_call.name = strdup(name);
+        node->data.func_call.args = args;
+        node->data.func_call.arg_count = arg_count;
+        return node;
+}
+
+// --- free ast node ---
+void free_ast_node(ASTnode *node) {
+        //
 }

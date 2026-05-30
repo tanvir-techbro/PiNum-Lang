@@ -135,7 +135,7 @@ struct ASTnode {
         } data;
 };
 
-// Creates a basic node with a specific type
+// Creates a basic node with a specific type. Node initialization.
 ASTnode *create_ast_node(nodeType type);
 // specalized factory function for value assignition
 ASTnode *make_int_node(int value);
@@ -143,8 +143,14 @@ ASTnode *make_float_node(double value);
 ASTnode *make_string_node(char *value);
 ASTnode *make_bool_node(bool value);
 ASTnode *make_char_node(char value);
+ASTnode *make_identifier_node(char *name);
 ASTnode *make_binary_node(ASTnode *left, tokenType op, ASTnode *right);
 ASTnode *make_unary_node(tokenType op, ASTnode *left);
+ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *else_block);
 ASTnode *make_var_decl_node(char *name, ASTnode *value);
+ASTnode *make_assign_node(char *name, ASTnode *value);
+ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count);
+// freeing the ast
+void free_ast_node(ASTnode *node);
 
 #endif // !AST_H
