@@ -144,6 +144,7 @@ ASTnode *make_string_node(char *value);
 ASTnode *make_bool_node(bool value);
 ASTnode *make_char_node(char value);
 ASTnode *make_binary_node(ASTnode *left, tokenType op, ASTnode *right);
+ASTnode *make_unary_node(tokenType op, ASTnode *left);
 ASTnode *make_var_decl_node(char *name, ASTnode *value);
 
 #endif // !AST_H

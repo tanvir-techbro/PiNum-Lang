@@ -49,6 +49,12 @@ ASTnode *make_binary_node(ASTnode *left, tokenType op, ASTnode *right) {
         node->data.binary_expression.right = right;
         return node;
 }
+ASTnode *make_unary_node(tokenType op, ASTnode *left) {
+        ASTnode *node = create_ast_node(NODE_UNARY_EXPRESSION);
+        node->data.unary_expression.op = op;
+        node->data.unary_expression.left = left;
+        return node;
+}
 ASTnode *make_var_decl_node(char *name, ASTnode *value) {
         ASTnode *node = create_ast_node(NODE_VAR_DECL);
         node->data.var_decl.name = strdup(name);
