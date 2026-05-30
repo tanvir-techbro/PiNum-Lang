@@ -37,11 +37,16 @@ fi
 
 # 3. Build
 echo "Building PiNum..."
-make -s > /dev/null
+make -s >/dev/null
 
 # 4. Install
-echo "Installing to /usr/local/bin (requires sudo)..."
-sudo make -s install > /dev/null
+if [ -d "/data/data/com.termux" ] || [ -n "$TERMUX_VERSION" ]; then
+        echo "Termux detected! Installing to $PREFIX/bin..."
+        make -s install > /dev/null
+else
+        echo "Installing to /usr/local/bin (requires sudo)..."
+        sudo make -s install > /dev/null
+fi
 
 # 5. Neovim Syntax (Optional)
 if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
@@ -52,7 +57,7 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
                 echo "Activating Neovim syntax..."
-                make -s nvim > /dev/null
+                make -s nvim >/dev/null
         fi
 fi
 

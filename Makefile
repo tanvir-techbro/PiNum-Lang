@@ -17,8 +17,13 @@ else
     TEST_TARGET = bin/test_lexer
     MKDIR = mkdir -p bin
     RM = rm -f
-    INSTALL_PATH = /usr/local/bin
     CP = cp
+    # Check for Termux
+    ifneq ($(wildcard /data/data/com.termux/files/usr/bin/*),)
+        INSTALL_PATH ?= $(PREFIX)/bin
+    else
+        INSTALL_PATH ?= /usr/local/bin
+    endif
 endif
 
 # The default rule
