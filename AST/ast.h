@@ -150,7 +150,12 @@ ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *els
 ASTnode *make_var_decl_node(char *name, ASTnode *value);
 ASTnode *make_assign_node(char *name, ASTnode *value);
 ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count);
-// freeing the ast
+// helper functions for collection
+void ast_add_statement(ASTnode *parent, ASTnode *stmt);
+void ast_add_arg(ASTnode *func_call, ASTnode *arg);
+// Memory management
 void free_ast_node(ASTnode *node);
+// NOTE: this fucntion is temporary for debugging purposes.
+void print_ast(ASTnode *node, int level);
 
 #endif // !AST_H
