@@ -12,28 +12,38 @@ int main(int argc, char *argv[]) {
         if (argc < 2) {
                 fprintf(stderr, "No file provided...\n");
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+                fprintf(stderr, "--help for more info\n");
                 exit(EXIT_FAILURE);
         }
 
-        // Handle version flag
-        if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
-                printf("PiNum-Lang version %s\n", PINUM_VERSION);
-                return EXIT_SUCCESS;
-        }
-
-        // Handle updates
-        // NOTE: works only for linux/mac.
-        if (strcmp(argv[1], "--update") == 0 || strcmp(argv[1], "-u") == 0) {
-                printf("Checking for updates...\n");
-                // running curl command to update the system
-                int result = system("curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash");
-
-                // checking if the update ran successfully
-                if (result == 0) {
-                        printf("pinum up to date!\n");
+        // Handle flags
+        if (strrchr(argv[1], '.') == NULL) {
+                if (strcmp(argv[1], "--help") == 0) {
+                        printf("pinum version %s\n\n", PINUM_VERSION);
+                        printf("Usage: pinum <file.pn>\n");
+                        printf("Flags:\n");
+                        printf("  %-20s\t: Check pinum version. `pinum --version` or `pinum -v`\n", "--version or -v");
+                        printf("  %-20s\t: Update pinum. `pinum --update` or 'pinum -u'\n", "--update or -u");
                         return EXIT_SUCCESS;
+                } else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
+                        printf("PiNum-Lang version %s\n", PINUM_VERSION);
+                        return EXIT_SUCCESS;
+                } else if (strcmp(argv[1], "--update") == 0 || strcmp(argv[1], "-u") == 0) {
+                        printf("Checking for updates...\n");
+                        // running curl command to update the system
+                        int result = system("curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash");
+
+                        // checking if the update ran successfully
+                        if (result == 0) {
+                                printf("pinum up to date!\n");
+                                return EXIT_SUCCESS;
+                        } else {
+                                printf("update failed.\n");
+                                return EXIT_SUCCESS;
+                        }
                 } else {
-                        printf("update failed.\n");
+                        fprintf(stderr, "Invalid flag: %s\n", argv[1]);
+                        printf("--help for more info\n");
                         return EXIT_SUCCESS;
                 }
         }
