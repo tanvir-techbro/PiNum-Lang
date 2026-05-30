@@ -67,10 +67,28 @@ ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *els
         node->data.if_stat.else_block = else_block;
         return node;
 }
-ASTnode *make_var_decl_node(char *name, ASTnode *value) {
+ASTnode *make_while_node(ASTnode *condition, ASTnode *body) {
+        ASTnode *node = create_ast_node(NODE_WHILE);
+        node->data.while_loop.condition = condition;
+        node->data.while_loop.body = body;
+        return node;
+}
+ASTnode *make_for_node(ASTnode *init, ASTnode *condition, ASTnode *increment, ASTnode *body) {
+        ASTnode *node = create_ast_node(NODE_FOR);
+        node->data.for_loop.init = init;
+        node->data.for_loop.condition = condition;
+        node->data.for_loop.increment = increment;
+        node->data.for_loop.body = body;
+        return node;
+}
+ASTnode *make_var_decl_node(char *type_name, char *modifiers, char *name, ASTnode *value, bool is_array, int array_size) {
         ASTnode *node = create_ast_node(NODE_VAR_DECL);
+        node->data.var_decl.type_name = type_name ? strdup(type_name) : NULL;
+        node->data.var_decl.modifiers = modifiers ? strdup(modifiers) : NULL;
         node->data.var_decl.name = strdup(name);
         node->data.var_decl.value = value;
+        node->data.var_decl.is_array = is_array;
+        node->data.var_decl.array_size = array_size;
         return node;
 }
 ASTnode *make_assign_node(char *name, ASTnode *value) {
@@ -86,6 +104,15 @@ ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count) {
         node->data.func_call.arg_count = arg_count;
         return node;
 }
+ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int param_count, ASTnode *body) {
+        ASTnode *node = create_ast_node(NODE_FUNC_DEF);
+        node->data.func_def.return_type = return_type ? strdup(return_type) : NULL;
+        node->data.func_def.name = strdup(name);
+        node->data.func_def.params = params;
+        node->data.func_def.param_count = param_count;
+        node->data.func_def.body = body;
+        return node;
+}
 
 // --- Helper Functions for Collections ---
 void ast_add_statement(ASTnode *parent, ASTnode *stmt) {
@@ -96,7 +123,10 @@ void ast_add_statement(ASTnode *parent, ASTnode *stmt) {
                 }
                 parent->data.program.statements[parent->data.program.count++] = stmt;
         } else if (parent->type == NODE_BLOCK) {
-                parent->data.blocks.statements = (ASTnode **)realloc(parent->data.blocks.statements, sizeof(ASTnode *) * (parent->data.blocks.count + 1));
+                if (parent->data.blocks.count >= parent->data.blocks.capacity) {
+                        parent->data.blocks.capacity = parent->data.blocks.capacity == 0 ? 8 : parent->data.blocks.capacity * 2;
+                        parent->data.blocks.statements = (ASTnode **)realloc(parent->data.blocks.statements, sizeof(ASTnode *) * parent->data.blocks.capacity);
+                }
                 parent->data.blocks.statements[parent->data.blocks.count++] = stmt;
         }
 }
@@ -106,6 +136,13 @@ void ast_add_arg(ASTnode *func_call, ASTnode *arg) {
                 return;
         func_call->data.func_call.args = (ASTnode **)realloc(func_call->data.func_call.args, sizeof(ASTnode *) * (func_call->data.func_call.arg_count + 1));
         func_call->data.func_call.args[func_call->data.func_call.arg_count++] = arg;
+}
+
+void ast_add_param(ASTnode *func_def, ASTnode *param) {
+        if (func_def->type != NODE_FUNC_DEF)
+                return;
+        func_def->data.func_def.params = (ASTnode **)realloc(func_def->data.func_def.params, sizeof(ASTnode *) * (func_def->data.func_def.param_count + 1));
+        func_def->data.func_def.params[func_def->data.func_def.param_count++] = param;
 }
 
 // --- Memory Management ---
@@ -121,6 +158,8 @@ void free_ast_node(ASTnode *node) {
                 free(node->data.program.statements);
                 break;
         case NODE_VAR_DECL:
+                free(node->data.var_decl.type_name);
+                free(node->data.var_decl.modifiers);
                 free(node->data.var_decl.name);
                 free_ast_node(node->data.var_decl.value);
                 break;
@@ -134,6 +173,15 @@ void free_ast_node(ASTnode *node) {
                         free_ast_node(node->data.func_call.args[i]);
                 }
                 free(node->data.func_call.args);
+                break;
+        case NODE_FUNC_DEF:
+                free(node->data.func_def.return_type);
+                free(node->data.func_def.name);
+                for (int i = 0; i < node->data.func_def.param_count; i++) {
+                        free_ast_node(node->data.func_def.params[i]);
+                }
+                free(node->data.func_def.params);
+                free_ast_node(node->data.func_def.body);
                 break;
         case NODE_MEMBER_ACCESS:
                 free_ast_node(node->data.memeber_access.object);
@@ -166,6 +214,16 @@ void free_ast_node(ASTnode *node) {
                 free_ast_node(node->data.if_stat.condition);
                 free_ast_node(node->data.if_stat.then_block);
                 free_ast_node(node->data.if_stat.else_block);
+                break;
+        case NODE_WHILE:
+                free_ast_node(node->data.while_loop.condition);
+                free_ast_node(node->data.while_loop.body);
+                break;
+        case NODE_FOR:
+                free_ast_node(node->data.for_loop.init);
+                free_ast_node(node->data.for_loop.condition);
+                free_ast_node(node->data.for_loop.increment);
+                free_ast_node(node->data.for_loop.body);
                 break;
         case NODE_IMPORT:
                 free(node->data.import.lib_name);
@@ -203,8 +261,14 @@ void print_ast(ASTnode *node, int level) {
                 }
                 break;
         case NODE_VAR_DECL:
-                printf("VAR_DECL: %s\n", node->data.var_decl.name);
-                print_ast(node->data.var_decl.value, level + 1);
+                printf("VAR_DECL: %s %s %s%s\n",
+                       node->data.var_decl.modifiers ? node->data.var_decl.modifiers : "",
+                       node->data.var_decl.type_name ? node->data.var_decl.type_name : "",
+                       node->data.var_decl.name,
+                       node->data.var_decl.is_array ? "[]" : "");
+                if (node->data.var_decl.value) {
+                        print_ast(node->data.var_decl.value, level + 1);
+                }
                 break;
         case NODE_ASSIGN:
                 printf("ASSIGN: %s\n", node->data.assign.name);
@@ -234,8 +298,25 @@ void print_ast(ASTnode *node, int level) {
                         print_ast(node->data.if_stat.else_block, level + 1);
                 }
                 break;
+        case NODE_WHILE:
+                printf("WHILE\n");
+                print_ast(node->data.while_loop.condition, level + 1);
+                printf("BODY\n");
+                print_ast(node->data.while_loop.body, level + 1);
+                break;
+        case NODE_FOR:
+                printf("FOR\n");
+                printf("INIT:\n");
+                print_ast(node->data.for_loop.init, level + 1);
+                printf("COND:\n");
+                print_ast(node->data.for_loop.condition, level + 1);
+                printf("INC:\n");
+                print_ast(node->data.for_loop.increment, level + 1);
+                printf("BODY:\n");
+                print_ast(node->data.for_loop.body, level + 1);
+                break;
         default:
-                printf("UNKNOWN_NODE_TYPE: %d\n", node->type);
+                printf("NODE_TYPE: %d\n", node->type);
                 break;
         }
 }

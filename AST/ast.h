@@ -9,6 +9,7 @@ typedef enum {
         NODE_VAR_DECL,  // declaring a veriable
         NODE_ASSIGN,    // modifying veriable, eg. x = x + 1
         NODE_FUNC_CALL, // function call
+        NODE_FUNC_DEF,  // function definition
         // accessing elements
         NODE_MEMBER_ACCESS, // member access
         NODE_ARRAY_ACCESS,  // array element access
@@ -25,6 +26,8 @@ typedef enum {
         // control flow and blocks
         NODE_BLOCK,   // to group multiple statements inside a curly brace
         NODE_IF_STAT, // to sotre the condition, then_block and else_block
+        NODE_WHILE,   // while loop
+        NODE_FOR,     // for loop
         // Built in statements/functions
         NODE_IMPORT,
         NODE_RETURN,
@@ -47,8 +50,12 @@ struct ASTnode {
                 } program;
                 // veriable declaration
                 struct {
-                        char *name;     // veriable name
-                        ASTnode *value; // pointer to the expression node or value
+                        char *type_name; // e.g., "int", "float"
+                        char *modifiers; // e.g., "unsigned", "long"
+                        char *name;      // veriable name
+                        ASTnode *value;  // pointer to the expression node or value (can be NULL)
+                        bool is_array;
+                        int array_size; // size if it's an array, 0 otherwise
                 } var_decl;
                 // value assign
                 struct {
@@ -60,6 +67,13 @@ struct ASTnode {
                         ASTnode **args;
                         int arg_count;
                 } func_call;
+                struct {
+                        char *return_type;
+                        char *name;
+                        ASTnode **params; // array of NODE_VAR_DECL
+                        int param_count;
+                        ASTnode *body; // NODE_BLOCK
+                } func_def;
 
                 // --- accessing elements ---
                 struct {
@@ -112,12 +126,23 @@ struct ASTnode {
                 struct {
                         ASTnode **statements;
                         int count;
+                        int capacity;
                 } blocks;
                 struct {
                         ASTnode *condition;
                         ASTnode *then_block;
                         ASTnode *else_block; // can be NULL
                 } if_stat;
+                struct {
+                        ASTnode *condition;
+                        ASTnode *body;
+                } while_loop;
+                struct {
+                        ASTnode *init;
+                        ASTnode *condition;
+                        ASTnode *increment;
+                        ASTnode *body;
+                } for_loop;
 
                 // --- built in statements/functions
                 struct {
@@ -147,15 +172,15 @@ ASTnode *make_identifier_node(char *name);
 ASTnode *make_binary_node(ASTnode *left, tokenType op, ASTnode *right);
 ASTnode *make_unary_node(tokenType op, ASTnode *left);
 ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *else_block);
-ASTnode *make_var_decl_node(char *name, ASTnode *value);
+ASTnode *make_while_node(ASTnode *condition, ASTnode *body);
+ASTnode *make_for_node(ASTnode *init, ASTnode *condition, ASTnode *increment, ASTnode *body);
+ASTnode *make_var_decl_node(char *type_name, char *modifiers, char *name, ASTnode *value, bool is_array, int array_size);
 ASTnode *make_assign_node(char *name, ASTnode *value);
 ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count);
+ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int param_count, ASTnode *body);
 // helper functions for collection
 void ast_add_statement(ASTnode *parent, ASTnode *stmt);
 void ast_add_arg(ASTnode *func_call, ASTnode *arg);
-// Memory management
-void free_ast_node(ASTnode *node);
-// NOTE: this fucntion is temporary for debugging purposes.
-void print_ast(ASTnode *node, int level);
+void ast_add_param(ASTnode *func_def, ASTnode *param);
 
 #endif // !AST_H
