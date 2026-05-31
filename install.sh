@@ -26,9 +26,9 @@ if [ -d "$INSTALL_DIR" ]; then
         cd "$INSTALL_DIR"
         git pull --quiet
 else
-        echo "------------------------------------------"
-        echo "   Installing PiNum-Lang...               "
-        echo "------------------------------------------"
+        echo "-----------------------------"
+        echo "   Installing PiNum-Lang...  "
+        echo "-----------------------------"
         echo ""
         echo "Cloning repository to $INSTALL_DIR..."
         git clone --quiet "$REPO_URL" "$INSTALL_DIR"
@@ -42,10 +42,10 @@ make -s >/dev/null
 # 4. Install
 if [ -d "/data/data/com.termux" ] || [ -n "$TERMUX_VERSION" ]; then
         echo "Termux detected! Installing to $PREFIX/bin..."
-        make -s install > /dev/null
+        make -s install >/dev/null
 else
         echo "Installing to /usr/local/bin (requires sudo)..."
-        sudo make -s install > /dev/null
+        sudo make -s install >/dev/null
 fi
 
 # 5. Neovim Syntax (Optional)
@@ -60,6 +60,9 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
                 make -s nvim >/dev/null
         fi
 fi
+
+# deleting the temporary build folder
+rm -rf $INSTALL_DIR/src $INSTALL_DIR/include $INSTALL_DIR/example $INSTALL_DIR/test $INSTALL_DIR/runtime
 
 echo ""
 echo "----------------------------------"
