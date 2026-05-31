@@ -23,9 +23,9 @@ fi
 # 2. Clone or Update
 if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation in $INSTALL_DIR..."
-        rm -rf "$INSTALL_DIR/*"
+        rm -rf "$INSTALL_DIR"
+        git clone --quiet "$REPO_URL" "$INSTALL_DIR"
         cd "$INSTALL_DIR"
-        git pull --quiet
 else
         echo "-----------------------------"
         echo "   Installing PiNum-Lang...  "
