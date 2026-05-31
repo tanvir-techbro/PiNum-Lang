@@ -23,6 +23,7 @@ fi
 # 2. Clone or Update
 if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation in $INSTALL_DIR..."
+        rm -rf "$INSTALL_DIR/*"
         cd "$INSTALL_DIR"
         git pull --quiet
 else
