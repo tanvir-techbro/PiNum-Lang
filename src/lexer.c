@@ -470,6 +470,18 @@ token lexer_tokenize_words(FILE *buffer) {
                 } else {
                         tokens.type = TOKEN_ELSE;
                 }
+        } else if (strcmp(char_buffer, "while") == 0) {
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_WHILE;
+                }
+        } else if (strcmp(char_buffer, "for") == 0) {
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_FOR;
+                }
         } else if (strcmp(char_buffer, "return") == 0) {
                 if (SQUOTE_MODE || DQUOTE_MODE) {
                         tokens.type = TOKEN_QSTRING;
@@ -648,6 +660,10 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_IF";
         case TOKEN_ELSE:
                 return "TOKEN_ELSE";
+        case TOKEN_WHILE:
+                return "TOKEN_WHILE";
+        case TOKEN_FOR:
+                return "TOKEN_FOR";
         case TOKEN_PRINT:
                 return "TOKEN_PRINT";
         case TOKEN_READ:

@@ -1,9 +1,9 @@
 #include "../include/parser.h"
-#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+// NOTE: This parser uses recursive decent parsing method.
 
 // --- Helper Functions ---
 // Peeks/takes a looks at the current token without moving to the next token.
@@ -40,4 +40,9 @@ static token consume(Parser *parser, tokenType type, const char *message) {
         }
         fprintf(stderr, "Parser error: %s", message);
         exit(EXIT_FAILURE);
+}
+
+// --- Core functionalities ---
+// initialization
+ASTnode *parse(token_list *tokens) {
 }

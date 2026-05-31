@@ -130,14 +130,12 @@ void ast_add_statement(ASTnode *parent, ASTnode *stmt) {
                 parent->data.blocks.statements[parent->data.blocks.count++] = stmt;
         }
 }
-
 void ast_add_arg(ASTnode *func_call, ASTnode *arg) {
         if (func_call->type != NODE_FUNC_CALL)
                 return;
         func_call->data.func_call.args = (ASTnode **)realloc(func_call->data.func_call.args, sizeof(ASTnode *) * (func_call->data.func_call.arg_count + 1));
         func_call->data.func_call.args[func_call->data.func_call.arg_count++] = arg;
 }
-
 void ast_add_param(ASTnode *func_def, ASTnode *param) {
         if (func_def->type != NODE_FUNC_DEF)
                 return;

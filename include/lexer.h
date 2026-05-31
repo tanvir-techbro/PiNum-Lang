@@ -21,6 +21,8 @@ typedef enum {
         TOKEN_IMPORT, // token import, can be used at the starting of the file after atsign to import files and libreries
         TOKEN_IF,     // kewword if
         TOKEN_ELSE,   // Keyword else
+        TOKEN_WHILE,  // keyword while
+        TOKEN_FOR,    // keyword for
         TOKEN_PRINT,  // keyword print
         TOKEN_READ,   // keyword read, takes input from user
         TOKEN_RETURN, // keyword return
