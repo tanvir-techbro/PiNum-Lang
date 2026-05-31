@@ -23,9 +23,8 @@ fi
 # 2. Clone or Update
 if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation in $INSTALL_DIR..."
-        rm -rf "$INSTALL_DIR"
-        git clone --quiet "$REPO_URL" "$INSTALL_DIR"
         cd "$INSTALL_DIR"
+        git pull --quiet
 else
         echo "-----------------------------"
         echo "   Installing PiNum-Lang...  "
@@ -63,7 +62,7 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
 fi
 
 # deleting the temporary build folder
-rm -rf $INSTALL_DIR/src $INSTALL_DIR/include $INSTALL_DIR/example $INSTALL_DIR/test $INSTALL_DIR/runtime
+# rm -rf $INSTALL_DIR/src $INSTALL_DIR/include $INSTALL_DIR/example $INSTALL_DIR/test $INSTALL_DIR/runtime
 
 echo ""
 echo "----------------------------------"
