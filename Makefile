@@ -1,7 +1,7 @@
 # Variables
 CC = gcc
 CFLAGS = -Wall -Wextra -g -O3
-SRC = src/main.c src/lexer.c src/lexer_filter.c src/parser.c AST/ast.c src/codegen.c src/helper.c
+SRC = src/main.c src/lexer.c src/lexer_filter.c src/parser.c src/ast.c src/codegen.c src/helper.c
 VERSION = $(shell cat VERSION)
 
 # OS detection
