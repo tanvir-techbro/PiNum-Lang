@@ -18,10 +18,11 @@ ASTnode *parse_expression(Parser *parser);
 
 // helper functions
 // NOTE: below functions are defined in src/helper.c
-static token peek(Parser *parser);
-static token advance(Parser *parser);
-static bool check(Parser *parser, tokenType type);
-static bool match(Parser *parser, tokenType type);
-static token consume(Parser *parser, tokenType type, const char *message);
+token peek(Parser *parser);
+token advance(Parser *parser);
+bool check(Parser *parser, tokenType type);
+bool match(Parser *parser, tokenType type);
+token consume(Parser *parser, tokenType type, const char *message);
+void consume_end_of_statement(Parser *parser);
 
 #endif // !PARSER_H

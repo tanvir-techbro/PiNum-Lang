@@ -23,3 +23,11 @@ ASTnode *parse_program(Parser *parser) {
         }
         return program;
 }
+ASTnode *parse_statement(Parser *parser) {
+        if (match(parser, TOKEN_PRINT)) {
+                //
+        }
+}
+ASTnode *parse_expression(Parser *parser) {
+        //
+}
