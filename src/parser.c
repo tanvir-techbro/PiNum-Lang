@@ -19,15 +19,35 @@ ASTnode *parse(token_list *tokens) {
 ASTnode *parse_program(Parser *parser) {
         ASTnode *program = create_ast_node(NODE_PROGRAM);
         while (!check(parser, TOKEN_EOF)) {
+                // Skip newlines between statements
+                if (match(parser, TOKEN_NLINE)) continue;
+
                 ast_add_statement(program, parse_statement(parser));
         }
         return program;
 }
 ASTnode *parse_statement(Parser *parser) {
         if (match(parser, TOKEN_PRINT)) {
-                //
+                ASTnode *expression = parse_expression(parser);
+                consume_end_of_statement(parser);
+                ASTnode *node = create_ast_node(NODE_PRINT);
+                node->data.print.expression = expression;
+                return node;
         }
+
+        // Fallback to expression statement
+        ASTnode *expression = parse_expression(parser);
+        consume_end_of_statement(parser);
+        return expression;
+
+        // TODO: add more statements to be parsed
 }
 ASTnode *parse_expression(Parser *parser) {
-        //
+        if (match(parser, TOKEN_INUM)) {
+                return make_int_node(parser->tokens->tokens[parser->current - 1].int_value);
+        }
+
+        // Error
+        fprintf(stderr, "Parser error: Unexpected token %s\n", peek(parser).value);
+        exit(EXIT_FAILURE);
 }

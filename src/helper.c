@@ -91,12 +91,15 @@ token consume(Parser *parser, tokenType type, const char *message) {
         exit(EXIT_FAILURE);
 }
 void consume_end_of_statement(Parser *parser) {
-        if (match(parser, TOKEN_NLINE)) {
+        if (match(parser, TOKEN_SEMICOLON)) {
                 return;
         }
         // If the next line is EOF its the end of statement, check for EOF
         if (check(parser, TOKEN_EOF)) {
                 return;
         }
+
+        fprintf(stderr, "Parser error: Expect ';' after statement. Found: %s\n", peek(parser).value);
+        exit(EXIT_FAILURE);
 }
 // ===================================================
