@@ -20,7 +20,8 @@ ASTnode *parse_program(Parser *parser) {
         ASTnode *program = create_ast_node(NODE_PROGRAM);
         while (!check(parser, TOKEN_EOF)) {
                 // Skip newlines between statements
-                if (match(parser, TOKEN_NLINE)) continue;
+                if (match(parser, TOKEN_NLINE))
+                        continue;
 
                 ast_add_statement(program, parse_statement(parser));
         }
@@ -43,8 +44,26 @@ ASTnode *parse_statement(Parser *parser) {
         // TODO: add more statements to be parsed
 }
 ASTnode *parse_expression(Parser *parser) {
+        // --- Literals parsing ---
+        // Intager node parsing
         if (match(parser, TOKEN_INUM)) {
                 return make_int_node(parser->tokens->tokens[parser->current - 1].int_value);
+        }
+        // Floting point node parsing
+        if (match(parser, TOKEN_FNUM)) {
+                return make_float_node(parser->tokens->tokens[parser->current - 1].float_value);
+        }
+        // string node parsing
+        if (match(parser, TOKEN_STRING)) {
+                return make_string_node(parser->tokens->tokens[parser->current - 1].value);
+        }
+        // boolean node parsing
+        if (match(parser, TOKEN_BOOL)) {
+                return make_bool_node(parser->tokens->tokens[parser->current - 1].value);
+        }
+        // Identifier node parsing
+        if (match(parser, TOKEN_ID)) {
+                return make_identifier_node(parser->tokens->tokens[parser->current - 1].value);
         }
 
         // Error
