@@ -45,4 +45,6 @@ static token consume(Parser *parser, tokenType type, const char *message) {
 // --- Core functionalities ---
 // initialization
 ASTnode *parse(token_list *tokens) {
+        Parser parser = {tokens, 0};
+        return parse_program(&parser);
 }
