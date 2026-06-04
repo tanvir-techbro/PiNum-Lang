@@ -1,7 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
-#include "../include/lexer.h"
+#include "lexer.h"
 
 // Possible nodetypes parser can build
 typedef enum {

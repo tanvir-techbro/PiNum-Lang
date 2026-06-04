@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 // NOTE: This parser uses recursive decent parsing method.
 
 // ---------------------------- //
