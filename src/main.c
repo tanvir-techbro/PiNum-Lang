@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
                         printf("pinum version %s\n\n", PINUM_VERSION);
                         printf("Usage: pinum <file.pn>\n");
                         printf("Flags:\n");
-                        printf("  %-20s\t: Check pinum version. `pinum --version` or `pinum -v`\n", "--version or -v");
-                        printf("  %-20s\t: Update pinum. `pinum --update` or 'pinum -u'\n", "--update or -u");
+                        printf("  %-20s\tCheck pinum version. `pinum --version` or `pinum -v`\n", "--version or -v");
+                        printf("  %-20s\tUpdate pinum. `pinum --update` or 'pinum -u'\n", "--update or -u");
                         return EXIT_SUCCESS;
                 } else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
                         printf("PiNum-Lang version %s\n", PINUM_VERSION);
