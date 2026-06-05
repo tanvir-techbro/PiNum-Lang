@@ -31,15 +31,15 @@ int main(int argc, char *argv[]) {
                 } else if (strcmp(argv[1], "--update") == 0 || strcmp(argv[1], "-u") == 0) {
                         printf("Checking for updates...\n");
                         // running curl command to update the system
-                        int result = system("curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash");
+                        int result = system("((curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh || echo \"exit 1\") | bash)");
 
                         // checking if the update ran successfully
                         if (result == 0) {
                                 printf("pinum up to date!\n");
                                 return EXIT_SUCCESS;
                         } else {
-                                printf("update failed.\n");
-                                return EXIT_SUCCESS;
+                                fprintf(stderr, "update failed.\n");
+                                return EXIT_FAILURE;
                         }
                 } else {
                         fprintf(stderr, "Invalid flag: %s\n", argv[1]);
