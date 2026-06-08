@@ -10,9 +10,10 @@ int main(int argc, char *argv[]) {
 
         // Exits if user does not provide any file
         if (argc < 2) {
-                fprintf(stderr, "No file provided...\n");
+                // code `\033[1;31m` makes the text 'error' red and code `\033[0m` resets to default color
+                fprintf(stderr, "\033[1;31merror:\033[0m no input file provided.\n");
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
-                fprintf(stderr, "--help for more info\n");
+                fprintf(stderr, "See '--help' for more info.\n");
                 exit(EXIT_FAILURE);
         }
 
@@ -22,8 +23,9 @@ int main(int argc, char *argv[]) {
                         printf("pinum version %s\n\n", PINUM_VERSION);
                         printf("Usage: pinum <file.pn>\n");
                         printf("Flags:\n");
-                        printf("  %-20s\tCheck pinum version. `pinum --version` or `pinum -v`\n", "--version or -v");
-                        printf("  %-20s\tUpdate pinum. `pinum --update` or 'pinum -u'\n", "--update or -u");
+                        printf("  %-20s\tDisplay pinum version information.\n", "--version or -v");
+                        printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
+                        printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
                         return EXIT_SUCCESS;
                 } else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
                         printf("PiNum-Lang version %s\n", PINUM_VERSION);
@@ -42,8 +44,8 @@ int main(int argc, char *argv[]) {
                                 return EXIT_FAILURE;
                         }
                 } else {
-                        fprintf(stderr, "Invalid flag: %s\n", argv[1]);
-                        printf("--help for more info\n");
+                        fprintf(stderr, "\033[1;31merror:\033[0m invalid flag '%s'\n", argv[1]);
+                        printf("See '--help' for more info.\n");
                         return EXIT_SUCCESS;
                 }
         }
