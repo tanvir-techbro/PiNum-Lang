@@ -1,0 +1,10 @@
+# Bomb 1: Number Overflow (Fixed size 64 buffer in lexer.c)
+# 1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+# Bomb 2: Comment Quote Hijack
+# This is a comment with a " quote
+# If the lexer sees the quote above, it might get stuck in DQUOTE_MODE
+print("This should be a normal string")
+
+# Bomb 3: Space Compression
+print("This    has    many    spaces")
