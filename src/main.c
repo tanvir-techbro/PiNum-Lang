@@ -6,34 +6,54 @@
 #include <stdlib.h>
 #include <string.h>
 
+// --- FLAG HANDLING (functions) ---
+// handle the flag '--help'
+void handle_flag_help() {
+        printf("pinum version %s\n\n", PINUM_VERSION);
+        printf("Usage: pinum <file.pn>\n");
+        printf("Flags:\n");
+        printf("  %-20s\tDisplay pinum version information.\n", "--version or -v");
+        printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
+        printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
+}
+// handle '--version' and '-v' flag
+void handle_version_flag() {
+        printf("PiNum-Lang version %s\n", PINUM_VERSION);
+}
+// handle '--update' and '-u' flag
+int handle_update_flag() {
+        printf("Checking for updates...\n");
+        // running curl command to update the system
+        int result = system("((curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh || echo \"exit 1\") | bash)");
+
+        return result;
+}
+// ---------------------------------
+
+// --- MAIN ---
 int main(int argc, char *argv[]) {
 
         // Exits if user does not provide any file
         if (argc < 2) {
-                // code `\033[1;31m` makes the text 'error' red and code `\033[0m` resets to default color
-                fprintf(stderr, "\033[1;31merror:\033[0m no input file provided.\n");
+                // code `\033[1;31m` makes the text 'fatal error' red and code `\033[0m` resets to default color
+                fprintf(stderr, "\033[1;31mfatal error:\033[0m no input file provided.\n");
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
                 fprintf(stderr, "See '--help' for more info.\n");
                 exit(EXIT_FAILURE);
         }
 
-        // Handle flags
+        // --- FLAG HANDLING (function calls) ---
+        // the line below checks if the 2nd argument has any '.' in it.
+        // if it has a '.' then it is a file, else it is a flag/option.
         if (strrchr(argv[1], '.') == NULL) {
                 if (strcmp(argv[1], "--help") == 0) {
-                        printf("pinum version %s\n\n", PINUM_VERSION);
-                        printf("Usage: pinum <file.pn>\n");
-                        printf("Flags:\n");
-                        printf("  %-20s\tDisplay pinum version information.\n", "--version or -v");
-                        printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
-                        printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
+                        handle_flag_help();
                         return EXIT_SUCCESS;
                 } else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
-                        printf("PiNum-Lang version %s\n", PINUM_VERSION);
+                        handle_version_flag();
                         return EXIT_SUCCESS;
                 } else if (strcmp(argv[1], "--update") == 0 || strcmp(argv[1], "-u") == 0) {
-                        printf("Checking for updates...\n");
-                        // running curl command to update the system
-                        int result = system("((curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh || echo \"exit 1\") | bash)");
+                        int result = handle_update_flag();
 
                         // checking if the update ran successfully
                         if (result == 0) {
@@ -43,13 +63,18 @@ int main(int argc, char *argv[]) {
                                 fprintf(stderr, "update failed.\n");
                                 return EXIT_FAILURE;
                         }
-                } else {
-                        fprintf(stderr, "\033[1;31merror:\033[0m invalid flag '%s'\n", argv[1]);
+
+                }
+                // Unrecognized and invalid flag handling
+                else {
+                        fprintf(stderr, "\033[1;31mfatal error:\033[0m invalid flag '%s'\n", argv[1]);
                         printf("See '--help' for more info.\n");
                         return EXIT_SUCCESS;
                 }
         }
+        // --------------------------------------
 
+        // --- FILE HANDLING ---
         char *filename = argv[1];
         char *extention = strrchr(argv[1], '.');
         FILE *buffer;
@@ -71,7 +96,9 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "Filetype not valid...\n");
                 exit(EXIT_FAILURE);
         }
+        // ---------------------
 
+        // --- MAIN ---
         // Running the loop till we hit EOF (End Of File).
         token tokens = lexer_tokenizer(buffer);
         while (tokens.type != TOKEN_EOF) {
@@ -120,7 +147,9 @@ int main(int argc, char *argv[]) {
                 // freeing the list and its tokens' values
                 token_list_free(&list);
         }
+        // ------------
 
+        // --- CLEAN UP AND FINALIZATION ---
         // Clean up final EOF token value
         if (tokens.value) {
                 free(tokens.value);
@@ -129,4 +158,5 @@ int main(int argc, char *argv[]) {
         // closing the file buffer
         fclose(buffer);
         return EXIT_SUCCESS;
+        // ---------------------------------
 }
