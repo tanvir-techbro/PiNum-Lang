@@ -26,3 +26,4 @@ vim.filetype.add({
 		pn = "pinum",
 	},
 })
+

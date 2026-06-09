@@ -36,9 +36,9 @@ valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum example/helloworld.
 ```
 
 ### 🔢 Versioning
-The versioning of this project is handled by the maintainers.
-- **Do not** modify the `VERSION` file.
-- **Do not** update version-related macros in `include/version.h` or elsewhere.
+If you are submitting a **patch** (e.g., a bug fix), you are encouraged to increment the **patch** version in the `VERSION` file and update the version-related macros in `include/version.h`.
+
+- **Do not** modify the major or minor version numbers; these are handled by the maintainers.
 
 ---
 

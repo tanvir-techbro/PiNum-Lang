@@ -669,6 +669,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_INUM";
         case TOKEN_FNUM:
                 return "TOKEN_FNUM";
+        case TOKEN_WSPACE:
+                return "TOKEN_WSPACE";
         case TOKEN_QSTRING:
                 return "TOKEN_QSTRING";
         case TOKEN_ID:
