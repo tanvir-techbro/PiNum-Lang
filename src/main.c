@@ -35,8 +35,9 @@ int main(int argc, char *argv[]) {
 
         // Exits if user does not provide any file
         if (argc < 2) {
+                // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default color
                 // code `\033[1;31m` makes the text 'fatal error' red and code `\033[0m` resets to default color
-                fprintf(stderr, "\033[1;31mfatal error:\033[0m no input file provided.\n");
+                fprintf(stderr, "\\033[1;40m%s:\033[0m 033[1;31mfatal error:\033[0m no input file provided.\n", argv[0]);
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
                 fprintf(stderr, "See '--help' for more info.\n");
                 exit(EXIT_FAILURE);
@@ -67,7 +68,9 @@ int main(int argc, char *argv[]) {
                 }
                 // Unrecognized and invalid flag handling
                 else {
-                        fprintf(stderr, "\033[1;31mfatal error:\033[0m invalid flag '%s'\n", argv[1]);
+                        // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default color
+                        // code `\033[1;31m` makes the text 'fatal error' red and code `\033[0m` resets to default color
+                        fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31mfatal error:\033[0m invalid flag '%s'\n", argv[0], argv[1]);
                         printf("See '--help' for more info.\n");
                         return EXIT_SUCCESS;
                 }
