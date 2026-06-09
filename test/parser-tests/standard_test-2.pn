@@ -1,0 +1,8 @@
+# Parser Standard Test 2: Control Flow (If-Else)
+if (x > 10) {
+    print("Greater");
+} else if (x == 10) {
+    print("Equal");
+} else {
+    print("Lesser");
+}

@@ -1,0 +1,9 @@
+# AST Standard Test 3: Function-like structures and blocks
+int main() {
+    int a = 5;
+    {
+        int a = 10; # Scoped block
+        print(a);
+    }
+    return a;
+}

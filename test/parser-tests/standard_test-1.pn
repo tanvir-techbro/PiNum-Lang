@@ -1,0 +1,8 @@
+# Parser Standard Test 1: Declarations and Assignments
+int a;
+int b = 10;
+string name = "PiNum";
+float pi = 3.14;
+
+a = b + 5;
+b = a * 2;

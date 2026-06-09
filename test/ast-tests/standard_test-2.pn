@@ -1,0 +1,13 @@
+# AST Standard Test 2: Nested Control Structures
+if (outer) {
+    while (inner) {
+        if (deep) {
+            return 1;
+        }
+        inner = inner - 1;
+    }
+} else {
+    for (int i = 0; i < 5; i = i + 1) {
+        process(i);
+    }
+}

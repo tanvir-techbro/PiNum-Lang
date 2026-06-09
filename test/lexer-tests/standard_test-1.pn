@@ -1,0 +1,9 @@
+# Lexer Standard Test 1: Basic Tokens and Literals
+int my_val = 42;
+float f = 3.14159;
+char c = 'A';
+string s = "Hello, PiNum!";
+bool is_active = true;
+
+# Arithmetic Operators
+int result = (x + y) * z / 2 - 5 % 3;

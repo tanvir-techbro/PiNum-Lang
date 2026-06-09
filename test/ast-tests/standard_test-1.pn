@@ -1,0 +1,4 @@
+# AST Standard Test 1: Complex Expressions
+int x = (a + b) * (c - d) / (e % f);
+bool check = (x > y && z < w) || !found;
+int bitwise = (a << 2) | (b >> 1) ^ mask;

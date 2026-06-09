@@ -1,0 +1,11 @@
+# Parser Standard Test 3: Loops
+for (int i = 0; i < 10; i = i + 1) {
+    sum = sum + i;
+}
+
+while (running) {
+    count = count - 1;
+    if (count == 0) {
+        return 0;
+    }
+}

@@ -1,3 +1,0 @@
-# This is a comment
-int x=10;@for engine #toggle mode
-print(x);

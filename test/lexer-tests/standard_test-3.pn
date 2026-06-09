@@ -1,0 +1,5 @@
+# Lexer Standard Test 3: Operators and Special Characters
+&& || == != <= >=
+! & | ^ ~ << >>
+? : . , ; ( ) { } [ ]
+++ -- += -= *= /=
