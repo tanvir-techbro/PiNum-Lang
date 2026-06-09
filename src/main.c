@@ -88,19 +88,18 @@ int main(int argc, char *argv[]) {
 
         // Checking if the file extention is valid or not.
         if (extention == NULL) {
-                fprintf(stderr, "Filetype not valid...\n");
+                fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31merror:\033[0m filetype not valid.\n", argv[0]);
                 exit(EXIT_FAILURE);
         } else if (!(strcmp(extention, ".pn"))) {
-
                 // checking if the file can be opened or not
                 if ((buffer = fopen(filename, "r")) == NULL) {
-                        perror("Error opening file...\n");
+                        fprintf(stderr, "\033[1;40m%s: \033[0m", argv[0]);
+                        perror("\033[1;31mfatal error\033[0m");
                         exit(EXIT_FAILURE);
                 }
                 // If the file open is succesful it will continue with rest of the program.
-
         } else {
-                fprintf(stderr, "Filetype not valid...\n");
+                fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31merror:\033[0m filetype not valid.\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
         // ---------------------
