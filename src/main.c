@@ -1,3 +1,26 @@
+/********************************************************************
+ *   _____ _ _   _                       _                          *
+ *  |  __ (_) \ | |                     | |                         *
+ *  | |__) ||  \| |_   _ _ __ ___ ______| |     __ _ _ __   __ _    *
+ *  |  ___/ | . ` | | | | '_ ` _ \______| |    / _` | '_ \ / _` |   *
+ *  | |   | | |\  | |_| | | | | | |     | |___| (_| | | | | (_| |   *
+ *  |_|   | |_| \_|\__,_|_| |_| |_|     |______\__,_|_| |_|\__, |   *
+ *                                                          __/ |   *
+ *                                                         |___/    *
+ *                                                                  *
+ *  Copyright (c) 2026 tanvir-techbro.                              *
+ *  You may opt to use, copy, modify, merge, publish, distribute    *
+ *  and/or sell copies of the Software, and permit persons to whom  *
+ *  the Software is furnished to do so, under the conditions of the *
+ *  LICENSE.                                                        *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, *
+ *  EXPRESS OR IMPLIED.                                             *
+ *                                                                  *
+ *  If you find any bug you would be highly encouraged to create a  *
+ *  github issue at <https://github.com/tanvir-techbro/PiNum-Lang>  *
+ *  or contact <surjointelligence.team@gmail.com>                   *
+ ********************************************************************/
+
 #include "../include/lexer.h"
 #include "../include/mode.h"
 #include "../include/version.h"
@@ -6,38 +29,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-// --- FLAG HANDLING (functions) ---
-// handle the flag '--help'
-void handle_flag_help() {
-        printf("pinum version %s\n\n", PINUM_VERSION);
-        printf("Usage: pinum <file.pn>\n");
-        printf("Flags:\n");
-        printf("  %-20s\tDisplay pinum version information.\n", "--version or -v");
-        printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
-        printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
-}
-// handle '--version' and '-v' flag
-void handle_version_flag() {
-        printf("PiNum-Lang version %s\n", PINUM_VERSION);
-}
-// handle '--update' and '-u' flag
-int handle_update_flag() {
-        printf("Checking for updates...\n");
-        // running curl command to update the system
-        int result = system("((curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh || echo \"exit 1\") | bash)");
-
-        return result;
-}
-// ---------------------------------
+// flag handling functions
+void handle_flag_help();
+void handle_version_flag();
+int handle_update_flag();
 
 // --- MAIN ---
 int main(int argc, char *argv[]) {
 
         // Exits if user does not provide any file
         if (argc < 2) {
-                // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default color
+                // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default
                 // code `\033[1;31m` makes the text 'fatal error' red and code `\033[0m` resets to default color
-                fprintf(stderr, "\\033[1;40m%s:\033[0m 033[1;31mfatal error:\033[0m no input file provided.\n", argv[0]);
+                fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31mfatal error:\033[0m no input file provided.\n", argv[0]);
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
                 fprintf(stderr, "See '--help' for more info.\n");
                 exit(EXIT_FAILURE);
@@ -68,9 +72,9 @@ int main(int argc, char *argv[]) {
                 }
                 // Unrecognized and invalid flag handling
                 else {
-                        // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default color
+                        // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default
                         // code `\033[1;31m` makes the text 'fatal error' red and code `\033[0m` resets to default color
-                        fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31mfatal error:\033[0m invalid flag '%s'\n", argv[0], argv[1]);
+                        fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31merror:\033[0m invalid flag '%s'\n", argv[0], argv[1]);
                         printf("See '--help' for more info.\n");
                         return EXIT_SUCCESS;
                 }
@@ -163,3 +167,27 @@ int main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
         // ---------------------------------
 }
+
+// --- FLAG HANDLING (functions) ---
+// handle the flag '--help'
+void handle_flag_help() {
+        printf("pinum version %s\n\n", PINUM_VERSION);
+        printf("Usage: pinum <file.pn>\n");
+        printf("Flags:\n");
+        printf("  %-20s\tDisplay pinum version information.\n", "--version or -v");
+        printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
+        printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
+}
+// handle '--version' and '-v' flag
+void handle_version_flag() {
+        printf("PiNum-Lang version %s\n", PINUM_VERSION);
+}
+// handle '--update' and '-u' flag
+int handle_update_flag() {
+        printf("Checking for updates...\n");
+        // running curl command to update the system
+        int result = system("((curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh || echo \"exit 1\") | bash)");
+
+        return result;
+}
+// ---------------------------------

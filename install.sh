@@ -41,6 +41,8 @@ echo "Building PiNum..."
 make -s >/dev/null
 
 # 4. Install
+# Checking for termux; sudo wouldn't run on termux
+# if it is not termux then it is a unix based OS.
 if [ -d "/data/data/com.termux" ] || [ -n "$TERMUX_VERSION" ]; then
         echo "Termux detected! Installing to $PREFIX/bin..."
         make -s install >/dev/null
@@ -50,6 +52,7 @@ else
 fi
 
 # 5. Neovim Syntax (Optional)
+# detects for neovim and runs activate_syntax.sh
 if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
         echo ""
         echo "Neovim detected!"
