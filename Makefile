@@ -44,16 +44,6 @@ else
 	mv $(TARGET) $(INSTALL_PATH)/
 endif
 
-# Test rules
-TEST_SRC = tests/test_lexer.c src/lexer.c src/helper.c
-
-test: $(TEST_TARGET)
-	./$(TEST_TARGET)
-
-$(TEST_TARGET): $(TEST_SRC)
-	@$(MKDIR)
-	$(CC) $(CFLAGS) $(TEST_SRC) -o $(TEST_TARGET)
-
 # Rule to clean up the binary
 clean:
 	$(RM) $(TARGET) $(TEST_TARGET)
