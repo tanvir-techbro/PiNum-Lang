@@ -156,6 +156,12 @@ PiNum is currently in its early stages:
 - [ ] Code Generation (In Progress)
 - [ ] Runtime Library
 
+## 🤝 Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on branching, coding standards, and testing.
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).

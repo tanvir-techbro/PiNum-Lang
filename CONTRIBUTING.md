@@ -1,4 +1,88 @@
 # Contributing to PiNum-Lang
-First of all thanks for using pinum and considering to contribute to the project. This document is intended to offer guidelines on how to best contribute to PiNum-Lang.
 
+First of all, thank you for your interest in contributing to **PiNum-Lang**! 🚀 We welcome all contributors who share our passion for building a lightweight, efficient, and clean programming language.
 
+To ensure the codebase remains maintainable and high-quality, we have established a few rules and guidelines that all contributors must follow.
+
+---
+
+## 🌿 Branching Policy
+
+All contributions should be directed toward the **`development`** branch. 
+
+- **Do not** submit Pull Requests (PRs) directly to `main`.
+- Create a feature branch from `development` for your changes (e.g., `git checkout -b feature/awesome-new-feature`).
+- Once your work is ready and tested, submit a PR to merge into `development`.
+
+---
+
+## 🛠 Standards & Guidelines
+
+### 🎨 Code Formatting
+We value clean, consistent code. All C source and header files **must** comply with the project's `.clang-format` configuration.
+
+Before committing your changes, please run:
+```bash
+clang-format -i src/*.c include/*.h
+```
+Any PR with inconsistent formatting will be requested to be updated.
+
+### 🧠 Memory Safety (Valgrind)
+PiNum-Lang is written in C, which means memory management is critical. We have a zero-tolerance policy for memory leaks and invalid accesses.
+
+You **must** use [Valgrind](https://valgrind.org/) to verify your changes. Before submitting a PR, ensure that running the compiler on sample programs produces no errors:
+```bash
+valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum example/helloworld.pn
+```
+
+### 🔢 Versioning
+The versioning of this project is handled by the maintainers.
+- **Do not** modify the `VERSION` file.
+- **Do not** update version-related macros in `include/version.h` or elsewhere.
+
+---
+
+## 📝 Git Commit Guidelines
+
+We believe that a clear git history is just as important as the code itself. Your commit messages should be descriptive and follow a professional format.
+
+**A good commit message should:**
+1.  **Be concise** in the subject line (under 50 characters).
+2.  **Use the imperative mood** ("Add feature" instead of "Added feature").
+3.  **Provide context** in the body if the change is complex.
+
+**Example:**
+```text
+feat: add support for ternary operators in parser
+
+- Implemented tokenizer support for '?' and ':'
+- Updated AST nodes to include TernaryExpression
+- Added parsing logic in parser.c
+```
+
+---
+
+## 🧪 Testing
+
+Quality is non-negotiable. Your code should pass all standard tests located in the `test/` directory.
+
+Currently, you should verify your changes by running the `pinum` binary against the test files:
+```bash
+./bin/pinum test/lexer-tests/test.pn
+```
+Ensure that the output matches expectations and that no regressions are introduced in existing tests (lexer, parser, etc.).
+
+---
+
+## 🚀 Pull Request Process
+
+1.  **Fork** the repository and create your branch from `development`.
+2.  **Implement** your changes, keeping them focused and surgical.
+3.  **Format** your code using `clang-format`.
+4.  **Verify** memory safety with `Valgrind`.
+5.  **Test** your changes against existing `.pn` files in `test/` and `example/`.
+6.  **Submit** a Pull Request to the `development` branch with a clear description of what you've done and why.
+
+---
+
+Thank you for helping make PiNum-Lang better! Happy coding! 💻✨
