@@ -25,6 +25,10 @@
 #define AST_H
 
 #include "lexer.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Possible nodetypes parser can build
 typedef enum {
@@ -61,6 +65,7 @@ typedef enum {
 // forword declaration so the struct can reference itself
 typedef struct ASTnode ASTnode;
 
+// ASTnode
 struct ASTnode {
         nodeType type;
 

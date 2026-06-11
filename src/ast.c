@@ -22,16 +22,12 @@
  ********************************************************************/
 
 #include "../include/ast.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 // --- Node Initialization ---
 ASTnode *create_ast_node(nodeType type) {
         ASTnode *node = (ASTnode *)malloc(sizeof(ASTnode));
         if (node == NULL) {
-                perror("Failed to allocate ast node.\n");
+                perror("Failed to allocate ast node.\n"); // NOTE: for debugging, no node should fail to be allocated.
                 exit(EXIT_FAILURE);
         }
         memset(node, 0, sizeof(ASTnode));
@@ -138,6 +134,7 @@ ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int
 }
 
 // --- Helper Functions for Collections ---
+// This fucntion parses statements into node program or node block
 void ast_add_statement(ASTnode *parent, ASTnode *stmt) {
         if (parent->type == NODE_PROGRAM) {
                 if (parent->data.program.count >= parent->data.program.capacity) {
@@ -154,23 +151,32 @@ void ast_add_statement(ASTnode *parent, ASTnode *stmt) {
         }
 }
 void ast_add_arg(ASTnode *func_call, ASTnode *arg) {
-        if (func_call->type != NODE_FUNC_CALL)
+        // verifying correct node type
+        if (func_call->type != NODE_FUNC_CALL) {
                 return;
+        }
         func_call->data.func_call.args = (ASTnode **)realloc(func_call->data.func_call.args, sizeof(ASTnode *) * (func_call->data.func_call.arg_count + 1));
         func_call->data.func_call.args[func_call->data.func_call.arg_count++] = arg;
 }
 void ast_add_param(ASTnode *func_def, ASTnode *param) {
-        if (func_def->type != NODE_FUNC_DEF)
+        // verifying correct node type
+        if (func_def->type != NODE_FUNC_DEF) {
                 return;
+        }
         func_def->data.func_def.params = (ASTnode **)realloc(func_def->data.func_def.params, sizeof(ASTnode *) * (func_def->data.func_def.param_count + 1));
         func_def->data.func_def.params[func_def->data.func_def.param_count++] = param;
 }
 
 // --- Memory Management ---
+// NOTE: It is a recursive function
 void free_ast_node(ASTnode *node) {
-        if (node == NULL)
+        // If the node is already empty move on
+        if (node == NULL) {
                 return;
+        }
 
+        // Rules for freeing different types of nodes
+        // Basically freeing specific elements in each different node types
         switch (node->type) {
         case NODE_PROGRAM:
                 for (int i = 0; i < node->data.program.count; i++) {

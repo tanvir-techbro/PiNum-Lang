@@ -23,11 +23,6 @@
 
 #include "../include/lexer.h"
 #include "../include/mode.h"
-#include <ctype.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 // quote mode, will be true if we encounter TOKEN_SQUOTE or TOKEN_DQUOTE for first time;
 // if we encounter those tokens second time quote mode will be disabled.

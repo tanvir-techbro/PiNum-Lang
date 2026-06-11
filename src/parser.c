@@ -21,15 +21,8 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
-#include "../include/parser.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 // NOTE: This parser uses recursive decent parsing method.
-
-// ---------------------------- //
-// --- Core functionalities --- //
-// ---------------------------- //
+#include "../include/parser.h"
 
 // --- initialization function (main) ---
 ASTnode *parse(token_list *tokens) {
@@ -89,6 +82,6 @@ ASTnode *parse_expression(Parser *parser) {
         }
 
         // Error
-        fprintf(stderr, "Parser error: Unexpected token %s\n", peek(parser).value);
+        fprintf(stderr, "\033[1;31msyntax error:\033[0m unexpected token %s\n", peek(parser).value);
         exit(EXIT_FAILURE);
 }
