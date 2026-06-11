@@ -93,8 +93,8 @@ int main(int argc, char *argv[]) {
         } else if (!(strcmp(extention, ".pn"))) {
                 // checking if the file can be opened or not
                 if ((buffer = fopen(filename, "r")) == NULL) {
-                        fprintf(stderr, "\033[1;40m%s: \033[0m", argv[0]);
-                        perror("\033[1;31mfatal error\033[0m");
+                        fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31mfatal error: \033[0m", argv[0]);
+                        perror(argv[1]);
                         exit(EXIT_FAILURE);
                 }
                 // If the file open is succesful it will continue with rest of the program.
