@@ -24,7 +24,8 @@
 #ifndef PINUM_VERSION_H
 #define PINUM_VERSION_H
 
-#define PINUM_VERSION "0.5.5"
+#define PINUM_VERSION "0.6.0"
 // update 0.3.5 added semicolon after every expression like javascript and C.
+// update 0.6.0 supports other compilers too.
 
 #endif // PINUM_VERSION_H
