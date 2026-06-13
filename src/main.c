@@ -36,8 +36,8 @@
  *            check the codegen mode (engine or normal) -> pass the parssed nodes (normal codegen or engine codegen) to be compiled into C ->
  *            generate payload.c -> compile payload.c to payload (linux)/ payload.bin (for engine mode)/ payload.exe (windows)
  *
- *            src/main.c -> src/lexer.c src/lexer_filter.c src/helper.c -> src/main.c -> src/parser.c src/helper.c ->
- *            src/ast.c -> src/parser.c -> src/main.c -> src/codegen.c = payload/payload.bin/payload.exe
+ *            file.pn (input) -> src/main.c -> src/lexer.c src/lexer_filter.c src/helper.c -> src/main.c -> src/parser.c src/helper.c ->
+ *            src/ast.c -> src/parser.c -> src/main.c -> src/codegen.c = payload/payload.bin/payload.exe (output)
  */
 
 // flag handling functions
