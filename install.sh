@@ -25,6 +25,10 @@
 
 # PiNum-Lang Installation Script
 # This script builds and installs PiNum-Lang locally.
+# Requirements:
+# - C Compiler (GCC 4.8+, Clang 3.5+, or any C99+ compliant compiler)
+# - Make
+# - POSIX environment (for strdup support)
 
 set -e
 
@@ -32,11 +36,22 @@ REPO_URL="https://github.com/tanvir-techbro/PiNum-Lang"
 INSTALL_DIR="$HOME/.pinum-lang"
 
 # 1. Check for dependencies
-echo "Checking for GCC and Make..."
-if ! command -v gcc &>/dev/null; then
-        echo "Error: gcc not found. Please install a C compiler."
+echo "Checking for a C compiler and Make..."
+
+# Try to find a usable C compiler
+if command -v cc &>/dev/null; then
+        CC_BIN="cc"
+elif command -v gcc &>/dev/null; then
+        CC_BIN="gcc"
+elif command -v clang &>/dev/null; then
+        CC_BIN="clang"
+else
+        echo "Error: No C compiler found (cc, gcc, or clang). Please install one."
         exit 1
 fi
+
+# Print compiler version for debugging/confirmation
+$CC_BIN --version | head -n 1
 
 if ! command -v make &>/dev/null; then
         echo "Error: make not found. Please install 'make'."
@@ -61,7 +76,7 @@ fi
 
 # 3. Build
 echo "Building PiNum..."
-make -s >/dev/null
+make -s CC=$CC_BIN >/dev/null
 
 # 4. Install
 # Checking for termux; sudo wouldn't run on termux
