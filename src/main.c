@@ -29,6 +29,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * PIPLELINE: check if the files provided are right -> tokenize line by line ->
+ *            put tokens in a single line in a token_list -> pass the token_list to parser ->
+ *            turn the list into a ASTnode (syntax tree) -> pass the ast to parser to be parsed ->
+ *            check the codegen mode (engine or normal) -> pass the parssed nodes (normal codegen or engine codegen) to be compiled into C ->
+ *            generate payload.c -> compile payload.c to payload (linux)/ payload.bin (for engine mode)/ payload.exe (windows)
+ * */
+
 // flag handling functions
 void handle_flag_help();
 void handle_version_flag();
