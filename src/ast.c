@@ -21,9 +21,31 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
+/*
+ * @file ast.c
+ * @brief Implementation of Abstract Syntax Tree (AST) nodes and management.
+ *
+ * This file contains functions for creating, managing, and destroying AST nodes.
+ * The AST is the central data structure used by the parser to represent the
+ * source code structure and by the codegen to generate target code.
+ *
+ * Memory Management:
+ * - Nodes are allocated on the heap using create_ast_node.
+ * - Nodes with collections (like PROGRAM or BLOCK) use dynamic arrays of pointers.
+ * - free_ast_node recursively frees the entire tree to prevent leaks.
+ */
+
 #include "../include/ast.h"
 
-// --- Node Initialization ---
+/*
+ * @brief Allocates and initializes a new AST node of a given type.
+ *
+ * This is the base allocation function. It zeros out the memory and sets the type.
+ * All specialized factory functions call this.
+ *
+ * @param type The nodeType to assign to the new node.
+ * @return ASTnode* Pointer to the newly allocated node.
+ */
 ASTnode *create_ast_node(nodeType type) {
         ASTnode *node = (ASTnode *)malloc(sizeof(ASTnode));
         if (node == NULL) {
@@ -36,6 +58,7 @@ ASTnode *create_ast_node(nodeType type) {
 }
 
 // --- Specialized Factory Functions ---
+// These functions wrap create_ast_node and populate the type-specific union data.
 ASTnode *make_int_node(int value) {
         ASTnode *node = create_ast_node(NODE_INT_LITERAL);
         node->data.int_literal.value = value;
@@ -134,15 +157,26 @@ ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int
 }
 
 // --- Helper Functions for Collections ---
-// This fucntion parses statements into node program or node block
+/*
+ * @brief Adds a statement to a program or block node.
+ *
+ * This function manages a dynamic array (the "pool of pointers") for statements.
+ * If the current capacity is reached, it doubles the size using realloc.
+ *
+ * @param parent The parent node (must be NODE_PROGRAM or NODE_BLOCK).
+ * @param stmt The statement node to add.
+ */
 void ast_add_statement(ASTnode *parent, ASTnode *stmt) {
         if (parent->type == NODE_PROGRAM) {
+                // If the dynamic array is full, grow it.
                 if (parent->data.program.count >= parent->data.program.capacity) {
                         parent->data.program.capacity = parent->data.program.capacity == 0 ? 8 : parent->data.program.capacity * 2;
                         parent->data.program.statements = (ASTnode **)realloc(parent->data.program.statements, sizeof(ASTnode *) * parent->data.program.capacity);
                 }
+                // Add the pointer to the end of the array.
                 parent->data.program.statements[parent->data.program.count++] = stmt;
         } else if (parent->type == NODE_BLOCK) {
+                // Same logic for blocks.
                 if (parent->data.blocks.count >= parent->data.blocks.capacity) {
                         parent->data.blocks.capacity = parent->data.blocks.capacity == 0 ? 8 : parent->data.blocks.capacity * 2;
                         parent->data.blocks.statements = (ASTnode **)realloc(parent->data.blocks.statements, sizeof(ASTnode *) * parent->data.blocks.capacity);
@@ -150,14 +184,21 @@ void ast_add_statement(ASTnode *parent, ASTnode *stmt) {
                 parent->data.blocks.statements[parent->data.blocks.count++] = stmt;
         }
 }
+/*
+ * @brief Adds an argument to a function call node.
+ */
 void ast_add_arg(ASTnode *func_call, ASTnode *arg) {
         // verifying correct node type
         if (func_call->type != NODE_FUNC_CALL) {
                 return;
         }
+        // Simple realloc for every new argument. Consider using capacity logic if performance becomes an issue.
         func_call->data.func_call.args = (ASTnode **)realloc(func_call->data.func_call.args, sizeof(ASTnode *) * (func_call->data.func_call.arg_count + 1));
         func_call->data.func_call.args[func_call->data.func_call.arg_count++] = arg;
 }
+/*
+ * @brief Adds a parameter to a function definition node.
+ */
 void ast_add_param(ASTnode *func_def, ASTnode *param) {
         // verifying correct node type
         if (func_def->type != NODE_FUNC_DEF) {
@@ -168,20 +209,29 @@ void ast_add_param(ASTnode *func_def, ASTnode *param) {
 }
 
 // --- Memory Management ---
-// NOTE: It is a recursive function
+/*
+ * @brief Recursively frees an AST node and all its children.
+ *
+ * This is crucial for preventing memory leaks. It uses a post-order traversal
+ * pattern: it frees all child nodes (and their internal strings/arrays) before
+ * finally freeing the node itself.
+ *
+ * @param node The root of the (sub)tree to free.
+ */
 void free_ast_node(ASTnode *node) {
-        // If the node is already empty move on
+        // Base case: NULL pointers are safe to "free".
         if (node == NULL) {
                 return;
         }
 
-        // Rules for freeing different types of nodes
-        // Basically freeing specific elements in each different node types
+        // Switch on type to handle specific child cleanup.
         switch (node->type) {
         case NODE_PROGRAM:
+                // Free all statement nodes in the program.
                 for (int i = 0; i < node->data.program.count; i++) {
                         free_ast_node(node->data.program.statements[i]);
                 }
+                // Free the array of pointers itself.
                 free(node->data.program.statements);
                 break;
         case NODE_VAR_DECL:
@@ -268,15 +318,26 @@ void free_ast_node(ASTnode *node) {
                 break;
         }
 
+        // Finally, free the node container itself.
         free(node);
 }
 
 // --- Debugging and Visualization ---
-// NOTE: this function is temporary and for debugging purposes
+
+/*
+ * @brief Prints a visual representation of the AST to stdout.
+ *
+ * This is a recursive function that uses indentation levels to show
+ * the tree structure. Useful for debugging the parser.
+ *
+ * @param node The root node to start printing from.
+ * @param level Current indentation level (starts at 0).
+ */
 void print_ast(ASTnode *node, int level) {
         if (node == NULL)
                 return;
 
+        // Print indentation based on the tree level.
         for (int i = 0; i < level; i++)
                 printf("  ");
 

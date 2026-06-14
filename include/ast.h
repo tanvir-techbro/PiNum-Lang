@@ -30,149 +30,184 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Possible nodetypes parser can build
+/*
+ * @enum nodeType
+ * @brief Defines all possible types of nodes in the AST.
+ */
 typedef enum {
-        NODE_PROGRAM,   // root node containing all statements
-        NODE_VAR_DECL,  // declaring a veriable
-        NODE_ASSIGN,    // modifying veriable, eg. x = x + 1
-        NODE_FUNC_CALL, // function call
-        NODE_FUNC_DEF,  // function definition
-        // accessing elements
-        NODE_MEMBER_ACCESS, // member access
-        NODE_ARRAY_ACCESS,  // array element access
-        // literals and identifier nodes
-        NODE_INT_LITERAL,    // intager constants, eg. 13
-        NODE_FLOAT_LITERAL,  // decimal constants, eg. 6.7
-        NODE_STRING_LITERAL, // quoted strings, eg. "Hello"
-        NODE_BOOL_LITERAL,   // true/false or 1/0
-        NODE_CHAR_LITERAL,   // single characters, eg. 'a'
-        NODE_IDENTIFIER,     // to represent variable names when they show up in expressions, eg. x + 1 (where x is identifier)
+        NODE_PROGRAM,   // Root node; stores a list of top-level statements.
+        NODE_VAR_DECL,  // Variable declaration (e.g., 'int x = 5').
+        NODE_ASSIGN,    // Variable assignment (e.g., 'x = 10').
+        NODE_FUNC_CALL, // Function invocation with arguments.
+        NODE_FUNC_DEF,  // Function definition (parameters, return type, body).
+
+        // Element Access
+        NODE_MEMBER_ACCESS, // Accessing a struct/object member (e.g., 'obj.prop').
+        NODE_ARRAY_ACCESS,  // Accessing an array element (e.g., 'arr[0]').
+
+        // Literals and Identifiers
+        NODE_INT_LITERAL,    // Integer constant (e.g., 42).
+        NODE_FLOAT_LITERAL,  // Floating-point constant (e.g., 3.14).
+        NODE_STRING_LITERAL, // String constant (e.g., "hello").
+        NODE_BOOL_LITERAL,   // Boolean constant (true/false).
+        NODE_CHAR_LITERAL,   // Character constant (e.g., 'a').
+        NODE_IDENTIFIER,     // Variable or function name.
+
         // Expressions
-        NODE_BINARY_EXPRESSION, // expressions with 2 sides, eg. + - = etc.
-        NODE_UNARY_EXPRESSION,  // expressions with 1 sides, eg. !isTrue (here ! is the expression)
-        // control flow and blocks
-        NODE_BLOCK,   // to group multiple statements inside a curly brace
-        NODE_IF_STAT, // to sotre the condition, then_block and else_block
-        NODE_WHILE,   // while loop
-        NODE_FOR,     // for loop
-        // Built in statements/functions
-        NODE_IMPORT,
-        NODE_RETURN,
-        NODE_PRINT,
-        NODE_READ
+        NODE_BINARY_EXPRESSION, // Expression with two operands (e.g., a + b).
+        NODE_UNARY_EXPRESSION,  // Expression with one operand (e.g., !a, -b).
+
+        // Control Flow and Blocks
+        NODE_BLOCK,   // A group of statements enclosed in braces {}.
+        NODE_IF_STAT, // If-Else conditional statement.
+        NODE_WHILE,   // While loop.
+        NODE_FOR,     // For loop.
+
+        // Built-in Statements
+        NODE_IMPORT, // Import/include another module.
+        NODE_RETURN, // Return from a function.
+        NODE_PRINT,  // Built-in print statement.
+        NODE_READ    // Built-in read/input statement.
 } nodeType;
 
-// forword declaration so the struct can reference itself
+// Forward declaration so the struct can reference itself
 typedef struct ASTnode ASTnode;
 
-// ASTnode
+/*
+ * @struct ASTnode
+ * @brief The fundamental building block of the AST.
+ *
+ * Each node has a type and a union containing data specific to that type.
+ * This structure allows us to represent a wide variety of language constructs
+ * using a single, unified type.
+ */
 struct ASTnode {
-        nodeType type;
+        nodeType type; // What kind of node this is.
 
         union {
-                // root block or group of statements
+                // NODE_PROGRAM: The top-level entry point.
                 struct {
-                        ASTnode **statements;
-                        int count;
-                        int capacity;
+                        ASTnode **statements; // Dynamic array of statement nodes.
+                        int count;            // Number of statements.
+                        int capacity;         // Allocated size of the array.
                 } program;
-                // veriable declaration
+
+                // NODE_VAR_DECL: Declaring a new variable.
                 struct {
                         char *type_name; // e.g., "int", "float"
                         char *modifiers; // e.g., "unsigned", "long"
-                        char *name;      // veriable name
-                        ASTnode *value;  // pointer to the expression node or value (can be NULL)
+                        char *name;      // Variable name
+                        ASTnode *value;  // Initial value expression (can be NULL)
                         bool is_array;
-                        int array_size; // size if it's an array, 0 otherwise
+                        int array_size; // Size if it's an array, 0 otherwise
                 } var_decl;
-                // value assign
+
+                // NODE_ASSIGN: Assigning a value to an existing variable.
                 struct {
-                        char *name;     // veriable name
-                        ASTnode *value; // veriable value
+                        char *name;     // Variable name
+                        ASTnode *value; // New value expression
                 } assign;
+
+                // NODE_FUNC_CALL: Calling a function.
                 struct {
-                        char *name;
-                        ASTnode **args;
-                        int arg_count;
+                        char *name;     // Function name
+                        ASTnode **args; // Dynamic array of argument expressions
+                        int arg_count;  // Number of arguments
                 } func_call;
+
+                // NODE_FUNC_DEF: Defining a function.
                 struct {
                         char *return_type;
                         char *name;
-                        ASTnode **params; // array of NODE_VAR_DECL
+                        ASTnode **params; // Array of NODE_VAR_DECL nodes
                         int param_count;
-                        ASTnode *body; // NODE_BLOCK
+                        ASTnode *body; // NODE_BLOCK containing the function code
                 } func_def;
 
-                // --- accessing elements ---
+                // NODE_MEMBER_ACCESS: obj.member
                 struct {
                         ASTnode *object;
                         char *member;
                 } memeber_access;
+
+                // NODE_ARRAY_ACCESS: arr[index]
                 struct {
                         char *name;
                         ASTnode *index;
                 } array_access;
 
-                // --- Literals and Identifier ---
-                // NODE_INT_LITERAL: e.g., 42
+                // NODE_INT_LITERAL
                 struct {
                         int value;
                 } int_literal;
-                // NODE_FLOAT_LITERAL: e.g., 3.14
+
+                // NODE_FLOAT_LITERAL
                 struct {
                         double value;
                 } float_literal;
-                // NODE_STRING_LITERAL: e.g., "Hello"
+
+                // NODE_STRING_LITERAL
                 struct {
                         char *value;
                 } string_literal;
-                // NODE_BOOL_LITERAL: e.g., true/false
+
+                // NODE_BOOL_LITERAL
                 struct {
                         bool value;
                 } bool_literal;
-                // NODE_CHAR_LITERAL: e.g., 'a'
+
+                // NODE_CHAR_LITERAL
                 struct {
                         char value;
                 } char_literal;
-                // NODE_IDENTIFIER: e.g., myVariable
+
+                // NODE_IDENTIFIER
                 struct {
                         char *name;
                 } identifier;
 
-                // --- expressions ---
+                // NODE_BINARY_EXPRESSION: left OP right
                 struct {
                         ASTnode *left;
                         tokenType op;
                         ASTnode *right;
                 } binary_expression;
+
+                // NODE_UNARY_EXPRESSION: OP left
                 struct {
                         tokenType op;
                         ASTnode *left;
                 } unary_expression;
 
-                // --- Control flow and blocks ---
+                // NODE_BLOCK: { statements... }
                 struct {
-                        ASTnode **statements;
+                        ASTnode **statements; // Dynamic array of statement nodes
                         int count;
                         int capacity;
                 } blocks;
+
+                // NODE_IF_STAT
                 struct {
                         ASTnode *condition;
                         ASTnode *then_block;
-                        ASTnode *else_block; // can be NULL
+                        ASTnode *else_block; // Optional, can be NULL
                 } if_stat;
+
+                // NODE_WHILE
                 struct {
                         ASTnode *condition;
                         ASTnode *body;
                 } while_loop;
+
+                // NODE_FOR
                 struct {
-                        ASTnode *init;
-                        ASTnode *condition;
-                        ASTnode *increment;
-                        ASTnode *body;
+                        ASTnode *init;      // Initialization statement
+                        ASTnode *condition; // Loop condition
+                        ASTnode *increment; // Increment expression
+                        ASTnode *body;      // Loop body block
                 } for_loop;
 
-                // --- built in statements/functions
+                // Built-in operations
                 struct {
                         char *lib_name;
                 } import;
