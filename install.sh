@@ -104,7 +104,7 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
 fi
 
 # deleting the temporary build folder
-rm -rf src include example test bin .gitignore .clang-format Makefile CONTRIBUTING.md install.sh
+rm -rf src include example test bin .gitignore .clang-format Makefile CONTRIBUTING.md install.sh runtime/.gitkeep
 
 echo ""
 echo "----------------------------------"
