@@ -29,6 +29,10 @@ ASTnode *parse(token_list *tokens) {
         Parser parser = {tokens, 0};
         return parse_program(&parser);
 }
+ASTnode *parse_line(token_list *tokens) {
+        Parser parser = {tokens, 0};
+        return parse_statement(&parser);
+}
 
 // --- Internal parsing functions (using recursive decent) ---
 ASTnode *parse_program(Parser *parser) {
@@ -42,7 +46,14 @@ ASTnode *parse_program(Parser *parser) {
         }
         return program;
 }
+// - statement level parsing -
 ASTnode *parse_statement(Parser *parser) {
+        if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
+            check(parser, TOKEN_CHAR) || check(parser, TOKEN_STRING) ||
+            check(parser, TOKEN_BOOL) || check(parser, TOKEN_UNSIGNED) ||
+            check(parser, TOKEN_SIGNED)) {
+                return parse_declaration(parser);
+        }
         if (match(parser, TOKEN_PRINT)) {
                 ASTnode *expression = parse_expression(parser);
                 consume_end_of_statement(parser);
@@ -93,7 +104,6 @@ ASTnode *parse_declaration(Parser *parser) {
 
         return make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
 }
-
 // - Expression parsing -
 ASTnode *parse_primary(Parser *parser) {
         if (match(parser, TOKEN_INUM)) {
@@ -141,4 +151,3 @@ ASTnode *parse_term(Parser *parser) {
 ASTnode *parse_expression(Parser *parser) {
         return parse_term(parser);
 }
-// ----------------------

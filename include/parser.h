@@ -37,8 +37,10 @@ typedef struct {
 
 // Core parser functions
 ASTnode *parse(token_list *tokens);
+ASTnode *parse_line(token_list *tokens);
 // Internal parsing functions (recursive descent)
 ASTnode *parse_program(Parser *parser);
+// Statement level parsing
 ASTnode *parse_statement(Parser *parser);
 ASTnode *parse_declaration(Parser *parser);
 // Expression parsing
