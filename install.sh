@@ -63,14 +63,14 @@ if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation in $INSTALL_DIR..."
         cd "$INSTALL_DIR"
         git checkout . --quiet
-        git pull --quiet
+        git pull --depth 1 --quiet
 else
         echo "-----------------------------"
         echo "   Installing PiNum-Lang...  "
         echo "-----------------------------"
         echo ""
         echo "Cloning repository to $INSTALL_DIR..."
-        git clone --quiet "$REPO_URL" "$INSTALL_DIR"
+        git clone --depth 1 --quiet "$REPO_URL" "$INSTALL_DIR"
         cd "$INSTALL_DIR"
 fi
 
