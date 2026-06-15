@@ -25,6 +25,7 @@
 bin/*
 runtime/*
 #/test/*
+change_plan.md
 
 # dont ignore
 !bin/.gitkeep
