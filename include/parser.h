@@ -40,7 +40,10 @@ ASTnode *parse(token_list *tokens);
 // Internal parsing functions (recursive descent)
 ASTnode *parse_program(Parser *parser);
 ASTnode *parse_statement(Parser *parser);
-ASTnode *parse_expression(Parser *parser);
+ASTnode *parse_primary(Parser *parser);
+ASTnode *parse_factors(Parser *parser);    // for multiplication and division
+ASTnode *parse_term(Parser *parser);       // for addition and subtraction
+ASTnode *parse_expression(Parser *parser); // Entry point, calling parser functions in order
 
 // helper functions
 // NOTE: below functions are defined in src/helper.c

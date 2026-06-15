@@ -58,30 +58,51 @@ ASTnode *parse_statement(Parser *parser) {
 
         // TODO: add more statements to be parsed
 }
-ASTnode *parse_expression(Parser *parser) {
-        // --- Literals parsing ---
-        // Intager node parsing
+// - Expression parsing -
+ASTnode *parse_primary(Parser *parser) {
         if (match(parser, TOKEN_INUM)) {
                 return make_int_node(parser->tokens->tokens[parser->current - 1].int_value);
         }
-        // Floting point node parsing
         if (match(parser, TOKEN_FNUM)) {
                 return make_float_node(parser->tokens->tokens[parser->current - 1].float_value);
         }
-        // string node parsing
-        if (match(parser, TOKEN_STRING)) {
-                return make_string_node(parser->tokens->tokens[parser->current - 1].value);
-        }
-        // boolean node parsing
-        if (match(parser, TOKEN_BOOL)) {
-                return make_bool_node(parser->tokens->tokens[parser->current - 1].value);
-        }
-        // Identifier node parsing
         if (match(parser, TOKEN_ID)) {
                 return make_identifier_node(parser->tokens->tokens[parser->current - 1].value);
+        }
+
+        if (match(parser, TOKEN_LRPAREN)) {
+                ASTnode *expr = parse_expression(parser);
+                consume(parser, TOKEN_RRPAREN, "expect ')' after expression.\n");
+                return expr;
         }
 
         // Error
         fprintf(stderr, "\033[1;31msyntax error:\033[0m unexpected token %s\n", peek(parser).value);
         exit(EXIT_FAILURE);
 }
+ASTnode *parse_factors(Parser *parser) {
+        ASTnode *node = parse_primary(parser);
+
+        // TOKEN_STAR may be used for multiplication, TOKEN_FSLASH may be used for division and TOKEN_PERCENT may be used for modulo
+        while (match(parser, TOKEN_STAR) || match(parser, TOKEN_FSLASH) || match(parser, TOKEN_PERCENT)) {
+                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                ASTnode *right = parse_primary(parser);
+                node = make_binary_node(node, op, right);
+        }
+        return node;
+}
+ASTnode *parse_term(Parser *parser) {
+        ASTnode *node = parse_factors(parser);
+
+        while (match(parser, TOKEN_PLUS) || match(parser, TOKEN_MINUS)) {
+                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                ASTnode *right = parse_factors(parser);
+                node = make_binary_node(node, op, right);
+        }
+        return node;
+}
+// Entry point
+ASTnode *parse_expression(Parser *parser) {
+        return parse_term(parser);
+}
+// ----------------------
