@@ -40,6 +40,8 @@ ASTnode *parse(token_list *tokens);
 // Internal parsing functions (recursive descent)
 ASTnode *parse_program(Parser *parser);
 ASTnode *parse_statement(Parser *parser);
+ASTnode *parse_declaration(Parser *parser);
+// Expression parsing
 ASTnode *parse_primary(Parser *parser);
 ASTnode *parse_factors(Parser *parser);    // for multiplication and division
 ASTnode *parse_term(Parser *parser);       // for addition and subtraction

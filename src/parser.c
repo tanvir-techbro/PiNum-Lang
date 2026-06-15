@@ -58,6 +58,42 @@ ASTnode *parse_statement(Parser *parser) {
 
         // TODO: add more statements to be parsed
 }
+ASTnode *parse_declaration(Parser *parser) {
+        char *modifier = NULL;
+        char *data_type = NULL;
+
+        // Modifier (optional)
+        if (match(parser, TOKEN_UNSIGNED)) modifier = "unsigned";
+        else if (match(parser, TOKEN_SIGNED)) modifier = "signed";
+        else if (match(parser, TOKEN_LONG)) modifier = "long";
+        else if (match(parser, TOKEN_SHORT)) modifier = "short";
+
+        // Data Type (Required)
+        if (match(parser, TOKEN_INT)) data_type = "int";
+        else if (match(parser, TOKEN_FLOAT)) data_type = "float";
+        else if (match(parser, TOKEN_DOUBLE)) data_type = "double";
+        else if (match(parser, TOKEN_CHAR)) data_type = "char";
+        else if (match(parser, TOKEN_STRING)) data_type = "string";
+        else if (match(parser, TOKEN_BOOL)) data_type = "bool";
+        else {
+                fprintf(stderr, "Syntax error: Expected type name.\n");
+                exit(EXIT_FAILURE);
+        }
+
+        // Veriable name
+        token name_token = consume(parser, TOKEN_ID, "expected veriable name.\n");
+        char *var_name = name_token.value; // value is actually the name of the token
+
+        ASTnode *initializer = NULL;
+        if (match(parser, TOKEN_EQUAL)) {
+                initializer = parse_expression(parser);
+        }
+        // expecting for a semicolon at the end
+        consume_end_of_statement(parser);
+
+        return make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
+}
+
 // - Expression parsing -
 ASTnode *parse_primary(Parser *parser) {
         if (match(parser, TOKEN_INUM)) {
