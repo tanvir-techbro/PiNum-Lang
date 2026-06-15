@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 typedef enum {
+        // Parser errors
         ERR_UNEXPECTED_TOKEN,
         ERR_EXPECTED_TYPE,
         ERR_EXPECTED_ID,
