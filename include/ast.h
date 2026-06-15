@@ -64,10 +64,11 @@ typedef enum {
         NODE_FOR,     // For loop.
 
         // Built-in Statements
-        NODE_IMPORT, // Import/include another module.
-        NODE_RETURN, // Return from a function.
-        NODE_PRINT,  // Built-in print statement.
-        NODE_READ    // Built-in read/input statement.
+        NODE_IMPORT,    // Import/include another module.
+        NODE_DIRECTIVE, // Directive (e.g., @import, @for)
+        NODE_RETURN,    // Return from a function.
+        NODE_PRINT,     // Built-in print statement.
+        NODE_READ       // Built-in read/input statement.
 } nodeType;
 
 // Forward declaration so the struct can reference itself
@@ -212,6 +213,10 @@ struct ASTnode {
                         char *lib_name;
                 } import;
                 struct {
+                        char *name;
+                        char *value;
+                } directive;
+                struct {
                         ASTnode *expression;
                 } returns;
                 struct {
@@ -237,6 +242,7 @@ ASTnode *make_unary_node(tokenType op, ASTnode *left);
 ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *else_block);
 ASTnode *make_while_node(ASTnode *condition, ASTnode *body);
 ASTnode *make_for_node(ASTnode *init, ASTnode *condition, ASTnode *increment, ASTnode *body);
+ASTnode *make_directive_node(char *name, char *value);
 ASTnode *make_var_decl_node(char *type_name, char *modifiers, char *name, ASTnode *value, bool is_array, int array_size);
 ASTnode *make_assign_node(char *name, ASTnode *value);
 ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count);
@@ -245,5 +251,8 @@ ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int
 void ast_add_statement(ASTnode *parent, ASTnode *stmt);
 void ast_add_arg(ASTnode *func_call, ASTnode *arg);
 void ast_add_param(ASTnode *func_def, ASTnode *param);
+// Memory management
+void free_ast_node(ASTnode *node);
+void print_ast(ASTnode *node, int level);
 
 #endif // !AST_H

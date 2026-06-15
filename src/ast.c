@@ -155,6 +155,12 @@ ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int
         node->data.func_def.body = body;
         return node;
 }
+ASTnode *make_directive_node(char *name, char *value) {
+        ASTnode *node = create_ast_node(NODE_DIRECTIVE);
+        node->data.directive.name = strdup(name);
+        node->data.directive.value = value ? strdup(value) : NULL;
+        return node;
+}
 
 // --- Helper Functions for Collections ---
 /*
@@ -305,6 +311,10 @@ void free_ast_node(ASTnode *node) {
         case NODE_IMPORT:
                 free(node->data.import.lib_name);
                 break;
+        case NODE_DIRECTIVE:
+                free(node->data.directive.name);
+                free(node->data.directive.value);
+                break;
         case NODE_RETURN:
                 free_ast_node(node->data.returns.expression);
                 break;
@@ -371,6 +381,9 @@ void print_ast(ASTnode *node, int level) {
         case NODE_IDENTIFIER:
                 printf("IDENT: %s\n", node->data.identifier.name);
                 break;
+        case NODE_STRING_LITERAL:
+                printf("STRING: %s\n", node->data.string_literal.value);
+                break;
         case NODE_BINARY_EXPRESSION:
                 printf("BINARY_OP: %d\n", node->data.binary_expression.op);
                 print_ast(node->data.binary_expression.left, level + 1);
@@ -402,6 +415,13 @@ void print_ast(ASTnode *node, int level) {
                 print_ast(node->data.for_loop.increment, level + 1);
                 printf("BODY:\n");
                 print_ast(node->data.for_loop.body, level + 1);
+                break;
+        case NODE_DIRECTIVE:
+                printf("DIRECTIVE: @%s %s\n", node->data.directive.name, node->data.directive.value ? node->data.directive.value : "");
+                break;
+        case NODE_PRINT:
+                printf("PRINT\n");
+                print_ast(node->data.print.expression, level + 1);
                 break;
         default:
                 printf("NODE_TYPE: %d\n", node->type);

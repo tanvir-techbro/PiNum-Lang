@@ -114,7 +114,7 @@ token consume(Parser *parser, tokenType type, const char *message) {
         exit(EXIT_FAILURE);
 }
 void consume_end_of_statement(Parser *parser) {
-        if (match(parser, TOKEN_SEMICOLON)) {
+        if (match(parser, TOKEN_SEMICOLON) || match(parser, TOKEN_NLINE)) {
                 return;
         }
         // If the next line is EOF its the end of statement, check for EOF
@@ -122,7 +122,7 @@ void consume_end_of_statement(Parser *parser) {
                 return;
         }
 
-        fprintf(stderr, "Parser error: Expect ';' after statement. Found: %s\n", peek(parser).value);
+        fprintf(stderr, "Parser error: Expect ';' or newline after statement. Found: %s\n", peek(parser).value);
         exit(EXIT_FAILURE);
 }
 // ===================================================

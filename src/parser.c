@@ -62,6 +62,26 @@ ASTnode *parse_statement(Parser *parser) {
                 return node;
         }
 
+        if (match(parser, TOKEN_ATSIGN)) {
+                // The lexer splits '@import' into TOKEN_ATSIGN and TOKEN_IMPORT
+                token name_token = advance(parser); 
+                char *name = name_token.value;
+                char *value = NULL;
+                // Allow IDs or LIB tokens
+                if (check(parser, TOKEN_ID) || check(parser, TOKEN_LIB_STDLIB)) {
+                        value = advance(parser).value;
+                }
+                return make_directive_node(name, value);
+        }
+        
+        // Skip newlines before statement
+        if (match(parser, TOKEN_NLINE)) {
+                // If it is a newline, we have already consumed it with match.
+                // Just return NULL or continue to next statement.
+                // For now, let's just return NULL and have the caller handle it.
+                return NULL;
+        }
+
         // Fallback to expression statement
         ASTnode *expression = parse_expression(parser);
         consume_end_of_statement(parser);
@@ -120,6 +140,24 @@ ASTnode *parse_primary(Parser *parser) {
                 ASTnode *expr = parse_expression(parser);
                 consume(parser, TOKEN_RRPAREN, "expect ')' after expression.\n");
                 return expr;
+        }
+
+        if (match(parser, TOKEN_DQUOTE) || match(parser, TOKEN_SQUOTE)) {
+                // Collect string content
+                char *str_content = strdup("");
+                while (!check(parser, TOKEN_DQUOTE) && !check(parser, TOKEN_SQUOTE) && !check(parser, TOKEN_EOF)) {
+                        token t = advance(parser);
+                        if (t.value) {
+                                char *new_str = malloc(strlen(str_content) + strlen(t.value) + 1);
+                                sprintf(new_str, "%s%s", str_content, t.value);
+                                free(str_content);
+                                str_content = new_str;
+                        }
+                }
+                advance(parser); // consume closing quote
+                ASTnode *node = make_string_node(str_content);
+                free(str_content);
+                return node;
         }
 
         // Error
