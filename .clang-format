@@ -29,5 +29,9 @@ IndentWidth: 8
 TabWidth: 8
 UseTab: Never
 ColumnLimit: 0
-AllowShortIfStatementsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: All
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
 ---
