@@ -61,7 +61,12 @@ ASTnode *parse_statement(Parser *parser) {
                 node->data.print.expression = expression;
                 return node;
         }
-
+        if (match(parser, TOKEN_IF)) {
+                return parse_if_statement(parser);
+        }
+        if (match(parser, TOKEN_WHILE)) {
+                return parse_while_statement(parser);
+        }
         if (match(parser, TOKEN_ATSIGN)) {
                 // The lexer splits '@import' into TOKEN_ATSIGN and TOKEN_IMPORT
                 token name_token = advance(parser);
@@ -78,7 +83,6 @@ ASTnode *parse_statement(Parser *parser) {
         if (match(parser, TOKEN_NLINE)) {
                 // If it is a newline, we have already consumed it with match.
                 // Just return NULL or continue to next statement.
-                // For now, let's just return NULL and have the caller handle it.
                 return NULL;
         }
 
@@ -88,6 +92,29 @@ ASTnode *parse_statement(Parser *parser) {
         return expression;
 
         // TODO: add more statements to be parsed
+}
+ASTnode *parse_if_statement(Parser *parser) {
+        // Parsing the expresseion inside ( )
+        consume(parser, TOKEN_LRPAREN, "expected '('\n");
+        ASTnode *condition = parse_expression(parser);
+        consume(parser, TOKEN_RRPAREN, "expected ')'\n");
+
+        ASTnode *then_block = parse_block(parser);
+        ASTnode *else_block = NULL;
+        if (match(parser, TOKEN_ELSE)) {
+                else_block = parse_block(parser);
+        }
+
+        return make_if_stat_node(condition, then_block, else_block);
+}
+ASTnode *parse_while_statement(Parser *parser) {
+        // parsing the expression inside ( )
+        consume(parser, TOKEN_LRPAREN, "expected '('\n");
+        ASTnode *condition = parse_expression(parser);
+        consume(parser, TOKEN_RRPAREN, "expected ')'\n");
+        ASTnode *body = parse_block(parser);
+
+        return make_while_node(condition, body);
 }
 ASTnode *parse_declaration(Parser *parser) {
         char *modifier = NULL;
