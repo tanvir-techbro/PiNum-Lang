@@ -44,6 +44,7 @@ ASTnode *parse_program(Parser *parser);
 ASTnode *parse_statement(Parser *parser);
 ASTnode *parse_if_statement(Parser *parser);
 ASTnode *parse_while_statement(Parser *parser);
+ASTnode *parse_for_statement(Parser *parser);
 ASTnode *parse_return_statement(Parser *parser);
 ASTnode *parse_declaration(Parser *parser);
 ASTnode *parse_block(Parser *parser);
@@ -57,7 +58,7 @@ ASTnode *parse_term(Parser *parser);        // for addition and subtraction
 ASTnode *parse_assignment(Parser *parser);  // assignment parsing, e.g. x = 10
 ASTnode *parse_logical_or(Parser *parser);  // logical or ||
 ASTnode *parse_logical_and(Parser *parser); // logical and &&
-ASTnode *parse_equality(Parser *parser);    // equality ==
+ASTnode *parse_equality(Parser *parser);    // equality ==, !=
 ASTnode *parse_comparison(Parser *parser);  // for <, >, <=, >=
 ASTnode *parse_expression(Parser *parser);  // Entry point, calling parser functions in order
 

@@ -23,6 +23,7 @@
 
 // NOTE: This parser uses recursive decent parsing method.
 #include "../include/parser.h"
+#include <string.h>
 
 // --- initialization function (main) ---
 ASTnode *parse(token_list *tokens) {
@@ -66,6 +67,9 @@ ASTnode *parse_statement(Parser *parser) {
         }
         if (match(parser, TOKEN_WHILE)) {
                 return parse_while_statement(parser);
+        }
+        if (match(parser, TOKEN_FOR)) {
+                return parse_for_statement(parser);
         }
         if (match(parser, TOKEN_RETURN)) {
                 return parse_return_statement(parser);
@@ -118,6 +122,39 @@ ASTnode *parse_while_statement(Parser *parser) {
         ASTnode *body = parse_block(parser);
 
         return make_while_node(condition, body);
+}
+// for(init; condition; inc) {dory}
+ASTnode *parse_for_statement(Parser *parser) {
+        consume(parser, TOKEN_LRPAREN, "expected '('\n");
+
+        // init
+        ASTnode *init = NULL;
+        if (!check(parser, TOKEN_SEMICOLON)) {
+                if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
+                    check(parser, TOKEN_DOUBLE)) {
+                        init = parse_declaration(parser);
+                } else {
+                        init = parse_expression(parser);
+                        consume(parser, TOKEN_SEMICOLON, "expected ';'\n");
+                }
+        } else {
+                advance(parser); // skip empty init ';'
+        }
+        // condition
+        ASTnode *condition = NULL;
+        if (!check(parser, TOKEN_SEMICOLON)) {
+                condition = parse_expression(parser);
+        }
+        consume(parser, TOKEN_SEMICOLON, "expected ';'\n");
+        // inc
+        ASTnode *inc = NULL;
+        if (!check(parser, TOKEN_RRPAREN)) {
+                inc = parse_expression(parser);
+        }
+        consume(parser, TOKEN_RRPAREN, "expected ')'\n");
+
+        ASTnode *body = parse_block(parser);
+        return make_for_node(init, condition, inc, body);
 }
 ASTnode *parse_return_statement(Parser *parser) {
         ASTnode *expression = parse_expression(parser);
