@@ -67,6 +67,9 @@ ASTnode *parse_statement(Parser *parser) {
         if (match(parser, TOKEN_WHILE)) {
                 return parse_while_statement(parser);
         }
+        if (match(parser, TOKEN_RETURN)) {
+                return parse_return_statement(parser);
+        }
         if (match(parser, TOKEN_ATSIGN)) {
                 // The lexer splits '@import' into TOKEN_ATSIGN and TOKEN_IMPORT
                 token name_token = advance(parser);
@@ -115,6 +118,13 @@ ASTnode *parse_while_statement(Parser *parser) {
         ASTnode *body = parse_block(parser);
 
         return make_while_node(condition, body);
+}
+ASTnode *parse_return_statement(Parser *parser) {
+        ASTnode *expression = parse_expression(parser);
+        consume_end_of_statement(parser);
+        ASTnode *node = create_ast_node(NODE_RETURN);
+        node->data.returns.expression = expression;
+        return node;
 }
 ASTnode *parse_declaration(Parser *parser) {
         char *modifier = NULL;

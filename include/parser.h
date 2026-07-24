@@ -44,6 +44,7 @@ ASTnode *parse_program(Parser *parser);
 ASTnode *parse_statement(Parser *parser);
 ASTnode *parse_if_statement(Parser *parser);
 ASTnode *parse_while_statement(Parser *parser);
+ASTnode *parse_return_statement(Parser *parser);
 ASTnode *parse_declaration(Parser *parser);
 ASTnode *parse_block(Parser *parser);
 // Expression parsing
