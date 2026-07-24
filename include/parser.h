@@ -50,6 +50,8 @@ ASTnode *parse_block(Parser *parser);
 // Expression parsing
 // TODO: Define thesse functions
 ASTnode *parse_primary(Parser *parser);
+ASTnode *parse_call(Parser *parser);        // for functions calls like func(parameters) and member access like arr[0]
+ASTnode *parse_unary(Parser *parser);       // for ! and - in front of values
 ASTnode *parse_factors(Parser *parser);     // for multiplication and division
 ASTnode *parse_term(Parser *parser);        // for addition and subtraction
 ASTnode *parse_assignment(Parser *parser);  // assignment parsing, e.g. x = 10

@@ -214,10 +214,58 @@ ASTnode *parse_primary(Parser *parser) {
         fprintf(stderr, "\033[1;31msyntax error:\033[0m unexpected token %s\n", peek(parser).value);
         exit(EXIT_FAILURE);
 }
-// parsing * (multiplication), / (division) and % (modulo)
+// parses function call and member access
 // parses and refers to parse_primary
-ASTnode *parse_factors(Parser *parser) {
+ASTnode *parse_call(Parser *parser) {
         ASTnode *node = parse_primary(parser);
+
+        while (true) {
+                // function call parsing
+                // function call identified by NODE_IDENTIFIER followed by TOKEN_LRPAREN
+                if (match(parser, TOKEN_LRPAREN)) {
+                        if (node->type != NODE_IDENTIFIER) {
+                                fprintf(stderr, "Syntax error: can only call functions.\n");
+                                exit(EXIT_FAILURE);
+                        }
+                        ASTnode *call = make_func_call_node(node->data.identifier.name, NULL, 0);
+                        // if the next token is not ')' TOKEN_RRPAREN, there must be args
+                        if (!check(parser, TOKEN_RRPAREN)) {
+                                do {
+                                        ast_add_arg(call, parse_expression(parser));
+                                } while (match(parser, TOKEN_COMMA));
+                        }
+                        consume(parser, TOKEN_RRPAREN, "expected ')' after arguments.\n");
+                        node = call;
+                }
+                // array access
+                // array access if NODE_IDENTIFIER followed by TOKEN_LSPAREN
+                else if (match(parser, TOKEN_LSPAREN)) {
+                        ASTnode *index = parse_expression(parser);
+                        consume(parser, TOKEN_RSPAREN, "expected ']' after index\n");
+                        ASTnode *access = create_ast_node(NODE_ARRAY_ACCESS);
+                        access->data.array_access.name = node->data.identifier.name;
+                        access->data.array_access.index = index;
+                        node = access;
+                } else {
+                        break;
+                }
+        }
+        return node;
+}
+// parsing ! and - in front of values
+// parses and refers to parse_call
+ASTnode *parse_unary(Parser *parser) {
+        if (match(parser, TOKEN_EXCLAMATION) || match(parser, TOKEN_MINUS)) {
+                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                ASTnode *left = parse_unary(parser);
+                return make_unary_node(op, left);
+        }
+        return parse_call(parser);
+}
+// parsing * (multiplication), / (division) and % (modulo)
+// parses and refers to parse_unary
+ASTnode *parse_factors(Parser *parser) {
+        ASTnode *node = parse_unary(parser);
 
         // TOKEN_STAR may be used for multiplication, TOKEN_FSLASH may be used for division and TOKEN_PERCENT may be used for modulo
         while (match(parser, TOKEN_STAR) || match(parser, TOKEN_FSLASH) || match(parser, TOKEN_PERCENT)) {
