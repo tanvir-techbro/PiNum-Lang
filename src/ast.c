@@ -343,6 +343,7 @@ void free_ast_node(ASTnode *node) {
  * @param node The root node to start printing from.
  * @param level Current indentation level (starts at 0).
  */
+// NOTE: This function is for debugging purposes and will be commented out.
 void print_ast(ASTnode *node, int level) {
         if (node == NULL)
                 return;

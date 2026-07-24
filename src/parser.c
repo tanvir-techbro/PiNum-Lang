@@ -64,7 +64,7 @@ ASTnode *parse_statement(Parser *parser) {
 
         if (match(parser, TOKEN_ATSIGN)) {
                 // The lexer splits '@import' into TOKEN_ATSIGN and TOKEN_IMPORT
-                token name_token = advance(parser); 
+                token name_token = advance(parser);
                 char *name = name_token.value;
                 char *value = NULL;
                 // Allow IDs or LIB tokens
@@ -73,7 +73,7 @@ ASTnode *parse_statement(Parser *parser) {
                 }
                 return make_directive_node(name, value);
         }
-        
+
         // Skip newlines before statement
         if (match(parser, TOKEN_NLINE)) {
                 // If it is a newline, we have already consumed it with match.
@@ -125,6 +125,7 @@ ASTnode *parse_declaration(Parser *parser) {
         return make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
 }
 // - Expression parsing -
+// Takes the parsed binary node and makes a specific node
 ASTnode *parse_primary(Parser *parser) {
         if (match(parser, TOKEN_INUM)) {
                 return make_int_node(parser->tokens->tokens[parser->current - 1].int_value);
@@ -164,6 +165,8 @@ ASTnode *parse_primary(Parser *parser) {
         fprintf(stderr, "\033[1;31msyntax error:\033[0m unexpected token %s\n", peek(parser).value);
         exit(EXIT_FAILURE);
 }
+// parsing * (multiplication), / (division) and % (modulo)
+// parses and refers to parse_primary
 ASTnode *parse_factors(Parser *parser) {
         ASTnode *node = parse_primary(parser);
 
@@ -175,6 +178,8 @@ ASTnode *parse_factors(Parser *parser) {
         }
         return node;
 }
+// parsing + (addidtion) and - (subtraction)
+// parses and refers to parse_factors
 ASTnode *parse_term(Parser *parser) {
         ASTnode *node = parse_factors(parser);
 
@@ -185,7 +190,33 @@ ASTnode *parse_term(Parser *parser) {
         }
         return node;
 }
+// parsing < (lesser than), > (greater than), <= (less than equal to) and >= (more than equal to)
+// parses and refers to parse_term
+ASTnode *parse_comparison(Parser *parser) {
+        ASTnode *node = parse_term(parser);
+
+        while (match(parser, TOKEN_LABRACKET) || match(parser, TOKEN_RABRACKET) ||
+               match(parser, TOKEN_LEQUAL) || match(parser, TOKEN_GEQUAL)) {
+                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                ASTnode *right = parse_term(parser);
+                node = make_binary_node(node, op, right);
+        }
+        return node;
+}
+// parsing == (equal to) and != (not equal to)
+// parses and refers to parse_comparison
+ASTnode *parse_equality(Parser *parser) {
+        ASTnode *node = parse_comparison(parser);
+
+        while (match(parser, TOKEN_EEQUAL) || match(parser, TOKEN_NEQUAL)) {
+                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                ASTnode *right = parse_comparison(parser);
+                node = make_binary_node(node, op, right);
+        }
+        return node;
+}
 // Entry point
+// refers to parse_comparison
 ASTnode *parse_expression(Parser *parser) {
-        return parse_term(parser);
+        return parse_equality(parser);
 }

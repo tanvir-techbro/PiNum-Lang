@@ -44,10 +44,15 @@ ASTnode *parse_program(Parser *parser);
 ASTnode *parse_statement(Parser *parser);
 ASTnode *parse_declaration(Parser *parser);
 // Expression parsing
+// TODO: Define thesse functions
 ASTnode *parse_primary(Parser *parser);
-ASTnode *parse_factors(Parser *parser);    // for multiplication and division
-ASTnode *parse_term(Parser *parser);       // for addition and subtraction
-ASTnode *parse_expression(Parser *parser); // Entry point, calling parser functions in order
+ASTnode *parse_factors(Parser *parser);     // for multiplication and division
+ASTnode *parse_term(Parser *parser);        // for addition and subtraction
+ASTnode *parse_logical_or(Parser *parser);  // logical or ||
+ASTnode *parse_logical_and(Parser *parser); // logical and &&
+ASTnode *parse_equality(Parser *parser);    // equality ==
+ASTnode *parse_comparison(Parser *parser);  // for <, >, <=, >=
+ASTnode *parse_expression(Parser *parser);  // Entry point, calling parser functions in order
 
 // helper functions
 // NOTE: below functions are defined in src/helper.c
