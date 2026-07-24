@@ -215,8 +215,46 @@ ASTnode *parse_equality(Parser *parser) {
         }
         return node;
 }
+// parsing && (and operator)
+// refers to parse_equality
+ASTnode *parse_logical_and(Parser *parser) {
+        ASTnode *node = parse_equality(parser);
+
+        while (match(parser, TOKEN_AND)) {
+                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                ASTnode *right = parse_equality(parser);
+                node = make_binary_node(node, op, right);
+        }
+        return node;
+}
+// parsing || (or operator)
+// refers to parse_logical_and
+ASTnode *parse_logical_or(Parser *parser) {
+        ASTnode *node = parse_logical_and(parser);
+
+        while (match(parser, TOKEN_OR)) {
+                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                ASTnode *right = parse_logical_and(parser);
+                node = make_binary_node(node, op, right);
+        }
+        return node;
+}
+// parsing assignition
+ASTnode *parse_assignment(Parser *parser) {
+        ASTnode *node = parse_logical_or(parser);
+
+        if (match(parser, TOKEN_EQUAL)) {
+                ASTnode *value = parse_assignment(parser);
+                if (node->type != NODE_IDENTIFIER) {
+                        fprintf(stderr, "Syntax error: Invalid assignment target.\n");
+                        exit(EXIT_FAILURE);
+                }
+                return make_assign_node(node->data.identifier.name, value);
+        }
+        return node;
+}
 // Entry point
-// refers to parse_comparison
+// refers to parse_assignment
 ASTnode *parse_expression(Parser *parser) {
-        return parse_equality(parser);
+        return parse_assignment(parser);
 }
