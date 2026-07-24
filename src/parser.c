@@ -124,6 +124,18 @@ ASTnode *parse_declaration(Parser *parser) {
 
         return make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
 }
+ASTnode *parse_block(Parser *parser) {
+        consume(parser, TOKEN_LCPAREN, "expected '{'\n");
+        ASTnode *block = create_ast_node(NODE_BLOCK);
+
+        while (!check(parser, TOKEN_RCPAREN) && !check(parser, TOKEN_EOF)) {
+                if (match(parser, TOKEN_NLINE)) continue;
+                ast_add_statement(block, parse_statement(parser));
+        }
+
+        consume(parser, TOKEN_RCPAREN, "expected '}'\n");
+        return block;
+}
 // - Expression parsing -
 // Takes the parsed binary node and makes a specific node
 ASTnode *parse_primary(Parser *parser) {
