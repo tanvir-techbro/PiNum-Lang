@@ -23,6 +23,7 @@
 
 // NOTE: This parser uses recursive decent parsing method.
 #include "../include/parser.h"
+#include <stdlib.h>
 #include <string.h>
 
 // --- initialization function (main) ---
@@ -418,9 +419,11 @@ ASTnode *parse_assignment(Parser *parser) {
                         fprintf(stderr, "Syntax error: Invalid assignment target.\n");
                         exit(EXIT_FAILURE);
                 }
-                char *name = node->data.identifier.name;
+                char *name = strdup(node->data.identifier.name);
                 free_ast_node(node);
-                return make_assign_node(name, value);
+                ASTnode *assign = make_assign_node(name, value);
+                free(name);
+                return assign;
         }
         return node;
 }
