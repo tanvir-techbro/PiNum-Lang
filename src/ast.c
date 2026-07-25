@@ -102,6 +102,13 @@ ASTnode *make_unary_node(tokenType op, ASTnode *left) {
         node->data.unary_expression.left = left;
         return node;
 }
+ASTnode *make_ternary_node(ASTnode *condition, ASTnode *then_expr, ASTnode *else_expr) {
+        ASTnode *node = create_ast_node(NODE_TERNARY_EXPRESSION);
+        node->data.ternary_expression.condition = condition;
+        node->data.ternary_expression.then_expr = then_expr;
+        node->data.ternary_expression.else_expr = else_expr;
+        return node;
+}
 ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *else_block) {
         ASTnode *node = create_ast_node(NODE_IF_STAT);
         node->data.if_stat.condition = condition;

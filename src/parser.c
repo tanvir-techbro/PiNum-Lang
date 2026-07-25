@@ -373,9 +373,25 @@ ASTnode *parse_logical_or(Parser *parser) {
         }
         return node;
 }
-// parsing assignition
-ASTnode *parse_assignment(Parser *parser) {
+// parses ternary operations
+// parses and calls parse_logical_or
+ASTnode *parse_ternary(Parser *parser) {
         ASTnode *node = parse_logical_or(parser);
+
+        ASTnode *then_expr = NULL;
+        ASTnode *else_expr = NULL;
+        if (match(parser, TOKEN_QUESTION)) {
+                then_expr = parse_ternary(parser);
+                consume(parser, TOKEN_COLON, "expected ':'\n");
+                else_expr = parse_ternary(parser);
+                node = make_ternary_node(node, then_expr, else_expr);
+        }
+        return node;
+}
+// parsing assignition
+// parses and calls parse_ternary
+ASTnode *parse_assignment(Parser *parser) {
+        ASTnode *node = parse_ternary(parser);
 
         if (match(parser, TOKEN_EQUAL)) {
                 ASTnode *value = parse_assignment(parser);

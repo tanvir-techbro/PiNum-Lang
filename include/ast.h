@@ -54,8 +54,9 @@ typedef enum {
         NODE_IDENTIFIER,     // Variable or function name.
 
         // Expressions
-        NODE_BINARY_EXPRESSION, // Expression with two operands (e.g., a + b).
-        NODE_UNARY_EXPRESSION,  // Expression with one operand (e.g., !a, -b).
+        NODE_BINARY_EXPRESSION,  // Expression with two operands (e.g., a + b).
+        NODE_UNARY_EXPRESSION,   // Expression with one operand (e.g., !a, -b).
+        NODE_TERNARY_EXPRESSION, // NODE_TERNARY: cond ? then_expr : else_expr
 
         // Control Flow and Blocks
         NODE_BLOCK,   // A group of statements enclosed in braces {}.
@@ -180,6 +181,13 @@ struct ASTnode {
                         ASTnode *left;
                 } unary_expression;
 
+                // NODE_TERNARY: cond ? then_expr : else_expr
+                struct {
+                        ASTnode *condition;
+                        ASTnode *then_expr;
+                        ASTnode *else_expr;
+                } ternary_expression;
+
                 // NODE_BLOCK: { statements... }
                 struct {
                         ASTnode **statements; // Dynamic array of statement nodes
@@ -239,6 +247,7 @@ ASTnode *make_char_node(char value);
 ASTnode *make_identifier_node(char *name);
 ASTnode *make_binary_node(ASTnode *left, tokenType op, ASTnode *right);
 ASTnode *make_unary_node(tokenType op, ASTnode *left);
+ASTnode *make_ternary_node(ASTnode *condition, ASTnode *then_expr, ASTnode *else_expr);
 ASTnode *make_if_stat_node(ASTnode *condition, ASTnode *then_block, ASTnode *else_block);
 ASTnode *make_while_node(ASTnode *condition, ASTnode *body);
 ASTnode *make_for_node(ASTnode *init, ASTnode *condition, ASTnode *increment, ASTnode *body);

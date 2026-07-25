@@ -139,6 +139,15 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.value = strdup(";");
                 }
                 break;
+        case ':':
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                        tokens.value = strdup(":");
+                } else {
+                        tokens.type = TOKEN_COLON;
+                        tokens.value = strdup(":");
+                }
+                break;
         case '(':
                 if (SQUOTE_MODE || DQUOTE_MODE) {
                         tokens.type = TOKEN_QSTRING;
@@ -732,6 +741,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_COMMA";
         case TOKEN_SEMICOLON:
                 return "TOKEN_SEMICOLON";
+        case TOKEN_COLON:
+                return "TOKEN_COLON";
         case TOKEN_LRPAREN:
                 return "TOKEN_LRPAREN";
         case TOKEN_RRPAREN:

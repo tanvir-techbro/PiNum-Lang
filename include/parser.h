@@ -49,13 +49,13 @@ ASTnode *parse_return_statement(Parser *parser);
 ASTnode *parse_declaration(Parser *parser);
 ASTnode *parse_block(Parser *parser);
 // Expression parsing
-// TODO: Define thesse functions
 ASTnode *parse_primary(Parser *parser);
 ASTnode *parse_call(Parser *parser);        // for functions calls like func(parameters) and member access like arr[0]
 ASTnode *parse_unary(Parser *parser);       // for ! and - in front of values
 ASTnode *parse_factors(Parser *parser);     // for multiplication and division
 ASTnode *parse_term(Parser *parser);        // for addition and subtraction
 ASTnode *parse_assignment(Parser *parser);  // assignment parsing, e.g. x = 10
+ASTnode *parse_ternary(Parser *parser);     // NODE_TERNARY: cond ? then_expr : else_expr
 ASTnode *parse_logical_or(Parser *parser);  // logical or ||
 ASTnode *parse_logical_and(Parser *parser); // logical and &&
 ASTnode *parse_equality(Parser *parser);    // equality ==, !=

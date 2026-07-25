@@ -72,6 +72,7 @@ typedef enum {
         TOKEN_BSLASH,      // "\" back slash
         TOKEN_COMMA,       // "," comma
         TOKEN_SEMICOLON,   // ";" semicolon
+        TOKEN_COLON,       // ":" colon
         TOKEN_LRPAREN,     // "(" left round parenthesis
         TOKEN_RRPAREN,     // ")" right round parenthesis
         TOKEN_LCPAREN,     // "{" left curly parenthesis
