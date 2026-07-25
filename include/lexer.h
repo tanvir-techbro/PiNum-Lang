@@ -41,14 +41,16 @@ typedef enum {
         TOKEN_LIB_STDLIB, // if user does not include `@for engine` then user need to include `@import stdlib` to use standard librery features
         TOKEN_LIB_MATH,   // if user does not include `@for engine` then user need to include `@import stdlib` to use standard math features
         // Keywords
-        TOKEN_IMPORT, // token import, can be used at the starting of the file after atsign to import files and libreries
-        TOKEN_IF,     // kewword if
-        TOKEN_ELSE,   // Keyword else
-        TOKEN_WHILE,  // keyword while
-        TOKEN_FOR,    // keyword for
-        TOKEN_PRINT,  // keyword print
-        TOKEN_READ,   // keyword read, takes input from user
-        TOKEN_RETURN, // keyword return
+        TOKEN_IMPORT,   // token import, can be used at the starting of the file after atsign to import files and libreries
+        TOKEN_IF,       // kewword if
+        TOKEN_ELSE,     // Keyword else
+        TOKEN_WHILE,    // keyword while
+        TOKEN_FOR,      // keyword for
+        TOKEN_PRINT,    // keyword print
+        TOKEN_READ,     // keyword read, takes input from user
+        TOKEN_RETURN,   // keyword return
+        TOKEN_BREAK,    // keyword break
+        TOKEN_CONTINUE, // keyword continue
         // Data types
         TOKEN_LONG,     // long prefix
         TOKEN_SHORT,    // short prefix

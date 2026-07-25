@@ -521,6 +521,18 @@ token lexer_tokenize_words(FILE *buffer) {
                 } else {
                         tokens.type = TOKEN_IMPORT;
                 }
+        } else if (strcmp(char_buffer, "break") == 0) {
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_BREAK;
+                }
+        } else if (strcmp(char_buffer, "continue") == 0) {
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_CONTINUE;
+                }
         } else if (strcmp(char_buffer, "read") == 0) {
                 if (SQUOTE_MODE || DQUOTE_MODE) {
                         tokens.type = TOKEN_QSTRING;
@@ -699,6 +711,10 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_READ";
         case TOKEN_RETURN:
                 return "TOKEN_RETURN";
+        case TOKEN_BREAK:
+                return "TOKEN_BREAK";
+        case TOKEN_CONTINUE:
+                return "TOKEN_CONTINUE";
         case TOKEN_LONG:
                 return "TOKEN_LONG";
         case TOKEN_SHORT:

@@ -69,7 +69,9 @@ typedef enum {
         NODE_DIRECTIVE, // Directive (e.g., @import, @for)
         NODE_RETURN,    // Return from a function.
         NODE_PRINT,     // Built-in print statement.
-        NODE_READ       // Built-in read/input statement.
+        NODE_READ,      // Built-in read/input statement.
+        NODE_BREAK,     // Break from a loop.
+        NODE_CONTINUE   // Continue to next loop iteration.
 } nodeType;
 
 // Forward declaration so the struct can reference itself

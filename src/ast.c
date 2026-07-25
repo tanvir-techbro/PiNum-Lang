@@ -331,6 +331,9 @@ void free_ast_node(ASTnode *node) {
         case NODE_READ:
                 free(node->data.read.name);
                 break;
+        case NODE_BREAK:
+        case NODE_CONTINUE:
+                break;
         default:
                 break;
         }
@@ -430,6 +433,12 @@ void print_ast(ASTnode *node, int level) {
         case NODE_PRINT:
                 printf("PRINT\n");
                 print_ast(node->data.print.expression, level + 1);
+                break;
+        case NODE_BREAK:
+                printf("BREAK\n");
+                break;
+        case NODE_CONTINUE:
+                printf("CONTINUE\n");
                 break;
         default:
                 printf("NODE_TYPE: %d\n", node->type);

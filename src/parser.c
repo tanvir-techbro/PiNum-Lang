@@ -74,6 +74,14 @@ ASTnode *parse_statement(Parser *parser) {
         if (match(parser, TOKEN_RETURN)) {
                 return parse_return_statement(parser);
         }
+        if (match(parser, TOKEN_BREAK)) {
+                consume_end_of_statement(parser);
+                return create_ast_node(NODE_BREAK);
+        }
+        if (match(parser, TOKEN_CONTINUE)) {
+                consume_end_of_statement(parser);
+                return create_ast_node(NODE_CONTINUE);
+        }
         if (match(parser, TOKEN_ATSIGN)) {
                 // The lexer splits '@import' into TOKEN_ATSIGN and TOKEN_IMPORT
                 token name_token = advance(parser);
