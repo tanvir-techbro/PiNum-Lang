@@ -210,6 +210,17 @@ ASTnode *parse_block(Parser *parser) {
         consume(parser, TOKEN_RCPAREN, "expected '}'\n");
         return block;
 }
+
+// - Function parsing -
+// TODO: implement this
+/*
+ASTnode *parse_func_def(Parser *parser) {
+}
+ASTnode *parse_func_def_param(Parser *parser) {
+        // return make_var_decl_node(char *type_name, char *modifiers, char *name, ASTnode *value, bool is_array, int array_size);
+}
+*/
+
 // - Expression parsing -
 // Takes the parsed binary node and makes a specific node
 ASTnode *parse_primary(Parser *parser) {
