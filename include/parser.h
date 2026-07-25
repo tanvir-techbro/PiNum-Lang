@@ -49,6 +49,7 @@ ASTnode *parse_return_statement(Parser *parser);
 ASTnode *parse_declaration(Parser *parser);
 ASTnode *parse_block(Parser *parser);
 // Function parsing
+// TODO: implement below 2 functions
 ASTnode *parse_func_def(Parser *parser);
 ASTnode *parse_func_def_param(Parser *parser);
 // Expression parsing
