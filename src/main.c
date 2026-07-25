@@ -21,8 +21,10 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
+#include "../include/ast.h"
 #include "../include/lexer.h"
 #include "../include/mode.h"
+#include "../include/parser.h"
 #include "../include/version.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -117,61 +119,65 @@ int main(int argc, char *argv[]) {
 
         // --- MAIN ---
         // Running the loop till we hit EOF (End Of File).
+        token_list list;
+        token_list_init(&list);
         token tokens = lexer_tokenizer(buffer);
         while (tokens.type != TOKEN_EOF) {
-                token_list list;
-                token_list_init(&list);
-
-                while (tokens.type != TOKEN_NLINE && tokens.type != TOKEN_EOF) {
-                        // checking the tokens for specific types before adding it to the list
-                        if (tokens.type == TOKEN_HASHTAG) {
-                                tokens = token_ignore_comment(tokens, buffer);
-                                if (tokens.type == TOKEN_NLINE || tokens.type == TOKEN_EOF) {
-                                        break;
-                                }
-                        }
-                        // just normally add it to the list
-                        else {
+                // checking the tokens for specific types before adding it to the list
+                if (tokens.type == TOKEN_HASHTAG) {
+                        tokens = token_ignore_comment(tokens, buffer);
+                        if (tokens.type == TOKEN_NLINE) {
                                 token_list_add(&list, tokens);
+                                // NOTE: this function call is temporary for debugging purposes.
+                                lexer_print_token(tokens);
+                                // Get next token for the next line
+                                tokens = lexer_tokenizer(buffer);
                         }
-
-                        // NOTE: this function call is temporary for debugging purposes.
-                        lexer_print_token(tokens);
-
-                        // Update tokens for the next iteration
-                        tokens = lexer_tokenizer(buffer);
+                        continue;
                 }
-
-                // If we stopped at a newline, we might want to add it to the list or just skip it
-                if (tokens.type == TOKEN_NLINE) {
+                /*
+                // just normally add it to the list
+                else {
                         token_list_add(&list, tokens);
-                        lexer_print_token(tokens);
-                        // Get next token for the next line
-                        tokens = lexer_tokenizer(buffer);
                 }
+                */
 
-                // NOTE: 2 if statement below are temporary and for debugging purposes.
-                if (ENGINE_MODE) {
-                        printf("Enabled.\n");
-                } else {
-                        printf("Disabled.\n");
-                }
+                token_list_add(&list, tokens);
+                // NOTE: this function call is temporary for debugging purposes.
+                lexer_print_token(tokens);
+                // Update tokens for the next iteration
+                tokens = lexer_tokenizer(buffer);
+        }
+        token_list_add(&list, tokens);
 
-                // checking program mode if ENGINE_MODE is not enabled
-                if (!ENGINE_MODE) {
-                        check_program_mode(&list);
-                }
-                // freeing the list and its tokens' values
-                token_list_free(&list);
+        /*
+        // If we stopped at a newline, we might want to add it to the list or just skip it
+        if (tokens.type == TOKEN_NLINE) {
+                token_list_add(&list, tokens);
+                lexer_print_token(tokens);
+                // Get next token for the next line
+                tokens = lexer_tokenizer(buffer);
+        }
+        */
+
+        // checking program mode if ENGINE_MODE is not enabled
+        if (!ENGINE_MODE) check_program_mode(&list);
+
+        ASTnode *ast = parse(&list);
+        print_ast(ast, 0);
+        free_ast_node(ast);
+        // freeing the list and its tokens' values
+        token_list_free(&list);
+
+        // NOTE: 2 if statement below are temporary and for debugging purposes.
+        if (ENGINE_MODE) {
+                printf("Enabled.\n");
+        } else {
+                printf("Disabled.\n");
         }
         // ------------
 
         // --- CLEAN UP AND FINALIZATION ---
-        // Clean up final EOF token value
-        if (tokens.value) {
-                free(tokens.value);
-        }
-
         // closing the file buffer
         fclose(buffer);
         return EXIT_SUCCESS;

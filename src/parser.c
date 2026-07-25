@@ -418,7 +418,9 @@ ASTnode *parse_assignment(Parser *parser) {
                         fprintf(stderr, "Syntax error: Invalid assignment target.\n");
                         exit(EXIT_FAILURE);
                 }
-                return make_assign_node(node->data.identifier.name, value);
+                char *name = node->data.identifier.name;
+                free_ast_node(node);
+                return make_assign_node(name, value);
         }
         return node;
 }
