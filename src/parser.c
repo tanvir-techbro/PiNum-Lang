@@ -118,7 +118,12 @@ ASTnode *parse_if_statement(Parser *parser) {
         ASTnode *then_block = parse_block(parser);
         ASTnode *else_block = NULL;
         if (match(parser, TOKEN_ELSE)) {
-                else_block = parse_block(parser);
+                // check for 'else if'
+                if (match(parser, TOKEN_IF)) {
+                        else_block = parse_if_statement(parser);
+                } else {
+                        else_block = parse_block(parser);
+                }
         }
 
         return make_if_stat_node(condition, then_block, else_block);
