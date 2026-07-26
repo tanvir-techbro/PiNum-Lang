@@ -396,7 +396,7 @@ void print_ast(ASTnode *node, int level) {
                 printf("STRING: %s\n", node->data.string_literal.value);
                 break;
         case NODE_BINARY_EXPRESSION:
-                printf("BINARY_OP: %d\n", node->data.binary_expression.op);
+                printf("BINARY_OP: %s\n", lexer_token_type_to_string(node->data.binary_expression.op));
                 print_ast(node->data.binary_expression.left, level + 1);
                 print_ast(node->data.binary_expression.right, level + 1);
                 break;
