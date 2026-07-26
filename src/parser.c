@@ -284,7 +284,9 @@ ASTnode *parse_call(Parser *parser) {
                                 fprintf(stderr, "Syntax error: can only call functions.\n");
                                 exit(EXIT_FAILURE);
                         }
-                        ASTnode *call = make_func_call_node(node->data.identifier.name, NULL, 0);
+                        char *name = strdup(node->data.array_access.name);
+                        free_ast_node(node);
+                        ASTnode *call = make_func_call_node(name, NULL, 0);
                         // if the next token is not ')' TOKEN_RRPAREN, there must be args
                         if (!check(parser, TOKEN_RRPAREN)) {
                                 do {
