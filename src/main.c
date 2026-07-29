@@ -170,11 +170,13 @@ int main(int argc, char *argv[]) {
         token_list_free(&list);
 
         // NOTE: 2 if statement below are temporary and for debugging purposes.
+        /*
         if (ENGINE_MODE) {
                 printf("Enabled.\n");
         } else {
                 printf("Disabled.\n");
         }
+        */
         // ------------
 
         // --- CLEAN UP AND FINALIZATION ---
