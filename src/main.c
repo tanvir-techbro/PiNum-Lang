@@ -135,12 +135,6 @@ int main(int argc, char *argv[]) {
                         }
                         continue;
                 }
-                /*
-                // just normally add it to the list
-                else {
-                        token_list_add(&list, tokens);
-                }
-                */
 
                 token_list_add(&list, tokens);
                 // NOTE: this function call is temporary for debugging purposes.
@@ -149,16 +143,6 @@ int main(int argc, char *argv[]) {
                 tokens = lexer_tokenizer(buffer);
         }
         token_list_add(&list, tokens);
-
-        /*
-        // If we stopped at a newline, we might want to add it to the list or just skip it
-        if (tokens.type == TOKEN_NLINE) {
-                token_list_add(&list, tokens);
-                lexer_print_token(tokens);
-                // Get next token for the next line
-                tokens = lexer_tokenizer(buffer);
-        }
-        */
 
         // checking program mode if ENGINE_MODE is not enabled
         if (!ENGINE_MODE) check_program_mode(&list);
