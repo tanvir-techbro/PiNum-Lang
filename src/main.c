@@ -42,9 +42,11 @@
  *            src/ast.c -> src/parser.c -> src/main.c -> src/codegen.c = payload/payload.bin (output)
  */
 
-// flag handling functions
+// - Flag handling functions -
 void handle_flag_help();
 void handle_version_flag();
+// updating pipeline
+static bool check_update(); // check if the version are different before updating
 int handle_update_flag();
 
 // --- MAIN ---
@@ -180,16 +182,40 @@ void handle_flag_help() {
         printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
         printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
 }
+
 // handle '--version' and '-v' flag
 void handle_version_flag() {
         printf("PiNum-Lang version %s\n", PINUM_VERSION);
 }
+
+// Updating pipeline
+static bool check_update() {
+        FILE *online_version = popen("curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/VERSION", "r");
+        if (online_version == NULL) {
+                return false;
+        }
+
+        char version[32] = {0};
+        if (fgets(version, sizeof(version), online_version) != NULL) {
+                // remove trailing newlines if there are
+                version[strcspn(version, "\r\n")] = '\0';
+        }
+
+        int status = pclose(online_version);
+        if (status != 0 || version[0] == '\0') {
+                return false; // fetch failed return false
+        }
+        // if version != PINUM_VERSION it returns true,
+        // if version == PINUM_VERSION it returns false
+        return strcmp(version, PINUM_VERSION) != 0;
+}
 // handle '--update' and '-u' flag
 int handle_update_flag() {
         printf("Checking for updates...\n");
-        // running curl command to update the system
-        int result = system("((curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh || echo \"exit 1\") | bash)");
-
-        return result;
+        bool update_available = check_update();
+        if (!update_available) {
+                printf("Up to date!\n");
+                return EXIT_SUCCESS;
+        }
 }
 // ---------------------------------
