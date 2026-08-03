@@ -32,19 +32,11 @@ curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/insta
 ```
 *This will build the language and ask if you want to activate Neovim syntax highlighting automatically.*
 
-#### Windows (PowerShell)
-```powershell
-iwr -useb https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | iex
-```
-*(Note: Windows users need a bash-compatible environment like Git Bash or WSL for the script above, or they can follow the manual instructions below.)*
+> **Windows users:** PiNum-Lang supports Linux/macOS only. If you're on Windows, use [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) and follow the Linux instructions above.
 
 ### Prerequisites
 
-- **Linux/macOS:** A C compiler (e.g., `gcc`) and `make`.
-- **Windows:** 
-  - **Option 1 (Recommended):** [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install). Follow the Linux instructions.
-  - **Option 2 (Native):** [MinGW-w64](https://www.mingw-w64.org/) or [MSYS2](https://www.msys2.org/) to get `gcc` and `make`.
-  - **Option 3:** Any C compiler (like MSVC) if you want to compile manually.
+- A C compiler (e.g., `gcc`) and `make`.
 
 ### Building from Source
 
@@ -65,12 +57,6 @@ To install `pinum` to your system path:
 sudo make install
 ```
 This moves the binary to `/usr/local/bin/`.
-
-#### Windows
-```bash
-make install
-```
-This copies the binary to `%USERPROFILE%\bin\`. You will need to manually add this directory to your system's **PATH** environment variable if it's not already there.
 
 ### Running a Program
 
