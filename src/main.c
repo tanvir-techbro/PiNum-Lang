@@ -30,6 +30,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 /*
  * PIPLELINE: check if the files provided are right -> tokenize line by line ->
@@ -45,8 +48,11 @@
 // - Flag handling functions -
 void handle_flag_help();
 void handle_version_flag();
-// updating pipeline
+// Updating pipeline
 static bool check_update(); // check if the version are different before updating
+static bool check_hash();   // verify the installer script hash against release hash (install.sh.sha256)
+// the parameter 'binray' is the file path to executeable program file.
+int run_cmd(const char *binary, char *const args[]); // helper function to run shell commands safely.
 int handle_update_flag();
 
 // --- MAIN ---
@@ -209,6 +215,103 @@ static bool check_update() {
         // if version == PINUM_VERSION it returns false
         return strcmp(version, PINUM_VERSION) != 0;
 }
+static bool check_hash() {
+        // creating a unique directory
+        char dir_template[] = "/tmp/pinum_update_XXXXXX";
+        char *tmp_dir = mkdtemp(dir_template);
+        if (!tmp_dir) {
+                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m Failed to create temporary directory in /tmp/\n");
+                return false;
+        }
+
+        // absolute file paths in the temp directory
+        char installer_path[512];
+        char hash_path[512];
+        snprintf(installer_path, sizeof(installer_path), "%s/install.sh", tmp_dir);
+        snprintf(hash_path, sizeof(hash_path), "%s/install.sh.sha256", tmp_dir);
+
+        // downloading install.sh into the installer_path
+        printf("Downloading installer script (install.sh)...\n");
+        char *curl_installer_args[] = {
+            "/usr/bin/curl",
+            "-sSL",
+            "https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh",
+            "-o",
+            installer_path,
+            NULL,
+        };
+        // curl installation failed
+        if (run_cmd("/usr/bin/curl", curl_installer_args) != 0) {
+                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m script (install.sh) installation failed. try again.\n");
+                goto cleanup;
+        }
+
+        // downloading install.sh.sha256 into the hash_path
+        printf("Downloading checksum file...\n");
+        char *curl_hash_args[] = {
+            "/usr/bin/curl",
+            "-sSL",
+            "https://github.com/tanvir-techbro/PiNum-Lang/releases/download/v0.7.1/install.sh.sha256",
+            "-o",
+            hash_path,
+            NULL,
+        };
+        // curl installation failed
+        if (run_cmd("/usr/bin/curl", curl_hash_args) != 0) {
+                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum (install.sh.sha256) installation failed. try again.\n");
+                goto cleanup;
+        }
+
+        // verifying checksum
+        char *sha_args[] = {
+            "/usr/bin/sha256sum",
+            "--check",
+            "--status",
+            "install.sh.sha256",
+            NULL,
+        };
+        if (run_cmd("/usr/bin/sha256sum", sha_args) == 0) {
+                // checksum verification passed
+                return true;
+        } else {
+                // checksum verification failed
+                return false;
+        }
+
+// all temporary file cleanup
+cleanup:
+        remove(installer_path);
+        remove(hash_path);
+        remove(tmp_dir);
+        printf("temporary file cleanup...\n");
+
+        // checksum failed
+        return false;
+}
+int run_cmd(const char *binary, char *const args[]) {
+        // fork the process
+        pid_t pid = fork();
+
+        // child process
+        if (pid == 0) {
+                // replace the child process binray with target binray
+                execv(binary, args);
+                // if execv reach this line, it failed
+                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m execv failed...\n");
+                exit(1);
+        }
+        // parent process
+        else if (pid > 0) {
+                int status;
+                // pause and wait for the child process to finish
+                waitpid(pid, &status, 0);
+                // check if child exited with clean code 0
+                return (WIFEXITED(status) && WEXITSTATUS(status) == 0) ? 0 : 1;
+        }
+
+        // fork entirely failed
+        return -1;
+}
 // handle '--update' and '-u' flag
 int handle_update_flag() {
         printf("Checking for updates...\n");
@@ -217,5 +320,21 @@ int handle_update_flag() {
                 printf("Up to date!\n");
                 return EXIT_SUCCESS;
         }
+        // checksum verification fail
+        if (!check_hash()) {
+                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum verification failed!\nAborting update installation...\n");
+                return EXIT_FAILURE;
+        }
+
+        printf("Verification successful! Hash matches.\n");
+        printf("Executing installer...\n");
+        char *bash_args[] = {
+            "/bin/bash",
+            "install.sh",
+            NULL,
+        };
+        run_cmd("/bin/bash", bash_args);
+
+        return EXIT_SUCCESS;
 }
 // ---------------------------------
