@@ -62,6 +62,11 @@ int handle_update_flag();
 
 // --- MAIN ---
 int main(int argc, char *argv[]) {
+        // enable debug functions
+        // --debug-all enables both options below
+        bool debug_lexer = false; // enabled by --debug-lexer flag
+        bool debug_ast = false;   // enabled by --debug-ast flag
+        int arg_indx = 1;         // argument index. arg index 0 is the program binary name
 
         // Exits if user does not provide any file
         if (argc < 2) {
@@ -73,10 +78,20 @@ int main(int argc, char *argv[]) {
         // --- FLAG HANDLING (function calls) ---
         // the line below checks if the 2nd argument has any '.' in it.
         // if it has a '.' then it is a file, else it is a flag/option.
-        if (strrchr(argv[1], '.') == NULL) {
+        if (strrchr(argv[arg_indx], '.') == NULL) {
                 if (strcmp(argv[1], "--help") == 0) {
                         handle_flag_help();
                         return EXIT_SUCCESS;
+                } else if (strcmp(argv[arg_indx], "--debug-all") == 0) {
+                        debug_lexer = true;
+                        debug_ast = true;
+                        arg_indx++;
+                } else if (strcmp(argv[arg_indx], "--debug-lexer") == 0) {
+                        debug_lexer = true;
+                        arg_indx++;
+                } else if (strcmp(argv[arg_indx], "--debug-ast") == 0) {
+                        debug_ast = true;
+                        arg_indx++;
                 } else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
                         handle_version_flag();
                         return EXIT_SUCCESS;
@@ -95,8 +110,8 @@ int main(int argc, char *argv[]) {
         // --------------------------------------
 
         // --- FILE HANDLING ---
-        char *filename = argv[1];
-        char *extention = strrchr(argv[1], '.');
+        char *filename = argv[arg_indx];
+        char *extention = strrchr(argv[arg_indx], '.');
         FILE *buffer;
 
         // Checking if the file extention is valid or not.
@@ -126,8 +141,10 @@ int main(int argc, char *argv[]) {
                         tokens = token_ignore_comment(tokens, buffer);
                         if (tokens.type == TOKEN_NLINE) {
                                 token_list_add(&list, tokens);
-                                // NOTE: this function call is temporary for debugging purposes.
-                                lexer_print_token(tokens);
+                                if (debug_lexer) {
+                                        // NOTE: this function call is for debugging purposes.
+                                        lexer_print_token(tokens);
+                                }
                                 // Get next token for the next line
                                 tokens = lexer_tokenizer(buffer);
                         }
@@ -135,8 +152,10 @@ int main(int argc, char *argv[]) {
                 }
 
                 token_list_add(&list, tokens);
-                // NOTE: this function call is temporary for debugging purposes.
-                lexer_print_token(tokens);
+                if (debug_lexer) {
+                        // NOTE: this function call is for debugging purposes.
+                        lexer_print_token(tokens);
+                }
                 // Update tokens for the next iteration
                 tokens = lexer_tokenizer(buffer);
         }
@@ -146,12 +165,15 @@ int main(int argc, char *argv[]) {
         if (!ENGINE_MODE) check_program_mode(&list);
 
         ASTnode *ast = parse(&list);
-        print_ast(ast, 0);
+        if (debug_ast) {
+                // NOTE: this function call is for debugging purposes.
+                print_ast(ast, 0);
+        }
         free_ast_node(ast);
         // freeing the list and its tokens' values
         token_list_free(&list);
 
-        // NOTE: 2 if statement below are temporary and for debugging purposes.
+        // NOTE: 2 if statement below are and for debugging purposes.
         /*
         if (ENGINE_MODE) {
                 printf("Enabled.\n");
@@ -172,10 +194,15 @@ int main(int argc, char *argv[]) {
 // handle the flag '--help'
 void handle_flag_help() {
         printf("pinum version %s\n\n", PINUM_VERSION);
-        printf("Usage: pinum <file.pn>\n");
+        printf("Usage: pinum [Flags] <file.pn>\n");
         printf("Flags:\n");
+        printf("  %-20s\tEnable all debugging functions.\n", "--debug-all");
+        printf("  %-20s\tEnable debugging functions for lexer.\n", "--debug-lexer");
+        printf("  %-20s\tEnable debugging functions for ast.\n", "--debug-ast");
+        printf("\n");
         printf("  %-20s\tDisplay pinum version information.\n", "--version or -v");
         printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
+        printf("  %-20s\tDisplay this output.\n", "--help or -h");
         printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
 }
 

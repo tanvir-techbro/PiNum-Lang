@@ -78,7 +78,7 @@ run_tests() {
 
                 if [ "$use_valgrind" = "y" ]; then
                         # Run with Valgrind to check for memory leaks/errors
-                        valgrind --leak-check=full --show-leak-kinds=all bin/pinum "$file"
+                        valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum --debug-all "$file"
                 else
                         # Normal execution
                         bin/pinum "$file"
