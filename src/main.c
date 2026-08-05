@@ -49,8 +49,9 @@
 void handle_flag_help();
 void handle_version_flag();
 // Updating pipeline
-static bool check_update(); // check if the version are different before updating
-static bool check_hash();   // verify the installer script hash against release hash (install.sh.sha256)
+// returns 1 if an update is available, 0 if up to date, -1 if the check failed.
+static int check_update();
+static bool check_hash(); // verify the installer script hash against release hash (install.sh.sha256)
 // the parameter 'binray' is the file path to executeable program file.
 // 'dir' is the working directory the command should run in (NULL = inherit current).
 int run_cmd(const char *dir, const char *binary, char *const args[]); // helper function to run shell commands safely.
@@ -82,15 +83,8 @@ int main(int argc, char *argv[]) {
                 } else if (strcmp(argv[1], "--update") == 0 || strcmp(argv[1], "-u") == 0) {
                         int result = handle_update_flag();
 
-                        // checking if the update ran successfully
-                        if (result == 0) {
-                                printf("pinum up to date!\n");
-                                return EXIT_SUCCESS;
-                        } else {
-                                fprintf(stderr, "update failed.\n");
-                                return EXIT_FAILURE;
-                        }
-
+                        // the update flag handles its own output and messaging
+                        return result == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
                 }
                 // Unrecognized and invalid flag handling
                 else {
@@ -197,10 +191,11 @@ void handle_version_flag() {
 
 // Updating pipeline
 static char g_latest_version[64] = {0};
-static bool check_update() {
+static int check_update() {
         FILE *online_version = popen("curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/VERSION", "r");
         if (online_version == NULL) {
-                return false;
+                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m could not start update check.\n");
+                return -1;
         }
 
         char version[64] = {0};
@@ -212,10 +207,11 @@ static bool check_update() {
 
         int status = pclose(online_version);
         if (status != 0 || version[0] == '\0') {
-                return false; // fetch failed return false
+                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m could not check for updates (network or server error).\n");
+                return -1; // fetch failed
         }
-        // if version != PINUM_VERSION it returns true,
-        // if version == PINUM_VERSION it returns false
+        // if version != PINUM_VERSION it returns 1 (update available),
+        // if version == PINUM_VERSION it returns 0 (up to date)
         return strcmp(version, PINUM_VERSION) != 0;
 }
 static char g_update_dir[512] = {0};
@@ -340,9 +336,14 @@ int run_cmd(const char *dir, const char *binary, char *const args[]) {
 // handle '--update' and '-u' flag
 int handle_update_flag() {
         printf("Checking for updates...\n");
-        bool update_available = check_update();
-        if (!update_available) {
+        int check = check_update();
+        if (check == -1) {
+                // update check failed (network/server error) - do not pretend we're up to date
+                return EXIT_FAILURE;
+        }
+        if (check == 0) {
                 // pinum up to date
+                printf("Up to date!\n");
                 return EXIT_SUCCESS;
         }
         // checksum verification fail
