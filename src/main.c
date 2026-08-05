@@ -275,7 +275,7 @@ static bool check_hash() {
         snprintf(hash_url, sizeof(hash_url), "https://github.com/tanvir-techbro/PiNum-Lang/releases/download/v%s/install.sh.sha256", g_latest_version);
 
         // downloading install.sh.sha256 into the hash_path
-        printf("Downloading checksum file...\n");
+        printf("Downloading checksum file (install.sh.sha256)...\n");
         char *curl_hash_args[] = {
             "/usr/bin/curl",
             "-sSL",
