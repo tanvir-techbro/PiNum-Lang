@@ -23,6 +23,7 @@
 
 #include "../include/lexer.h"
 #include "../include/mode.h"
+#include <stdlib.h>
 
 // quote mode, will be true if we encounter TOKEN_SQUOTE or TOKEN_DQUOTE for first time;
 // if we encounter those tokens second time quote mode will be disabled.
@@ -452,7 +453,13 @@ token lexer_tokenize_words(FILE *buffer) {
         while (ch != EOF && (isalnum(ch) || ch == '_')) {
                 if (i + 1 >= capacity) {
                         capacity *= 2;
-                        char_buffer = realloc(char_buffer, capacity);
+                        char *tmp = realloc(char_buffer, capacity);
+                        if (tmp == NULL) {
+                                free(char_buffer);
+                                tokens.value = NULL;
+                                return tokens;
+                        }
+                        char_buffer = tmp;
                 }
 
                 char_buffer[i++] = (char)ch;
@@ -628,11 +635,12 @@ token lexer_tokenize_words(FILE *buffer) {
 
 // number tokenization, triggered when stumbled upon a digit.
 token lexer_tokenize_numbers(FILE *buffer) {
-        int ch, i = 0;
+        int ch, i = 0; // i is also used for size ditermination
         token tokens;
         tokens.value = NULL;
-        char char_buffer[64];
 
+        int capacity = 2;
+        char *char_buffer = malloc(capacity);
         // would be true if there is a dot in the number.
         bool is_float = false;
 
@@ -640,6 +648,17 @@ token lexer_tokenize_numbers(FILE *buffer) {
         ch = fgetc(buffer);
 
         while (ch != EOF && (isdigit(ch) || ch == '.')) {
+                if (i + 1 >= capacity) {
+                        capacity *= 2;
+                        char *tmp = realloc(char_buffer, capacity);
+                        if (tmp == NULL) {
+                                free(char_buffer);
+                                tokens.value = NULL;
+                                return tokens;
+                        }
+                        char_buffer = tmp;
+                }
+
                 if (ch == '.') {
                         // break if we hit second dot in the sngle number.
                         if (is_float) {
@@ -661,6 +680,7 @@ token lexer_tokenize_numbers(FILE *buffer) {
         // - Number handling -
         // int_value and float_value members are only used for storing numbers which is handled by this block of code below
         if (strcmp(char_buffer, ".") == 0) {
+                free(char_buffer);
                 tokens.type = TOKEN_DOT;
                 tokens.value = strdup(".");
                 return tokens;
@@ -668,10 +688,12 @@ token lexer_tokenize_numbers(FILE *buffer) {
         if (is_float) {
                 tokens.type = TOKEN_FNUM;
                 tokens.float_value = atof(char_buffer);
+                free(char_buffer);
                 return tokens;
         } else {
                 tokens.type = TOKEN_INUM;
                 tokens.int_value = atoi(char_buffer);
+                free(char_buffer);
                 return tokens;
         }
 
