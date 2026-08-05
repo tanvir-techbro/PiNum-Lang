@@ -62,8 +62,9 @@ fi
 if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation in $INSTALL_DIR..."
         cd "$INSTALL_DIR"
-        git checkout . --quiet
-        git pull --depth 1 --quiet
+        # always converge to the remote, even if the local clone has diverged
+        git fetch --depth 1 origin
+        git reset --hard origin/main
 else
         echo "-----------------------------"
         echo "   Installing PiNum-Lang...  "

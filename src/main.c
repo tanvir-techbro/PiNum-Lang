@@ -342,7 +342,7 @@ int handle_update_flag() {
         printf("Checking for updates...\n");
         bool update_available = check_update();
         if (!update_available) {
-                printf("Up to date!\n");
+                // pinum up to date
                 return EXIT_SUCCESS;
         }
         // checksum verification fail
