@@ -247,6 +247,12 @@ ASTnode *parse_primary(Parser *parser) {
         if (match(parser, TOKEN_ID)) {
                 return make_identifier_node(parser->tokens->tokens[parser->current - 1].value);
         }
+        if (match(parser, TOKEN_TRUE)) {
+                return make_bool_node(true);
+        }
+        if (match(parser, TOKEN_FALSE)) {
+                return make_bool_node(false);
+        }
 
         if (match(parser, TOKEN_LRPAREN)) {
                 ASTnode *expr = parse_expression(parser);
