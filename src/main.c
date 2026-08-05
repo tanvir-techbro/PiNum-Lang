@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
         // --- FLAG HANDLING (function calls) ---
         // the line below checks if the 2nd argument has any '.' in it.
         // if it has a '.' then it is a file, else it is a flag/option.
-        if (strrchr(argv[arg_indx], '.') == NULL) {
+        while (arg_indx < argc && strrchr(argv[arg_indx], '.') == NULL) {
                 if (strcmp(argv[1], "--help") == 0) {
                         handle_flag_help();
                         return EXIT_SUCCESS;
@@ -104,8 +104,11 @@ int main(int argc, char *argv[]) {
                 // Unrecognized and invalid flag handling
                 else {
                         printf("See '--help' for more info.\n");
-                        pinum_error(STAGE_FILE, ERR_INVALID_FLAG, argv[1]);
+                        pinum_error(STAGE_FILE, ERR_INVALID_FLAG, argv[arg_indx]);
                 }
+        }
+        if (arg_indx >= argc) {
+                pinum_error(STAGE_FILE, ERR_NO_INPUT_FILE, NULL);
         }
         // --------------------------------------
 
