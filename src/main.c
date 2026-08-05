@@ -52,7 +52,8 @@ void handle_version_flag();
 static bool check_update(); // check if the version are different before updating
 static bool check_hash();   // verify the installer script hash against release hash (install.sh.sha256)
 // the parameter 'binray' is the file path to executeable program file.
-int run_cmd(const char *binary, char *const args[]); // helper function to run shell commands safely.
+// 'dir' is the working directory the command should run in (NULL = inherit current).
+int run_cmd(const char *dir, const char *binary, char *const args[]); // helper function to run shell commands safely.
 int handle_update_flag();
 
 // --- MAIN ---
@@ -215,6 +216,21 @@ static bool check_update() {
         // if version == PINUM_VERSION it returns false
         return strcmp(version, PINUM_VERSION) != 0;
 }
+static char g_update_dir[512] = {0};
+// removes the two temp files and the temp directory used by the updater
+static void cleanup_temp(void) {
+        if (g_update_dir[0] == '\0') {
+                return;
+        }
+        char installer_path[512];
+        char hash_path[512];
+        snprintf(installer_path, sizeof(installer_path), "%s/install.sh", g_update_dir);
+        snprintf(hash_path, sizeof(hash_path), "%s/install.sh.sha256", g_update_dir);
+        remove(installer_path);
+        remove(hash_path);
+        rmdir(g_update_dir);
+        g_update_dir[0] = '\0';
+}
 static bool check_hash() {
         // creating a unique directory
         char dir_template[] = "/tmp/pinum_update_XXXXXX";
@@ -223,12 +239,13 @@ static bool check_hash() {
                 perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m Failed to create temporary directory in /tmp/\n");
                 return false;
         }
+        strncpy(g_update_dir, tmp_dir, sizeof(g_update_dir) - 1);
 
         // absolute file paths in the temp directory
         char installer_path[512];
         char hash_path[512];
-        snprintf(installer_path, sizeof(installer_path), "%s/install.sh", tmp_dir);
-        snprintf(hash_path, sizeof(hash_path), "%s/install.sh.sha256", tmp_dir);
+        snprintf(installer_path, sizeof(installer_path), "%s/install.sh", g_update_dir);
+        snprintf(hash_path, sizeof(hash_path), "%s/install.sh.sha256", g_update_dir);
 
         // downloading install.sh into the installer_path
         printf("Downloading installer script (install.sh)...\n");
@@ -241,9 +258,10 @@ static bool check_hash() {
             NULL,
         };
         // curl installation failed
-        if (run_cmd("/usr/bin/curl", curl_installer_args) != 0) {
+        if (run_cmd(NULL, "/usr/bin/curl", curl_installer_args) != 0) {
                 fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m script (install.sh) installation failed. try again.\n");
-                goto cleanup;
+                cleanup_temp();
+                return false;
         }
 
         // downloading install.sh.sha256 into the hash_path
@@ -257,12 +275,14 @@ static bool check_hash() {
             NULL,
         };
         // curl installation failed
-        if (run_cmd("/usr/bin/curl", curl_hash_args) != 0) {
+        if (run_cmd(NULL, "/usr/bin/curl", curl_hash_args) != 0) {
                 fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum (install.sh.sha256) installation failed. try again.\n");
-                goto cleanup;
+                cleanup_temp();
+                return false;
         }
 
-        // verifying checksum
+        // verify the checksum in the temp directory so the relative
+        // "install.sh" listed in the checksum file resolves correctly.
         char *sha_args[] = {
             "/usr/bin/sha256sum",
             "--check",
@@ -270,35 +290,30 @@ static bool check_hash() {
             "install.sh.sha256",
             NULL,
         };
-        if (run_cmd("/usr/bin/sha256sum", sha_args) == 0) {
-                // checksum verification passed
-                return true;
-        } else {
-                // checksum verification failed
-                return false;
+        if (run_cmd(g_update_dir, "/usr/bin/sha256sum", sha_args) == 0) {
+                return true; // checksum passed; keep files for install step
         }
 
-// all temporary file cleanup
-cleanup:
-        remove(installer_path);
-        remove(hash_path);
-        remove(tmp_dir);
-        printf("temporary file cleanup...\n");
-
-        // checksum failed
+        fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum verification failed!\n");
+        cleanup_temp();
         return false;
 }
-int run_cmd(const char *binary, char *const args[]) {
+int run_cmd(const char *dir, const char *binary, char *const args[]) {
         // fork the process
         pid_t pid = fork();
 
         // child process
         if (pid == 0) {
+                // change into the requested working directory, if any
+                if (dir != NULL && chdir(dir) < 0) {
+                        perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m chdir failed");
+                        _exit(127);
+                }
                 // replace the child process binray with target binray
                 execv(binary, args);
                 // if execv reach this line, it failed
-                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m execv failed...\n");
-                exit(1);
+                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m execv failed");
+                _exit(1);
         }
         // parent process
         else if (pid > 0) {
@@ -322,19 +337,21 @@ int handle_update_flag() {
         }
         // checksum verification fail
         if (!check_hash()) {
-                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum verification failed!\nAborting update installation...\n");
+                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum verification failed!\nAborting update installation...\n");
                 return EXIT_FAILURE;
         }
 
-        printf("Verification successful! Hash matches.\n");
-        printf("Executing installer...\n");
+        printf("Verification successful!\n");
+        printf("\nExecuting installer...\n");
         char *bash_args[] = {
             "/bin/bash",
             "install.sh",
             NULL,
         };
-        run_cmd("/bin/bash", bash_args);
+        int result = run_cmd(g_update_dir, "/bin/bash", bash_args);
 
-        return EXIT_SUCCESS;
+        cleanup_temp();
+
+        return result == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 // ---------------------------------
