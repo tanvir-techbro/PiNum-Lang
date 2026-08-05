@@ -196,17 +196,19 @@ void handle_version_flag() {
 }
 
 // Updating pipeline
+static char g_latest_version[64] = {0};
 static bool check_update() {
         FILE *online_version = popen("curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/VERSION", "r");
         if (online_version == NULL) {
                 return false;
         }
 
-        char version[32] = {0};
+        char version[64] = {0};
         if (fgets(version, sizeof(version), online_version) != NULL) {
                 // remove trailing newlines if there are
                 version[strcspn(version, "\r\n")] = '\0';
         }
+        snprintf(g_latest_version, sizeof(g_latest_version), "%s", version);
 
         int status = pclose(online_version);
         if (status != 0 || version[0] == '\0') {
@@ -222,8 +224,8 @@ static void cleanup_temp(void) {
         if (g_update_dir[0] == '\0') {
                 return;
         }
-        char installer_path[512];
-        char hash_path[512];
+        char installer_path[1024];
+        char hash_path[1024];
         snprintf(installer_path, sizeof(installer_path), "%s/install.sh", g_update_dir);
         snprintf(hash_path, sizeof(hash_path), "%s/install.sh.sha256", g_update_dir);
         remove(installer_path);
@@ -242,17 +244,21 @@ static bool check_hash() {
         strncpy(g_update_dir, tmp_dir, sizeof(g_update_dir) - 1);
 
         // absolute file paths in the temp directory
-        char installer_path[512];
-        char hash_path[512];
+        char installer_path[1024];
+        char hash_path[1024];
         snprintf(installer_path, sizeof(installer_path), "%s/install.sh", g_update_dir);
         snprintf(hash_path, sizeof(hash_path), "%s/install.sh.sha256", g_update_dir);
+
+        // script url, pinned to the same release tag as the checksum
+        char script_url[1024] = {0};
+        snprintf(script_url, sizeof(script_url), "https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/v%s/install.sh", g_latest_version);
 
         // downloading install.sh into the installer_path
         printf("Downloading installer script (install.sh)...\n");
         char *curl_installer_args[] = {
             "/usr/bin/curl",
             "-sSL",
-            "https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh",
+            script_url,
             "-o",
             installer_path,
             NULL,
@@ -264,12 +270,16 @@ static bool check_hash() {
                 return false;
         }
 
+        // hash url
+        char hash_url[1024] = {0};
+        snprintf(hash_url, sizeof(hash_url), "https://github.com/tanvir-techbro/PiNum-Lang/releases/download/v%s/install.sh.sha256", g_latest_version);
+
         // downloading install.sh.sha256 into the hash_path
         printf("Downloading checksum file...\n");
         char *curl_hash_args[] = {
             "/usr/bin/curl",
             "-sSL",
-            "https://github.com/tanvir-techbro/PiNum-Lang/releases/download/v0.7.1/install.sh.sha256",
+            hash_url,
             "-o",
             hash_path,
             NULL,
