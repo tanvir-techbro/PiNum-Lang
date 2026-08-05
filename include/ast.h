@@ -265,5 +265,7 @@ void ast_add_param(ASTnode *func_def, ASTnode *param);
 // Memory management
 void free_ast_node(ASTnode *node);
 void print_ast(ASTnode *node, int level);
+// returns a human-readable name for a node type, for error messages
+const char *node_type_name(nodeType type);
 
 #endif // !AST_H

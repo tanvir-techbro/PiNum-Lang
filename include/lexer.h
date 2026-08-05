@@ -118,6 +118,8 @@ typedef struct {
         char *value;        // stores the token as string
         int int_value;      // stores the token as intager value
         double float_value; // stores the token as float value
+        int line;           // 1-based line of the token's first character
+        int col;            // 1-based column of the token's first character
 } token;
 
 // Holds a list of tokens
@@ -126,15 +128,6 @@ typedef struct {
         size_t size;
         size_t capacity;
 } token_list;
-
-/*
-// Keeping track of reading
-typedef struct {
-  char *source;  // Whole .pi file
-  size_t length; // the file length
-  size_t cursor; // current character position
-} lexer;
-*/
 
 /* --- FUNCTIONS --- */
 // NOTE: below 4 functions are helper functions and will be defined in src/helper.c

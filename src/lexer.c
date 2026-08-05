@@ -30,17 +30,51 @@
 bool SQUOTE_MODE = false; // single quote mode
 bool DQUOTE_MODE = false; // double quote mode
 
+// --- position tracking ---
+// g_line/g_col hold the position where the NEXT character will be placed.
+// g_prev_line/g_prev_col remember the position before the most recently read
+// character, so an ungetc() can undo its position change. This works because
+// the lexer only ever pushes back the single, most recently read character.
+static int g_line = 1;
+static int g_col = 1;
+static int g_prev_line = 1;
+static int g_prev_col = 1;
+
+static int lexer_getc(FILE *buffer) {
+        int ch = fgetc(buffer);
+        g_prev_line = g_line;
+        g_prev_col = g_col;
+        if (ch == '\n') {
+                g_line++;
+                g_col = 1;
+        } else if (ch != EOF) {
+                g_col++;
+        }
+        return ch;
+}
+
+static int lexer_ungetc(int ch, FILE *buffer) {
+        g_line = g_prev_line;
+        g_col = g_prev_col;
+        return ungetc(ch, buffer);
+}
+
 // This function tokenizes all the words, keywords and characters in the provided .pn file.
 // The tokens are then handed to the parser to be grammer checked.
 token lexer_tokenizer(FILE *buffer) {
         token tokens;
         tokens.value = NULL;
-        int ch = fgetc(buffer);
+        int ch = lexer_getc(buffer);
 
         // Ignore white spaces, untill we hit EOF or newline
         while (ch != EOF && isspace(ch) && !(DQUOTE_MODE || SQUOTE_MODE) && ch != '\n') {
-                ch = fgetc(buffer);
+                ch = lexer_getc(buffer);
         }
+
+        // the current character is the token's first character, so its position
+        // is the one saved by the last lexer_getc() call.
+        tokens.line = g_prev_line;
+        tokens.col = g_prev_col;
 
         // Identifies whispace as valid token when they are inside quotes or counted as strings.
         if (isspace(ch) && (DQUOTE_MODE || SQUOTE_MODE)) {
@@ -58,13 +92,13 @@ token lexer_tokenizer(FILE *buffer) {
 
         // ID, keywords, veriable and others handling.
         if (isalpha(ch) || ch == '_') {
-                ungetc(ch, buffer);
+                lexer_ungetc(ch, buffer);
                 return lexer_tokenize_words(buffer);
         }
 
         // - number handling -
         if (isdigit(ch) || ch == '.') {
-                ungetc(ch, buffer);
+                lexer_ungetc(ch, buffer);
                 return lexer_tokenize_numbers(buffer);
         }
 
@@ -75,9 +109,9 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("=");
                 } else {
-                        ch = fgetc(buffer);
+                        ch = lexer_getc(buffer);
                         if (ch == ' ' || ch != '=') {
-                                ungetc(ch, buffer);
+                                lexer_ungetc(ch, buffer);
                                 tokens.type = TOKEN_EQUAL;
                                 tokens.value = strdup("=");
                         } else if (ch == '=') {
@@ -208,9 +242,9 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("<");
                 } else {
-                        ch = fgetc(buffer);
+                        ch = lexer_getc(buffer);
                         if (ch == ' ' || ch != '=') {
-                                ungetc(ch, buffer);
+                                lexer_ungetc(ch, buffer);
                                 tokens.type = TOKEN_LABRACKET;
                                 tokens.value = strdup("<");
                         } else if (ch == '=') {
@@ -224,9 +258,9 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup(">");
                 } else {
-                        ch = fgetc(buffer);
+                        ch = lexer_getc(buffer);
                         if (ch == ' ' || ch != '=') {
-                                ungetc(ch, buffer);
+                                lexer_ungetc(ch, buffer);
                                 tokens.type = TOKEN_RABRACKET;
                                 tokens.value = strdup(">");
                         } else if (ch == '=') {
@@ -240,9 +274,9 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("!");
                 } else {
-                        ch = fgetc(buffer);
+                        ch = lexer_getc(buffer);
                         if (ch == ' ' || ch != '=') {
-                                ungetc(ch, buffer);
+                                lexer_ungetc(ch, buffer);
                                 tokens.type = TOKEN_EXCLAMATION;
                                 tokens.value = strdup("!");
                         } else if (ch == '=') {
@@ -301,9 +335,9 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("&");
                 } else {
-                        ch = fgetc(buffer);
+                        ch = lexer_getc(buffer);
                         if (ch == ' ' || ch != '&') {
-                                ungetc(ch, buffer);
+                                lexer_ungetc(ch, buffer);
                                 tokens.type = TOKEN_AMPERSAND;
                                 tokens.value = strdup("&");
                         } else if (ch == '&') {
@@ -317,9 +351,9 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("|");
                 } else {
-                        ch = fgetc(buffer);
+                        ch = lexer_getc(buffer);
                         if (ch == ' ' || ch != '|') {
-                                ungetc(ch, buffer);
+                                lexer_ungetc(ch, buffer);
                                 tokens.type = TOKEN_PIPE;
                                 tokens.value = strdup("|");
                         } else if (ch == '|') {
@@ -397,7 +431,7 @@ token lexer_tokenizer(FILE *buffer) {
                 break;
         // For physically written newline, tab and null terminator;
         case '\\':
-                ch = fgetc(buffer);
+                ch = lexer_getc(buffer);
                 if (ch == 'n') {
                         tokens.type = TOKEN_UNLINE;
                         tokens.value = strdup("\\n");
@@ -408,7 +442,7 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_NTERMINATOR;
                         tokens.value = strdup("\\0");
                 } else {
-                        ungetc(ch, buffer);
+                        lexer_ungetc(ch, buffer);
                         if (SQUOTE_MODE || DQUOTE_MODE) {
                                 tokens.type = TOKEN_QSTRING;
                                 tokens.value = strdup("\\");
@@ -448,7 +482,10 @@ token lexer_tokenize_words(FILE *buffer) {
         char *char_buffer = malloc(capacity);
 
         // - reading the characters and putting them in the char_buffer -
-        ch = fgetc(buffer);
+        ch = lexer_getc(buffer);
+        // the position saved by the first read is the start of this token.
+        tokens.line = g_prev_line;
+        tokens.col = g_prev_col;
 
         while (ch != EOF && (isalnum(ch) || ch == '_')) {
                 if (i + 1 >= capacity) {
@@ -463,12 +500,12 @@ token lexer_tokenize_words(FILE *buffer) {
                 }
 
                 char_buffer[i++] = (char)ch;
-                ch = fgetc(buffer);
+                ch = lexer_getc(buffer);
         }
         char_buffer[i] = '\0';
 
         if (ch != EOF) {
-                ungetc(ch, buffer);
+                lexer_ungetc(ch, buffer);
         }
 
         // - Identifying and handling ID, veriable and datatypes -
@@ -645,7 +682,10 @@ token lexer_tokenize_numbers(FILE *buffer) {
         bool is_float = false;
 
         // - reading the numbers and putting them in the char_buffer -
-        ch = fgetc(buffer);
+        ch = lexer_getc(buffer);
+        // the position saved by the first read is the start of this token.
+        tokens.line = g_prev_line;
+        tokens.col = g_prev_col;
 
         while (ch != EOF && (isdigit(ch) || ch == '.')) {
                 if (i + 1 >= capacity) {
@@ -668,13 +708,13 @@ token lexer_tokenize_numbers(FILE *buffer) {
                 }
 
                 char_buffer[i++] = (char)ch;
-                ch = fgetc(buffer);
+                ch = lexer_getc(buffer);
         }
         char_buffer[i] = '\0';
 
         // unreading the last non digit digit char read by the loop before
         if (ch != EOF) {
-                ungetc(ch, buffer);
+                lexer_ungetc(ch, buffer);
         }
 
         // - Number handling -

@@ -25,6 +25,7 @@
 #define PARSER_H
 
 #include "ast.h"
+#include "error.h"
 #include "lexer.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -72,7 +73,9 @@ token peek(Parser *parser);
 token advance(Parser *parser);
 bool check(Parser *parser, tokenType type);
 bool match(Parser *parser, tokenType type);
-token consume(Parser *parser, tokenType type, const char *message);
+token consume(Parser *parser, tokenType type, const char *expected);
 void consume_end_of_statement(Parser *parser);
+// returns a human-readable description of the current token for error messages
+const char *peek_display(Parser *parser);
 
 #endif // !PARSER_H

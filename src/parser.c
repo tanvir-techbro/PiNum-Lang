@@ -111,9 +111,9 @@ ASTnode *parse_statement(Parser *parser) {
 }
 ASTnode *parse_if_statement(Parser *parser) {
         // Parsing the expresseion inside ( )
-        consume(parser, TOKEN_LRPAREN, "expected '('\n");
+        consume(parser, TOKEN_LRPAREN, "'('");
         ASTnode *condition = parse_expression(parser);
-        consume(parser, TOKEN_RRPAREN, "expected ')'\n");
+        consume(parser, TOKEN_RRPAREN, "')'");
 
         ASTnode *then_block = parse_block(parser);
         ASTnode *else_block = NULL;
@@ -130,16 +130,16 @@ ASTnode *parse_if_statement(Parser *parser) {
 }
 ASTnode *parse_while_statement(Parser *parser) {
         // parsing the expression inside ( )
-        consume(parser, TOKEN_LRPAREN, "expected '('\n");
+        consume(parser, TOKEN_LRPAREN, "'('");
         ASTnode *condition = parse_expression(parser);
-        consume(parser, TOKEN_RRPAREN, "expected ')'\n");
+        consume(parser, TOKEN_RRPAREN, "')'");
         ASTnode *body = parse_block(parser);
 
         return make_while_node(condition, body);
 }
 // for(init; condition; inc) {dory}
 ASTnode *parse_for_statement(Parser *parser) {
-        consume(parser, TOKEN_LRPAREN, "expected '('\n");
+        consume(parser, TOKEN_LRPAREN, "'('");
 
         // init
         ASTnode *init = NULL;
@@ -149,7 +149,7 @@ ASTnode *parse_for_statement(Parser *parser) {
                         init = parse_declaration(parser);
                 } else {
                         init = parse_expression(parser);
-                        consume(parser, TOKEN_SEMICOLON, "expected ';'\n");
+                        consume(parser, TOKEN_SEMICOLON, "';'");
                 }
         } else {
                 advance(parser); // skip empty init ';'
@@ -159,13 +159,13 @@ ASTnode *parse_for_statement(Parser *parser) {
         if (!check(parser, TOKEN_SEMICOLON)) {
                 condition = parse_expression(parser);
         }
-        consume(parser, TOKEN_SEMICOLON, "expected ';'\n");
+        consume(parser, TOKEN_SEMICOLON, "';'");
         // inc
         ASTnode *inc = NULL;
         if (!check(parser, TOKEN_RRPAREN)) {
                 inc = parse_expression(parser);
         }
-        consume(parser, TOKEN_RRPAREN, "expected ')'\n");
+        consume(parser, TOKEN_RRPAREN, "')'");
 
         ASTnode *body = parse_block(parser);
         return make_for_node(init, condition, inc, body);
@@ -195,12 +195,12 @@ ASTnode *parse_declaration(Parser *parser) {
         else if (match(parser, TOKEN_STRING)) data_type = "string";
         else if (match(parser, TOKEN_BOOL)) data_type = "bool";
         else {
-                fprintf(stderr, "Syntax error: Expected type name.\n");
-                exit(EXIT_FAILURE);
+                token found = peek(parser);
+                pinum_expected_at(STAGE_PARSER, found.line, found.col, "a data type (int, float, etc.)", peek_display(parser));
         }
 
         // Veriable name
-        token name_token = consume(parser, TOKEN_ID, "expected veriable name.\n");
+        token name_token = consume(parser, TOKEN_ID, "a variable name");
         char *var_name = name_token.value; // value is actually the name of the token
 
         ASTnode *initializer = NULL;
@@ -213,7 +213,7 @@ ASTnode *parse_declaration(Parser *parser) {
         return make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
 }
 ASTnode *parse_block(Parser *parser) {
-        consume(parser, TOKEN_LCPAREN, "expected '{'\n");
+        consume(parser, TOKEN_LCPAREN, "'{'");
         ASTnode *block = create_ast_node(NODE_BLOCK);
 
         while (!check(parser, TOKEN_RCPAREN) && !check(parser, TOKEN_EOF)) {
@@ -221,7 +221,7 @@ ASTnode *parse_block(Parser *parser) {
                 ast_add_statement(block, parse_statement(parser));
         }
 
-        consume(parser, TOKEN_RCPAREN, "expected '}'\n");
+        consume(parser, TOKEN_RCPAREN, "'}'");
         return block;
 }
 
@@ -250,7 +250,7 @@ ASTnode *parse_primary(Parser *parser) {
 
         if (match(parser, TOKEN_LRPAREN)) {
                 ASTnode *expr = parse_expression(parser);
-                consume(parser, TOKEN_RRPAREN, "expect ')' after expression.\n");
+                consume(parser, TOKEN_RRPAREN, "')' after expression");
                 return expr;
         }
 
@@ -273,8 +273,8 @@ ASTnode *parse_primary(Parser *parser) {
         }
 
         // Error
-        fprintf(stderr, "\033[1;31msyntax error:\033[0m unexpected token %s\n", peek(parser).value);
-        exit(EXIT_FAILURE);
+        token found = peek(parser);
+        pinum_error_at(STAGE_PARSER, ERR_UNEXPECTED_TOKEN, found.line, found.col, peek_display(parser));
 }
 // parses function call and member access
 // parses and refers to parse_primary
@@ -286,8 +286,8 @@ ASTnode *parse_call(Parser *parser) {
                 // function call identified by NODE_IDENTIFIER followed by TOKEN_LRPAREN
                 if (match(parser, TOKEN_LRPAREN)) {
                         if (node->type != NODE_IDENTIFIER) {
-                                fprintf(stderr, "Syntax error: can only call functions.\n");
-                                exit(EXIT_FAILURE);
+                                token trigger = parser->tokens->tokens[parser->current - 1];
+                                pinum_error_at(STAGE_PARSER, ERR_INVALID_CALL_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                         }
                         char *name = strdup(node->data.identifier.name);
                         free_ast_node(node);
@@ -299,14 +299,14 @@ ASTnode *parse_call(Parser *parser) {
                                         ast_add_arg(call, parse_expression(parser));
                                 } while (match(parser, TOKEN_COMMA));
                         }
-                        consume(parser, TOKEN_RRPAREN, "expected ')' after arguments.\n");
+                        consume(parser, TOKEN_RRPAREN, "')' after arguments");
                         node = call;
                 }
                 // array access
                 // array access if NODE_IDENTIFIER followed by TOKEN_LSPAREN
                 else if (match(parser, TOKEN_LSPAREN)) {
                         ASTnode *index = parse_expression(parser);
-                        consume(parser, TOKEN_RSPAREN, "expected ']' after index\n");
+                        consume(parser, TOKEN_RSPAREN, "']' after index");
                         ASTnode *access = create_ast_node(NODE_ARRAY_ACCESS);
                         access->data.array_access.name = node->data.identifier.name;
                         access->data.array_access.index = index;
@@ -410,7 +410,7 @@ ASTnode *parse_ternary(Parser *parser) {
         ASTnode *else_expr = NULL;
         if (match(parser, TOKEN_QUESTION)) {
                 then_expr = parse_ternary(parser);
-                consume(parser, TOKEN_COLON, "expected ':'\n");
+                consume(parser, TOKEN_COLON, "':'");
                 else_expr = parse_ternary(parser);
                 node = make_ternary_node(node, then_expr, else_expr);
         }
@@ -422,10 +422,10 @@ ASTnode *parse_assignment(Parser *parser) {
         ASTnode *node = parse_ternary(parser);
 
         if (match(parser, TOKEN_EQUAL)) {
+                token trigger = parser->tokens->tokens[parser->current - 1];
                 ASTnode *value = parse_assignment(parser);
                 if (node->type != NODE_IDENTIFIER) {
-                        fprintf(stderr, "Syntax error: Invalid assignment target.\n");
-                        exit(EXIT_FAILURE);
+                        pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                 }
                 char *name = strdup(node->data.identifier.name);
                 free_ast_node(node);

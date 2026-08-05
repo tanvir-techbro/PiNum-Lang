@@ -23,6 +23,7 @@
 
 // NOTE: This file holds all the helper functions that helps other processes run.
 
+#include "../include/error.h"
 #include "../include/lexer.h"
 #include "../include/mode.h"
 #include "../include/parser.h"
@@ -105,13 +106,37 @@ bool match(Parser *parser, tokenType type) {
         // return false if it dosent match and stays at the same place (dosent move on)
         return false;
 }
+// returns a human-readable description of the current token for error messages
+const char *peek_display(Parser *parser) {
+        token t = peek(parser);
+        if (t.value) {
+                return t.value;
+        }
+        static char buf[64];
+        switch (t.type) {
+        case TOKEN_INUM:
+                snprintf(buf, sizeof(buf), "%d", t.int_value);
+                break;
+        case TOKEN_FNUM:
+                snprintf(buf, sizeof(buf), "%g", t.float_value);
+                break;
+        case TOKEN_NLINE:
+                return "newline";
+        case TOKEN_EOF:
+                return "end of file";
+        default:
+                return lexer_token_type_to_string(t.type);
+        }
+        return buf;
+}
 // checks for error and throws error messages
-token consume(Parser *parser, tokenType type, const char *message) {
+// 'expected' is a description of the token that was expected (e.g. "')'")
+token consume(Parser *parser, tokenType type, const char *expected) {
         if (check(parser, type)) {
                 return advance(parser);
         }
-        fprintf(stderr, "Parser error: %s", message);
-        exit(EXIT_FAILURE);
+        token found = peek(parser);
+        pinum_expected_at(STAGE_PARSER, found.line, found.col, expected, peek_display(parser));
 }
 void consume_end_of_statement(Parser *parser) {
         if (match(parser, TOKEN_SEMICOLON) || match(parser, TOKEN_NLINE)) {
@@ -122,7 +147,7 @@ void consume_end_of_statement(Parser *parser) {
                 return;
         }
 
-        fprintf(stderr, "Parser error: Expect ';' or newline after statement. Found: %s\n", peek(parser).value);
-        exit(EXIT_FAILURE);
+        token found = peek(parser);
+        pinum_expected_at(STAGE_PARSER, found.line, found.col, "';' or newline after statement", peek_display(parser));
 }
 // ===================================================

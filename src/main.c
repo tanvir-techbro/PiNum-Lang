@@ -22,10 +22,12 @@
  ********************************************************************/
 
 #include "../include/ast.h"
+#include "../include/error.h"
 #include "../include/lexer.h"
 #include "../include/mode.h"
 #include "../include/parser.h"
 #include "../include/version.h"
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,9 +51,10 @@
 void handle_flag_help();
 void handle_version_flag();
 // Updating pipeline
-// returns 1 if an update is available, 0 if up to date, -1 if the check failed.
+// returns 1 if an update is available, 0 if up to date; exits on failure.
 static int check_update();
-static bool check_hash(); // verify the installer script hash against release hash (install.sh.sha256)
+// downloads the installer and its checksum, then verifies the hash; exits on any failure.
+static void check_hash(); // verify the installer script hash against release hash (install.sh.sha256)
 // the parameter 'binray' is the file path to executeable program file.
 // 'dir' is the working directory the command should run in (NULL = inherit current).
 int run_cmd(const char *dir, const char *binary, char *const args[]); // helper function to run shell commands safely.
@@ -62,12 +65,9 @@ int main(int argc, char *argv[]) {
 
         // Exits if user does not provide any file
         if (argc < 2) {
-                // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default
-                // code `\033[1;31m` makes the text 'fatal error' red and code `\033[0m` resets to default color
-                fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31mfatal error:\033[0m no input file provided.\n", argv[0]);
                 fprintf(stderr, "Usage: %s <file>\n", argv[0]);
                 fprintf(stderr, "See '--help' for more info.\n");
-                exit(EXIT_FAILURE);
+                pinum_error(STAGE_FILE, ERR_NO_INPUT_FILE, NULL);
         }
 
         // --- FLAG HANDLING (function calls) ---
@@ -88,11 +88,8 @@ int main(int argc, char *argv[]) {
                 }
                 // Unrecognized and invalid flag handling
                 else {
-                        // code '\033[1;40m' makes the compiler name text bolder and code `\033[0m` resets to default
-                        // code `\033[1;31m` makes the text 'fatal error' red and code `\033[0m` resets to default color
-                        fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31merror:\033[0m invalid flag '%s'\n", argv[0], argv[1]);
                         printf("See '--help' for more info.\n");
-                        return EXIT_SUCCESS;
+                        pinum_error(STAGE_FILE, ERR_INVALID_FLAG, argv[1]);
                 }
         }
         // --------------------------------------
@@ -104,19 +101,17 @@ int main(int argc, char *argv[]) {
 
         // Checking if the file extention is valid or not.
         if (extention == NULL) {
-                fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31merror:\033[0m filetype not valid.\n", argv[0]);
-                exit(EXIT_FAILURE);
+                pinum_error(STAGE_FILE, ERR_INVALID_FILE_TYPE, NULL);
         } else if (!(strcmp(extention, ".pn"))) {
                 // checking if the file can be opened or not
                 if ((buffer = fopen(filename, "r")) == NULL) {
-                        fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31mfatal error: \033[0m", argv[0]);
-                        perror(argv[1]);
-                        exit(EXIT_FAILURE);
+                        pinum_error(STAGE_FILE, ERR_CANNOT_OPEN_FILE, filename);
                 }
+                // tell the error reporter which file compile errors refer to
+                error_set_source_file(filename);
                 // If the file open is succesful it will continue with rest of the program.
         } else {
-                fprintf(stderr, "\033[1;40m%s:\033[0m \033[1;31merror:\033[0m filetype not valid.\n", argv[0]);
-                exit(EXIT_FAILURE);
+                pinum_error(STAGE_FILE, ERR_INVALID_FILE_TYPE, NULL);
         }
         // ---------------------
 
@@ -194,8 +189,7 @@ static char g_latest_version[64] = {0};
 static int check_update() {
         FILE *online_version = popen("curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/VERSION", "r");
         if (online_version == NULL) {
-                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m could not start update check.\n");
-                return -1;
+                pinum_error(STAGE_UPDATER, ERR_UPDATE_START, NULL);
         }
 
         char version[64] = {0};
@@ -207,8 +201,7 @@ static int check_update() {
 
         int status = pclose(online_version);
         if (status != 0 || version[0] == '\0') {
-                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m could not check for updates (network or server error).\n");
-                return -1; // fetch failed
+                pinum_error(STAGE_UPDATER, ERR_UPDATE_CHECK, NULL); // fetch failed
         }
         // if version != PINUM_VERSION it returns 1 (update available),
         // if version == PINUM_VERSION it returns 0 (up to date)
@@ -229,13 +222,12 @@ static void cleanup_temp(void) {
         rmdir(g_update_dir);
         g_update_dir[0] = '\0';
 }
-static bool check_hash() {
+static void check_hash() {
         // creating a unique directory
         char dir_template[] = "/tmp/pinum_update_XXXXXX";
         char *tmp_dir = mkdtemp(dir_template);
         if (!tmp_dir) {
-                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m Failed to create temporary directory in /tmp/\n");
-                return false;
+                pinum_error(STAGE_UPDATER, ERR_UPDATE_TMP_DIR, NULL);
         }
         strncpy(g_update_dir, tmp_dir, sizeof(g_update_dir) - 1);
 
@@ -261,9 +253,8 @@ static bool check_hash() {
         };
         // curl installation failed
         if (run_cmd(NULL, "/usr/bin/curl", curl_installer_args) != 0) {
-                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m script (install.sh) installation failed. try again.\n");
                 cleanup_temp();
-                return false;
+                pinum_error(STAGE_UPDATER, ERR_UPDATE_DOWNLOAD_SCRIPT, NULL);
         }
 
         // hash url
@@ -282,9 +273,8 @@ static bool check_hash() {
         };
         // curl installation failed
         if (run_cmd(NULL, "/usr/bin/curl", curl_hash_args) != 0) {
-                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum (install.sh.sha256) installation failed. try again.\n");
                 cleanup_temp();
-                return false;
+                pinum_error(STAGE_UPDATER, ERR_UPDATE_DOWNLOAD_CHECKSUM, NULL);
         }
 
         // verify the checksum in the temp directory so the relative
@@ -296,13 +286,11 @@ static bool check_hash() {
             "install.sh.sha256",
             NULL,
         };
-        if (run_cmd(g_update_dir, "/usr/bin/sha256sum", sha_args) == 0) {
-                return true; // checksum passed; keep files for install step
+        if (run_cmd(g_update_dir, "/usr/bin/sha256sum", sha_args) != 0) {
+                cleanup_temp();
+                pinum_error(STAGE_UPDATER, ERR_UPDATE_CHECKSUM_VERIFY, NULL);
         }
-
-        fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum verification failed!\n");
-        cleanup_temp();
-        return false;
+        // checksum passed; keep files for install step
 }
 int run_cmd(const char *dir, const char *binary, char *const args[]) {
         // fork the process
@@ -312,14 +300,12 @@ int run_cmd(const char *dir, const char *binary, char *const args[]) {
         if (pid == 0) {
                 // change into the requested working directory, if any
                 if (dir != NULL && chdir(dir) < 0) {
-                        perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m chdir failed");
-                        _exit(127);
+                        pinum_error(STAGE_UPDATER, ERR_UPDATE_CHDIR, strerror(errno));
                 }
                 // replace the child process binray with target binray
                 execv(binary, args);
                 // if execv reach this line, it failed
-                perror("\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m execv failed");
-                _exit(1);
+                pinum_error(STAGE_UPDATER, ERR_UPDATE_EXEC, strerror(errno));
         }
         // parent process
         else if (pid > 0) {
@@ -337,20 +323,13 @@ int run_cmd(const char *dir, const char *binary, char *const args[]) {
 int handle_update_flag() {
         printf("Checking for updates...\n");
         int check = check_update();
-        if (check == -1) {
-                // update check failed (network/server error) - do not pretend we're up to date
-                return EXIT_FAILURE;
-        }
         if (check == 0) {
                 // pinum up to date
                 printf("Up to date!\n");
                 return EXIT_SUCCESS;
         }
-        // checksum verification fail
-        if (!check_hash()) {
-                fprintf(stderr, "\033[1;40mpinum:\033[0m \033[1;31mupdater error:\033[0m checksum verification failed!\nAborting update installation...\n");
-                return EXIT_FAILURE;
-        }
+        // downloads and verifies the installer; exits on any failure
+        check_hash();
 
         printf("Verification successful!\n");
         printf("\nExecuting installer...\n");

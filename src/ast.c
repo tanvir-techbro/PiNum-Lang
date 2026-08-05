@@ -36,6 +36,7 @@
  */
 
 #include "../include/ast.h"
+#include "../include/error.h"
 
 /*
  * @brief Allocates and initializes a new AST node of a given type.
@@ -49,12 +50,73 @@
 ASTnode *create_ast_node(nodeType type) {
         ASTnode *node = (ASTnode *)malloc(sizeof(ASTnode));
         if (node == NULL) {
-                perror("Failed to allocate ast node.\n"); // NOTE: for debugging, no node should fail to be allocated.
-                exit(EXIT_FAILURE);
+                pinum_error(STAGE_INTERNAL, ERR_ALLOC_FAILED, NULL);
         }
         memset(node, 0, sizeof(ASTnode));
         node->type = type;
         return node;
+}
+
+// returns a human-readable name for a node type, for error messages
+const char *node_type_name(nodeType type) {
+        switch (type) {
+        case NODE_PROGRAM:
+                return "program";
+        case NODE_VAR_DECL:
+                return "variable declaration";
+        case NODE_ASSIGN:
+                return "assignment";
+        case NODE_FUNC_CALL:
+                return "function call";
+        case NODE_FUNC_DEF:
+                return "function definition";
+        case NODE_MEMBER_ACCESS:
+                return "member access";
+        case NODE_ARRAY_ACCESS:
+                return "array access";
+        case NODE_INT_LITERAL:
+                return "number literal";
+        case NODE_FLOAT_LITERAL:
+                return "float literal";
+        case NODE_STRING_LITERAL:
+                return "string literal";
+        case NODE_BOOL_LITERAL:
+                return "bool literal";
+        case NODE_CHAR_LITERAL:
+                return "char literal";
+        case NODE_IDENTIFIER:
+                return "identifier";
+        case NODE_BINARY_EXPRESSION:
+                return "binary expression";
+        case NODE_UNARY_EXPRESSION:
+                return "unary expression";
+        case NODE_TERNARY_EXPRESSION:
+                return "ternary expression";
+        case NODE_BLOCK:
+                return "block";
+        case NODE_IF_STAT:
+                return "if statement";
+        case NODE_WHILE:
+                return "while loop";
+        case NODE_FOR:
+                return "for loop";
+        case NODE_IMPORT:
+                return "import";
+        case NODE_DIRECTIVE:
+                return "directive";
+        case NODE_RETURN:
+                return "return statement";
+        case NODE_PRINT:
+                return "print statement";
+        case NODE_READ:
+                return "read statement";
+        case NODE_BREAK:
+                return "break statement";
+        case NODE_CONTINUE:
+                return "continue statement";
+        default:
+                return "expression";
+        }
 }
 
 // --- Specialized Factory Functions ---
@@ -294,6 +356,11 @@ void free_ast_node(ASTnode *node) {
         case NODE_UNARY_EXPRESSION:
                 free_ast_node(node->data.unary_expression.left);
                 break;
+        case NODE_TERNARY_EXPRESSION:
+                free_ast_node(node->data.ternary_expression.condition);
+                free_ast_node(node->data.ternary_expression.then_expr);
+                free_ast_node(node->data.ternary_expression.else_expr);
+                break;
         case NODE_BLOCK:
                 for (int i = 0; i < node->data.blocks.count; i++) {
                         free_ast_node(node->data.blocks.statements[i]);
@@ -409,6 +476,15 @@ void print_ast(ASTnode *node, int level) {
                         printf("ELSE\n");
                         print_ast(node->data.if_stat.else_block, level + 1);
                 }
+                break;
+        case NODE_TERNARY_EXPRESSION:
+                printf("TERNARY\n");
+                printf("COND:\n");
+                print_ast(node->data.ternary_expression.condition, level + 1);
+                printf("THEN:\n");
+                print_ast(node->data.ternary_expression.then_expr, level + 1);
+                printf("ELSE:\n");
+                print_ast(node->data.ternary_expression.else_expr, level + 1);
                 break;
         case NODE_WHILE:
                 printf("WHILE\n");
