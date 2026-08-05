@@ -24,6 +24,8 @@
 # Ignore
 bin/*
 runtime/*
+# sha files would be uploaded with new releases
+install.sh.sha256
 #/test/*
 change_plan.md
 
