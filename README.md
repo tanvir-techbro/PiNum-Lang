@@ -138,9 +138,10 @@ while (condition) {
 
 PiNum is currently in its early stages:
 - [x] Lexer / Tokenizer
-- [ ] Parser (In Progress)
+- [x] ast
+- [x] Parser
 - [ ] Code Generation (In Progress)
-- [ ] Runtime Library
+- [ ] Runtime Library (later)
 
 ## 🤝 Contributing
 
