@@ -173,9 +173,6 @@ int main(int argc, char *argv[]) {
                 // NOTE: this function call is for debugging purposes.
                 print_ast(ast, 0);
         }
-        free_ast_node(ast);
-        // freeing the list and its tokens' values
-        token_list_free(&list);
         // generate C output
         FILE *output = fopen("payload.c", "w");
         if (output == NULL) {
@@ -183,6 +180,9 @@ int main(int argc, char *argv[]) {
         }
         codegen(ast, output);
         fclose(output);
+        free_ast_node(ast);
+        // freeing the list and its tokens' values
+        token_list_free(&list);
 
         // NOTE: 2 if statement below are and for debugging purposes.
         /*

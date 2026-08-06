@@ -281,6 +281,17 @@ void ast_add_param(ASTnode *func_def, ASTnode *param) {
         func_def->data.func_def.params = (ASTnode **)realloc(func_def->data.func_def.params, sizeof(ASTnode *) * (func_def->data.func_def.param_count + 1));
         func_def->data.func_def.params[func_def->data.func_def.param_count++] = param;
 }
+/*
+ * @brief Adds an argument to a print statement node.
+ */
+void ast_add_print_arg(ASTnode *print, ASTnode *arg) {
+        // verifying correct node type
+        if (print->type != NODE_PRINT) {
+                return;
+        }
+        print->data.print.args = (ASTnode **)realloc(print->data.print.args, sizeof(ASTnode *) * (print->data.print.arg_count + 1));
+        print->data.print.args[print->data.print.arg_count++] = arg;
+}
 
 // --- Memory Management ---
 /*
@@ -392,7 +403,10 @@ void free_ast_node(ASTnode *node) {
                 free_ast_node(node->data.returns.expression);
                 break;
         case NODE_PRINT:
-                free_ast_node(node->data.print.expression);
+                for (int i = 0; i < node->data.print.arg_count; i++) {
+                        free_ast_node(node->data.print.args[i]);
+                }
+                free(node->data.print.args);
                 break;
         case NODE_READ:
                 free(node->data.read.name);
@@ -507,7 +521,9 @@ void print_ast(ASTnode *node, int level) {
                 break;
         case NODE_PRINT:
                 printf("PRINT\n");
-                print_ast(node->data.print.expression, level + 1);
+                for (int i = 0; i < node->data.print.arg_count; i++) {
+                        print_ast(node->data.print.args[i], level + 1);
+                }
                 break;
         case NODE_BREAK:
                 printf("BREAK\n");

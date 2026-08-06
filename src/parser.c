@@ -57,10 +57,15 @@ ASTnode *parse_statement(Parser *parser) {
                 return parse_declaration(parser);
         }
         if (match(parser, TOKEN_PRINT)) {
-                ASTnode *expression = parse_expression(parser);
-                consume_end_of_statement(parser);
+                consume(parser, TOKEN_LRPAREN, "'(' after print");
                 ASTnode *node = create_ast_node(NODE_PRINT);
-                node->data.print.expression = expression;
+                if (!check(parser, TOKEN_RRPAREN)) {
+                        do {
+                                ast_add_print_arg(node, parse_expression(parser));
+                        } while (match(parser, TOKEN_COMMA));
+                }
+                consume(parser, TOKEN_RRPAREN, "')' after arguments");
+                consume_end_of_statement(parser);
                 return node;
         }
         if (match(parser, TOKEN_IF)) {

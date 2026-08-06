@@ -1,5 +1,2 @@
-@import stdlib
-@for engine
-
-print("Hello                 world!\n")
-
+print("Hello world!\n");
+print("hello", 67, "world");

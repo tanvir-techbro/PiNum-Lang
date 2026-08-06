@@ -24,9 +24,59 @@
 #include "../include/codegen_c.h"
 #include <stdio.h>
 
+// returns the printf format specifier that matches a node's value type
+static const char *codegen_specifier(ASTnode *node) {
+        switch (node->type) {
+        case NODE_STRING_LITERAL:
+                return "%s";
+        case NODE_FLOAT_LITERAL:
+                return "%f";
+        case NODE_CHAR_LITERAL:
+                return "%c";
+        case NODE_BOOL_LITERAL:
+                return "%d"; // true/false printed as 1/0
+        case NODE_IDENTIFIER:
+                // TODO: needs a symbol table to know the variable's type
+                return "%d";
+        default:
+                return "%d";
+        }
+}
+
 // takes one AST node and writes that node's C code to the file
 static void codegen_node(ASTnode *node, FILE *output, int level) {
         switch (node->type) {
+        case NODE_INT_LITERAL:
+                fprintf(output, "%d", node->data.int_literal.value);
+                break;
+        case NODE_FLOAT_LITERAL:
+                fprintf(output, "%f", node->data.float_literal.value);
+                break;
+        case NODE_STRING_LITERAL:
+                fprintf(output, "\"%s\"", node->data.string_literal.value);
+                break;
+        case NODE_BOOL_LITERAL:
+                fprintf(output, "%d", node->data.bool_literal.value);
+                break;
+        case NODE_CHAR_LITERAL:
+                fprintf(output, "'%c'", node->data.char_literal.value);
+                break;
+        case NODE_IDENTIFIER:
+                fprintf(output, "%s", node->data.identifier.name);
+                break;
+        case NODE_PRINT:
+                // one printf, format string built from each arg's specifier
+                fprintf(output, "printf(\"");
+                for (int i = 0; i < node->data.print.arg_count; i++) {
+                        fprintf(output, "%s", codegen_specifier(node->data.print.args[i]));
+                }
+                fprintf(output, "\"");
+                for (int i = 0; i < node->data.print.arg_count; i++) {
+                        fprintf(output, ", ");
+                        codegen_node(node->data.print.args[i], output, level);
+                }
+                fprintf(output, ");\n");
+                break;
         default:
                 fprintf(output, "//TODO: %s\n", node_type_name(node->type));
         }

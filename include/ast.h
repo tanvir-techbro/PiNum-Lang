@@ -231,7 +231,8 @@ struct ASTnode {
                         ASTnode *expression;
                 } returns;
                 struct {
-                        ASTnode *expression;
+                        ASTnode **args;
+                        int arg_count;
                 } print;
                 struct {
                         char *name;
@@ -263,6 +264,7 @@ ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int
 void ast_add_statement(ASTnode *parent, ASTnode *stmt);
 void ast_add_arg(ASTnode *func_call, ASTnode *arg);
 void ast_add_param(ASTnode *func_def, ASTnode *param);
+void ast_add_print_arg(ASTnode *print, ASTnode *arg);
 // Memory management
 void free_ast_node(ASTnode *node);
 void print_ast(ASTnode *node, int level);
