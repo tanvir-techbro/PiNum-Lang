@@ -1,0 +1,2 @@
+int number = 67;
+print(number, "\n");

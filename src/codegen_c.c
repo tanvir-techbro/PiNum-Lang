@@ -64,6 +64,20 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
         case NODE_IDENTIFIER:
                 fprintf(output, "%s", node->data.identifier.name);
                 break;
+        case NODE_VAR_DECL:
+                // get the modifier
+                if (node->data.var_decl.modifiers) {
+                        fprintf(output, "%s", node->data.var_decl.modifiers);
+                }
+                // get type and name
+                fprintf(output, "%s %s", node->data.var_decl.type_name, node->data.var_decl.name);
+                // check if they have any value assigned
+                if (node->data.var_decl.value) {
+                        fprintf(output, " = ");
+                        codegen_node(node->data.var_decl.value, output, level);
+                }
+                fprintf(output, ";\n");
+                break;
         case NODE_PRINT:
                 fprintf(output, "printf(\"");
                 // gets the specifier and writes it to the print statement
