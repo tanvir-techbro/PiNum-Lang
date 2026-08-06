@@ -1,2 +1,2 @@
 print("Hello world!\n");
-print("hello", 67, "world");
+print("hello ", 67, " world");

@@ -182,15 +182,36 @@ ASTnode *parse_return_statement(Parser *parser) {
         node->data.returns.expression = expression;
         return node;
 }
+// verifies veriable modifier
+static bool is_valid_modifier(const char *modifier, const char *data_type) {
+        if (modifier == NULL) return true;
+        if (strcmp(modifier, "unsigned") == 0 || strcmp(modifier, "signed") == 0)
+                return strcmp(data_type, "int") == 0 || strcmp(data_type, "char") == 0;
+        if (strcmp(modifier, "long") == 0)
+                return strcmp(data_type, "int") == 0 || strcmp(data_type, "double") == 0;
+        if (strcmp(modifier, "short") == 0)
+                return strcmp(data_type, "int") == 0;
+        return false;
+}
 ASTnode *parse_declaration(Parser *parser) {
         char *modifier = NULL;
         char *data_type = NULL;
+        token modifier_token = {0};
 
         // Modifier (optional)
-        if (match(parser, TOKEN_UNSIGNED)) modifier = "unsigned";
-        else if (match(parser, TOKEN_SIGNED)) modifier = "signed";
-        else if (match(parser, TOKEN_LONG)) modifier = "long";
-        else if (match(parser, TOKEN_SHORT)) modifier = "short";
+        if (match(parser, TOKEN_UNSIGNED)) {
+                modifier = "unsigned";
+                modifier_token = parser->tokens->tokens[parser->current - 1];
+        } else if (match(parser, TOKEN_SIGNED)) {
+                modifier = "signed";
+                modifier_token = parser->tokens->tokens[parser->current - 1];
+        } else if (match(parser, TOKEN_LONG)) {
+                modifier = "long";
+                modifier_token = parser->tokens->tokens[parser->current - 1];
+        } else if (match(parser, TOKEN_SHORT)) {
+                modifier = "short";
+                modifier_token = parser->tokens->tokens[parser->current - 1];
+        }
 
         // Data Type (Required)
         if (match(parser, TOKEN_INT)) data_type = "int";
@@ -202,6 +223,10 @@ ASTnode *parse_declaration(Parser *parser) {
         else {
                 token found = peek(parser);
                 pinum_expected_at(STAGE_PARSER, found.line, found.col, "a data type (int, float, etc.)", peek_display(parser));
+        }
+
+        if (!is_valid_modifier(modifier, data_type)) {
+                pinum_error_at(STAGE_PARSER, ERR_INVALID_MODIFIER, modifier_token.line, modifier_token.col, modifier);
         }
 
         // Veriable name
