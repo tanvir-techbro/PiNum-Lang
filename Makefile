@@ -24,7 +24,7 @@
 # Variables
 CC ?= cc
 CFLAGS += -Wall -Wextra -g -O3
-SRC = src/main.c src/lexer.c src/lexer_filter.c src/parser.c src/ast.c src/codegen.c src/helper.c src/error.c
+SRC = src/main.c src/lexer.c src/lexer_filter.c src/parser.c src/ast.c src/codegen_c.c src/helper.c src/error.c
 VERSION = $(shell cat VERSION)
 
 TARGET = bin/pinum

@@ -24,6 +24,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include "error.h"
 #include "lexer.h"
 #include <stdbool.h>
 #include <stdio.h>

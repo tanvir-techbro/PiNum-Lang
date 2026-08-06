@@ -36,7 +36,6 @@
  */
 
 #include "../include/ast.h"
-#include "../include/error.h"
 
 /*
  * @brief Allocates and initializes a new AST node of a given type.

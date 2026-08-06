@@ -20,3 +20,26 @@
  *  github issue at <https://github.com/tanvir-techbro/PiNum-Lang>  *
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
+
+#include "../include/codegen_c.h"
+#include <stdio.h>
+
+// takes one AST node and writes that node's C code to the file
+static void codegen_node(ASTnode *node, FILE *output, int level) {
+        switch (node->type) {
+        default:
+                fprintf(output, "//TODO: %s", node_type_name(node->type));
+        }
+}
+
+// --- MAIN ---
+void codegen(ASTnode *program, FILE *output) {
+        fprintf(output, "#include <stdio.h>\n");
+        fprintf(output, "#include <string.h>\b");
+        fprintf(output, "#include <stdbool.h>\n");
+        fprintf(output, "int main(void) {\n");
+        for (int i = 0; i < program->data.program.count; i++) {
+                codegen_node(program->data.program.statements[i], output, 1);
+        }
+        fprintf(output, "return 0;\n}\n");
+}

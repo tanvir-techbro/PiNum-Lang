@@ -20,3 +20,17 @@
  *  github issue at <https://github.com/tanvir-techbro/PiNum-Lang>  *
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
+
+#ifndef CODEGEN_H
+#define CODEGEN_H
+
+#include "ast.h"
+#include "error.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
+// Walks through the tree
+void codegen(ASTnode *program, FILE *output);
+
+#endif // !CODEGEN_H
