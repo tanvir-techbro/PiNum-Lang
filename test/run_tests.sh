@@ -81,7 +81,7 @@ run_tests() {
                         valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum --debug-all "$file"
                 else
                         # Normal execution
-                        bin/pinum "$file"
+                        ./bin/pinum --debug-all "$file"
                 fi
                 echo -e "${CYAN}----------------------------------------------------${NC}"
                 echo ""

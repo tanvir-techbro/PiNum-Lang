@@ -22,6 +22,7 @@
  ********************************************************************/
 
 #include "../include/ast.h"
+#include "../include/codegen_c.h"
 #include "../include/error.h"
 #include "../include/lexer.h"
 #include "../include/mode.h"
@@ -175,6 +176,13 @@ int main(int argc, char *argv[]) {
         free_ast_node(ast);
         // freeing the list and its tokens' values
         token_list_free(&list);
+        // generate C output
+        FILE *output = fopen("payload.c", "w");
+        if (output == NULL) {
+                pinum_error(STAGE_CODEGEN, ERR_CANNOT_OPEN_FILE, "payload.c");
+        }
+        codegen(ast, output);
+        fclose(output);
 
         // NOTE: 2 if statement below are and for debugging purposes.
         /*

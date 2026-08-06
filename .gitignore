@@ -26,8 +26,11 @@ bin/*
 runtime/*
 # sha files would be uploaded with new releases
 install.sh.sha256
-#/test/*
 change_plan.md
+# payload test files
+payload.c
+payload
+a.out
 
 # dont ignore
 !bin/.gitkeep
