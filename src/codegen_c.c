@@ -65,12 +65,13 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 fprintf(output, "%s", node->data.identifier.name);
                 break;
         case NODE_PRINT:
-                // one printf, format string built from each arg's specifier
                 fprintf(output, "printf(\"");
+                // gets the specifier and writes it to the print statement
                 for (int i = 0; i < node->data.print.arg_count; i++) {
                         fprintf(output, "%s", codegen_specifier(node->data.print.args[i]));
                 }
                 fprintf(output, "\"");
+                // adds args for each specifier
                 for (int i = 0; i < node->data.print.arg_count; i++) {
                         fprintf(output, ", ");
                         codegen_node(node->data.print.args[i], output, level);
