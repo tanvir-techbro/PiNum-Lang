@@ -22,21 +22,24 @@
  ********************************************************************/
 
 #include "../include/codegen_c.h"
-#include <stdio.h>
-#include <string.h>
 
 // for symbol table
-#define MAX_SYMBOLS 256
-static const char *g_sym_names[MAX_SYMBOLS];
-static const char *g_sym_types[MAX_SYMBOLS];
+static const char **g_sym_names = NULL;
+static const char **g_sym_types = NULL;
 static int g_sym_count = 0;
+static int g_sym_capacity = 0;
 
 static void sym_register(const char *name, const char *type) {
-        if (g_sym_count < MAX_SYMBOLS) {
-                g_sym_names[g_sym_count] = name;
-                g_sym_types[g_sym_count] = type;
-                g_sym_count++;
+        // dynamic size allocation
+        if (g_sym_count >= g_sym_capacity) {
+                // first time assign the capacity to 16
+                g_sym_capacity = g_sym_capacity ? g_sym_capacity * 2 : 16;
+                g_sym_names = realloc(g_sym_names, g_sym_capacity * sizeof(char *));
+                g_sym_types = realloc(g_sym_types, g_sym_capacity * sizeof(char *));
         }
+        g_sym_names[g_sym_count] = name;
+        g_sym_types[g_sym_count] = type;
+        g_sym_count++;
 }
 static const char *sym_type_of(const char *name) {
         for (int i = 0; i < g_sym_count; i++) {
@@ -139,9 +142,15 @@ void codegen(ASTnode *program, FILE *output) {
         fprintf(output, "#include <stdio.h>\n");
         fprintf(output, "#include <string.h>\n");
         fprintf(output, "#include <stdbool.h>\n");
+        fprintf(output, "#include <stdlib.h>\n");
         fprintf(output, "int main(void) {\n");
         for (int i = 0; i < program->data.program.count; i++) {
                 codegen_node(program->data.program.statements[i], output, 1);
         }
         fprintf(output, "\nreturn 0;\n}\n");
+
+        // free the arrays we allocated
+        free(g_sym_names);
+        free(g_sym_types);
+        g_sym_count = 0;
 }
