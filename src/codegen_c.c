@@ -23,6 +23,35 @@
 
 #include "../include/codegen_c.h"
 #include <stdio.h>
+#include <string.h>
+
+// for symbol table
+#define MAX_SYMBOLS 256
+static const char *g_sym_names[MAX_SYMBOLS];
+static const char *g_sym_types[MAX_SYMBOLS];
+static int g_sym_count = 0;
+
+static void sym_register(const char *name, const char *type) {
+        if (g_sym_count < MAX_SYMBOLS) {
+                g_sym_names[g_sym_count] = name;
+                g_sym_types[g_sym_count] = type;
+                g_sym_count++;
+        }
+}
+static const char *sym_type_of(const char *name) {
+        for (int i = 0; i < g_sym_count; i++) {
+                if (strcmp(g_sym_names[i], name) == 0) {
+                        return g_sym_types[i];
+                }
+        }
+        return NULL;
+}
+static const char *specifier_for_type(const char *type) {
+        if (strcmp(type, "string") == 0) return "%s";
+        if (strcmp(type, "float") == 0 || strcmp(type, "double") == 0) return "%f";
+        if (strcmp(type, "char") == 0) return "%c";
+        return "%d"; // int, bool, and everything else
+}
 
 // returns the printf format specifier that matches a node's value type
 static const char *codegen_specifier(ASTnode *node) {
@@ -35,12 +64,19 @@ static const char *codegen_specifier(ASTnode *node) {
                 return "%c";
         case NODE_BOOL_LITERAL:
                 return "%d"; // true/false printed as 1/0
-        case NODE_IDENTIFIER:
-                // TODO: needs a symbol table to know the variable's type
-                return "%d";
+        case NODE_IDENTIFIER: {
+                const char *type = sym_type_of(node->data.identifier.name);
+                return type ? specifier_for_type(type) : "%d";
+        }
         default:
                 return "%d";
         }
+}
+
+// maps a PiNum type name to its C equivalent
+static const char *codegen_type(const char *type_name) {
+        if (strcmp(type_name, "string") == 0) return "char *";
+        return type_name; // int, float, double, char, bool map 1:1
 }
 
 // takes one AST node and writes that node's C code to the file
@@ -65,12 +101,13 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 fprintf(output, "%s", node->data.identifier.name);
                 break;
         case NODE_VAR_DECL:
+                sym_register(node->data.var_decl.name, node->data.var_decl.type_name);
                 // get the modifier
                 if (node->data.var_decl.modifiers) {
-                        fprintf(output, "%s", node->data.var_decl.modifiers);
+                        fprintf(output, "%s ", node->data.var_decl.modifiers);
                 }
                 // get type and name
-                fprintf(output, "%s %s", node->data.var_decl.type_name, node->data.var_decl.name);
+                fprintf(output, "%s %s", codegen_type(node->data.var_decl.type_name), node->data.var_decl.name);
                 // check if they have any value assigned
                 if (node->data.var_decl.value) {
                         fprintf(output, " = ");

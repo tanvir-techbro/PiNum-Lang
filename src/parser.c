@@ -51,10 +51,10 @@ ASTnode *parse_program(Parser *parser) {
 // - statement level parsing -
 ASTnode *parse_statement(Parser *parser) {
         if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
-            check(parser, TOKEN_CHAR) || check(parser, TOKEN_STRING) ||
-            check(parser, TOKEN_BOOL) || check(parser, TOKEN_UNSIGNED) ||
-            check(parser, TOKEN_SIGNED) || check(parser, TOKEN_LONG) ||
-            check(parser, TOKEN_SHORT)) {
+            check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_CHAR) ||
+            check(parser, TOKEN_STRING) || check(parser, TOKEN_BOOL) ||
+            check(parser, TOKEN_UNSIGNED) || check(parser, TOKEN_SIGNED) ||
+            check(parser, TOKEN_LONG) || check(parser, TOKEN_SHORT)) {
                 return parse_declaration(parser);
         }
         if (match(parser, TOKEN_PRINT)) {

@@ -1,2 +1,8 @@
 int number = 67;
 print(number, "\n");
+int x = 6;
+float y = 7.0;
+double z = 0.41;
+string str = "this is a string.";
+
+print(str, "\n");
