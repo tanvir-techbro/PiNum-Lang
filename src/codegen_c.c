@@ -83,9 +83,45 @@ static const char *codegen_type(const char *type_name) {
         return type_name; // int, float, double, char, bool map 1:1
 }
 
+// maps a PiNum operator token to its C equivalent
+static const char *codegen_operator(tokenType op) {
+        switch (op) {
+        case TOKEN_PLUS:
+                return "+";
+        case TOKEN_MINUS:
+                return "-";
+        case TOKEN_STAR:
+                return "*";
+        case TOKEN_FSLASH:
+                return "/";
+        case TOKEN_PERCENT:
+                return "%";
+        case TOKEN_EEQUAL:
+                return "==";
+        case TOKEN_NEQUAL:
+                return "!=";
+        case TOKEN_LABRACKET:
+                return "<";
+        case TOKEN_RABRACKET:
+                return ">";
+        case TOKEN_LEQUAL:
+                return "<=";
+        case TOKEN_GEQUAL:
+                return ">=";
+        case TOKEN_AND:
+                return "&&";
+        case TOKEN_OR:
+                return "||";
+        default:
+                return lexer_token_type_to_string(op);
+        }
+}
+
 // takes one AST node and writes that node's C code to the file
 static void codegen_node(ASTnode *node, FILE *output, int level) {
         switch (node->type) {
+
+        // ---- Literals & identifiers ----
         case NODE_INT_LITERAL:
                 fprintf(output, "%d", node->data.int_literal.value);
                 break;
@@ -104,12 +140,23 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
         case NODE_IDENTIFIER:
                 fprintf(output, "%s", node->data.identifier.name);
                 break;
-        case NODE_ASSIGN:
-                fprintf(output, "%s = ", node->data.assign.name);
-                // get the value to be print
-                codegen_node(node->data.assign.value, output, level);
-                fprintf(output, ";\n");
+
+        // ---- Expressions ----
+        case NODE_BINARY_EXPRESSION:
+                // put in brakets to keep the order
+                fprintf(output, "(");
+                // left (op) right
+                codegen_node(node->data.binary_expression.left, output, level);
+                fprintf(output, " %s ", codegen_operator(node->data.binary_expression.op));
+                codegen_node(node->data.binary_expression.right, output, level);
+                fprintf(output, ")");
                 break;
+        case NODE_UNARY_EXPRESSION:
+                break; // TODO: op left
+        case NODE_TERNARY_EXPRESSION:
+                break; // TODO: cond ? then : else
+
+        // ---- Declarations & assignment ----
         case NODE_VAR_DECL:
                 sym_register(node->data.var_decl.name, node->data.var_decl.type_name);
                 // get the modifier
@@ -125,6 +172,31 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 }
                 fprintf(output, ";\n");
                 break;
+        case NODE_ASSIGN:
+                fprintf(output, "%s = ", node->data.assign.name);
+                codegen_node(node->data.assign.value, output, level);
+                fprintf(output, ";\n");
+                break;
+
+        // ---- Statements (control flow) ----
+        case NODE_BLOCK:
+                break; // TODO
+        case NODE_IF_STAT:
+                break; // TODO
+        case NODE_WHILE:
+                break; // TODO
+        case NODE_FOR:
+                break; // TODO
+        case NODE_RETURN:
+                break; // TODO
+        case NODE_READ:
+                break; // TODO
+        case NODE_BREAK:
+                break; // TODO
+        case NODE_CONTINUE:
+                break; // TODO
+
+        // ---- Built-in statements ----
         case NODE_PRINT:
                 fprintf(output, "printf(\"");
                 // gets the specifier and writes it to the print statement
@@ -139,6 +211,19 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 }
                 fprintf(output, ");\n");
                 break;
+
+        // ---- Functions ----
+        case NODE_FUNC_DEF:
+                break; // TODO
+        case NODE_FUNC_CALL:
+                break; // TODO
+
+        // ---- Directives & other ----
+        case NODE_DIRECTIVE:
+                break; // TODO
+        case NODE_IMPORT:
+                break; // TODO
+
         default:
                 fprintf(output, "//TODO: %s\n", node_type_name(node->type));
         }
