@@ -89,7 +89,7 @@ static const char *codegen_operator(tokenType op) {
         case TOKEN_PLUS:
                 return "+";
         case TOKEN_MINUS:
-                return "-";
+                return "-"; // can be used as unary or binary operator
         case TOKEN_STAR:
                 return "*";
         case TOKEN_FSLASH:
@@ -112,6 +112,8 @@ static const char *codegen_operator(tokenType op) {
                 return "&&";
         case TOKEN_OR:
                 return "||";
+        case TOKEN_EXCLAMATION:
+                return "!"; // unary operator
         default:
                 return lexer_token_type_to_string(op);
         }
@@ -146,13 +148,18 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 // put in brakets to keep the order
                 fprintf(output, "(");
                 // left (op) right
-                codegen_node(node->data.binary_expression.left, output, level);
-                fprintf(output, " %s ", codegen_operator(node->data.binary_expression.op));
-                codegen_node(node->data.binary_expression.right, output, level);
+                codegen_node(node->data.binary_expression.left, output, level);             // get left value
+                fprintf(output, " %s ", codegen_operator(node->data.binary_expression.op)); // print operator
+                codegen_node(node->data.binary_expression.right, output, level);            // get right value
                 fprintf(output, ")");
                 break;
         case NODE_UNARY_EXPRESSION:
-                break; // TODO: op left
+                fprintf(output, "(");
+                // get operator
+                fprintf(output, "%s", codegen_operator(node->data.unary_expression.op));
+                codegen_node(node->data.unary_expression.left, output, level);
+                fprintf(output, ")");
+                break;
         case NODE_TERNARY_EXPRESSION:
                 break; // TODO: cond ? then : else
 
