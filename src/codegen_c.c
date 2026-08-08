@@ -22,6 +22,7 @@
  ********************************************************************/
 
 #include "../include/codegen_c.h"
+#include <stdio.h>
 
 // for symbol table
 static const char **g_sym_names = NULL;
@@ -102,6 +103,12 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break;
         case NODE_IDENTIFIER:
                 fprintf(output, "%s", node->data.identifier.name);
+                break;
+        case NODE_ASSIGN:
+                fprintf(output, "%s = ", node->data.assign.name);
+                // get the value to be print
+                codegen_node(node->data.assign.value, output, level);
+                fprintf(output, ";\n");
                 break;
         case NODE_VAR_DECL:
                 sym_register(node->data.var_decl.name, node->data.var_decl.type_name);

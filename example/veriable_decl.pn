@@ -4,5 +4,8 @@ int x = 6;
 float y = 7.0;
 double z = 0.41;
 string str = "this is a string.";
-
 print(str, "\n");
+
+int somethin;
+somethin = 10;
+print(somethin, "\n");
