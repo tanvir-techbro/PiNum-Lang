@@ -66,6 +66,7 @@ static const char *codegen_specifier(ASTnode *node) {
         case NODE_FLOAT_LITERAL: return "%f";
         case NODE_CHAR_LITERAL: return "%c";
         case NODE_BOOL_LITERAL: return "%d"; // true/false printed as 1/0
+        case NODE_TERNARY_EXPRESSION: return codegen_specifier(node->data.ternary_expression.then_expr);
         case NODE_IDENTIFIER: {
                 const char *type = sym_type_of(node->data.identifier.name);
                 return type ? specifier_for_type(type) : "%d";
@@ -145,7 +146,14 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 fprintf(output, ")");
                 break;
         case NODE_TERNARY_EXPRESSION:
-                break; // TODO: cond ? then : else
+                fprintf(output, "(");
+                codegen_node(node->data.ternary_expression.condition, output, level);
+                fprintf(output, "?");
+                codegen_node(node->data.ternary_expression.then_expr, output, level);
+                fprintf(output, ":");
+                codegen_node(node->data.ternary_expression.else_expr, output, level);
+                fprintf(output, ")");
+                break;
 
         // ---- Declarations & assignment ----
         case NODE_VAR_DECL: {

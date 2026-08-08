@@ -32,3 +32,9 @@ int result = a + b;
 print(result, "\n");
 result = (a + b) * c;
 print(result, "\n");
+
+# ternary: condition ? then : else
+print(a > b ? 100 : 200, "\n");
+print(a < b ? 100 : 200, "\n");
+int max = a > b ? a : b;
+print(max, "\n");
