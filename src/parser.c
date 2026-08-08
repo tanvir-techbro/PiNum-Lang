@@ -292,10 +292,13 @@ ASTnode *parse_primary(Parser *parser) {
         }
 
         if (match(parser, TOKEN_DQUOTE) || match(parser, TOKEN_SQUOTE)) {
+                tokenType quote = parser->tokens->tokens[parser->current - 1].type;
                 // Collect string content
                 char *str_content = strdup("");
+                int content_tokens = 0;
                 while (!check(parser, TOKEN_DQUOTE) && !check(parser, TOKEN_SQUOTE) && !check(parser, TOKEN_EOF)) {
                         token t = advance(parser);
+                        content_tokens++;
                         if (t.value) {
                                 char *new_str = malloc(strlen(str_content) + strlen(t.value) + 1);
                                 sprintf(new_str, "%s%s", str_content, t.value);
@@ -304,6 +307,12 @@ ASTnode *parse_primary(Parser *parser) {
                         }
                 }
                 advance(parser); // consume closing quote
+                // a single-quoted literal with exactly one 1-character token is a char literal
+                if (quote == TOKEN_SQUOTE && content_tokens == 1 && str_content[0] != '\0' && str_content[1] == '\0') {
+                        char c = str_content[0];
+                        free(str_content);
+                        return make_char_node(c);
+                }
                 ASTnode *node = make_string_node(str_content);
                 free(str_content);
                 return node;

@@ -1,0 +1,34 @@
+# arithmetic
+int a = 10;
+int b = 3;
+print(a + b, "\n");
+print(a - b, "\n");
+print(a * b, "\n");
+print(a / b, "\n");
+print(a % b, "\n");
+
+# precedence: * and / bind tighter than + and -
+int c = 4;
+print(a + b * c, "\n");
+print((a + b) * c, "\n");
+
+# comparison
+print(a > b, "\n");
+print(a >= b, "\n");
+print(a < b, "\n");
+print(a <= b, "\n");
+print(a == b, "\n");
+print(a != b, "\n");
+
+# logical
+bool t = true;
+bool f = false;
+print(t && f, "\n");
+print(t || f, "\n");
+print(t && t || f, "\n");
+
+# expressions in assignments
+int result = a + b;
+print(result, "\n");
+result = (a + b) * c;
+print(result, "\n");

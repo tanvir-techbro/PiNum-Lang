@@ -1,11 +1,51 @@
-int number = 67;
-print(number, "\n");
-int x = 6;
-float y = 7.0;
-double z = 0.41;
-string str = "this is a string.";
-print(str, "\n");
+# all basic data types, with a value
+int count = 10;
+float ratio = 3.5;
+double pi = 3.14159;
+char letter = 'A';
+string name = "pinum";
+bool done = true;
+print(count, "\n");
+print(ratio, "\n");
+print(pi, "\n");
+print(letter, "\n");
+print(name, "\n");
+print(done, "\n");
 
-int somethin;
-somethin = 10;
-print(somethin, "\n");
+# all basic data types, declared without a value and assigned later
+int a;
+float b;
+double c;
+char d;
+string e;
+bool f;
+a = 1;
+b = 2.5;
+c = 0.75;
+d = 'z';
+e = "assigned later";
+f = false;
+print(a, "\n");
+print(b, "\n");
+print(c, "\n");
+print(d, "\n");
+print(e, "\n");
+print(f, "\n");
+
+# modifiers: unsigned/signed with int and char
+unsigned int u = 2147483647;
+unsigned char uc = 65;
+signed int si = -5;
+signed char sc = -128;
+print(u, "\n");
+print(uc, "\n");
+print(si, "\n");
+print(sc, "\n");
+
+# modifiers: long with int and double, short with int
+long int li = 123456789;
+long double ld = 0.123456789;
+short int sh = -32768;
+print(li, "\n");
+print(ld, "\n");
+print(sh, "\n");

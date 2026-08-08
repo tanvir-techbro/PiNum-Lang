@@ -22,7 +22,6 @@
  ********************************************************************/
 
 #include "../include/codegen_c.h"
-#include <stdio.h>
 
 // for symbol table
 static const char **g_sym_names = NULL;
@@ -39,7 +38,7 @@ static void sym_register(const char *name, const char *type) {
                 g_sym_types = realloc(g_sym_types, g_sym_capacity * sizeof(char *));
         }
         g_sym_names[g_sym_count] = name;
-        g_sym_types[g_sym_count] = type;
+        g_sym_types[g_sym_count] = strdup(type); // ours to free, so local buffers are safe
         g_sym_count++;
 }
 static const char *sym_type_of(const char *name) {
@@ -51,7 +50,10 @@ static const char *sym_type_of(const char *name) {
         return NULL;
 }
 static const char *specifier_for_type(const char *type) {
-        if (strcmp(type, "string") == 0) return "%s";
+        if (strcmp(type, "char *") == 0) return "%s";
+        if (strcmp(type, "long double") == 0) return "%Lf";
+        if (strcmp(type, "long int") == 0) return "%ld";
+        if (strcmp(type, "unsigned int") == 0) return "%u";
         if (strcmp(type, "float") == 0 || strcmp(type, "double") == 0) return "%f";
         if (strcmp(type, "char") == 0) return "%c";
         return "%d"; // int, bool, and everything else
@@ -60,14 +62,10 @@ static const char *specifier_for_type(const char *type) {
 // returns the printf format specifier that matches a node's value type
 static const char *codegen_specifier(ASTnode *node) {
         switch (node->type) {
-        case NODE_STRING_LITERAL:
-                return "%s";
-        case NODE_FLOAT_LITERAL:
-                return "%f";
-        case NODE_CHAR_LITERAL:
-                return "%c";
-        case NODE_BOOL_LITERAL:
-                return "%d"; // true/false printed as 1/0
+        case NODE_STRING_LITERAL: return "%s";
+        case NODE_FLOAT_LITERAL: return "%f";
+        case NODE_CHAR_LITERAL: return "%c";
+        case NODE_BOOL_LITERAL: return "%d"; // true/false printed as 1/0
         case NODE_IDENTIFIER: {
                 const char *type = sym_type_of(node->data.identifier.name);
                 return type ? specifier_for_type(type) : "%d";
@@ -86,34 +84,20 @@ static const char *codegen_type(const char *type_name) {
 // maps a PiNum operator token to its C equivalent
 static const char *codegen_operator(tokenType op) {
         switch (op) {
-        case TOKEN_PLUS:
-                return "+";
-        case TOKEN_MINUS:
-                return "-"; // can be used as unary or binary operator
-        case TOKEN_STAR:
-                return "*";
-        case TOKEN_FSLASH:
-                return "/";
-        case TOKEN_PERCENT:
-                return "%";
-        case TOKEN_EEQUAL:
-                return "==";
-        case TOKEN_NEQUAL:
-                return "!=";
-        case TOKEN_LABRACKET:
-                return "<";
-        case TOKEN_RABRACKET:
-                return ">";
-        case TOKEN_LEQUAL:
-                return "<=";
-        case TOKEN_GEQUAL:
-                return ">=";
-        case TOKEN_AND:
-                return "&&";
-        case TOKEN_OR:
-                return "||";
-        case TOKEN_EXCLAMATION:
-                return "!"; // unary operator
+        case TOKEN_PLUS: return "+";
+        case TOKEN_MINUS: return "-"; // can be used as unary or binary operator
+        case TOKEN_STAR: return "*";
+        case TOKEN_FSLASH: return "/";
+        case TOKEN_PERCENT: return "%";
+        case TOKEN_EEQUAL: return "==";
+        case TOKEN_NEQUAL: return "!=";
+        case TOKEN_LABRACKET: return "<";
+        case TOKEN_RABRACKET: return ">";
+        case TOKEN_LEQUAL: return "<=";
+        case TOKEN_GEQUAL: return ">=";
+        case TOKEN_AND: return "&&";
+        case TOKEN_OR: return "||";
+        case TOKEN_EXCLAMATION: return "!"; // unary operator
         default:
                 return lexer_token_type_to_string(op);
         }
@@ -164,14 +148,22 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break; // TODO: cond ? then : else
 
         // ---- Declarations & assignment ----
-        case NODE_VAR_DECL:
-                sym_register(node->data.var_decl.name, node->data.var_decl.type_name);
+        case NODE_VAR_DECL: {
+                // build the full C type, e.g. "long int" or "char *"
+                const char *base_type = codegen_type(node->data.var_decl.type_name);
+                char full_type[64];
+                if (node->data.var_decl.modifiers) {
+                        snprintf(full_type, sizeof(full_type), "%s %s", node->data.var_decl.modifiers, base_type);
+                } else {
+                        snprintf(full_type, sizeof(full_type), "%s", base_type);
+                }
+                sym_register(node->data.var_decl.name, full_type);
                 // get the modifier
                 if (node->data.var_decl.modifiers) {
                         fprintf(output, "%s ", node->data.var_decl.modifiers);
                 }
                 // get type and name
-                fprintf(output, "%s %s", codegen_type(node->data.var_decl.type_name), node->data.var_decl.name);
+                fprintf(output, "%s %s", base_type, node->data.var_decl.name);
                 // check if they have any value assigned
                 if (node->data.var_decl.value) {
                         fprintf(output, " = ");
@@ -179,6 +171,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 }
                 fprintf(output, ";\n");
                 break;
+        }
         case NODE_ASSIGN:
                 fprintf(output, "%s = ", node->data.assign.name);
                 codegen_node(node->data.assign.value, output, level);
@@ -248,8 +241,12 @@ void codegen(ASTnode *program, FILE *output) {
         }
         fprintf(output, "\nreturn 0;\n}\n");
 
-        // free the arrays we allocated
+        // free the arrays and the type strings we allocated
+        for (int i = 0; i < g_sym_count; i++) {
+                free((void *)g_sym_types[i]);
+        }
         free(g_sym_names);
         free(g_sym_types);
         g_sym_count = 0;
+        g_sym_capacity = 0;
 }
