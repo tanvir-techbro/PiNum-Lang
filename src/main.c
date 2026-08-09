@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 
         // Exits if user does not provide any file
         if (argc < 2) {
-                fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+                fprintf(stderr, "Usage: %s [Flags] <file>\n", argv[0]);
                 fprintf(stderr, "See '--help' for more info.\n");
                 pinum_error(STAGE_FILE, ERR_NO_INPUT_FILE, NULL);
         }

@@ -23,7 +23,8 @@
 
 # Variables
 CC ?= cc
-CFLAGS += -Wall -Wextra -g -O3
+RCFLAGS += -Wall -Wextra -O3    # cflags for release make
+DCFLAGS += -Wall -Wextra -g -O3 # cflags for default make
 SRC = src/main.c src/lexer.c src/lexer_filter.c src/parser.c src/ast.c src/codegen_c.c src/helper.c src/error.c
 VERSION = $(shell cat VERSION)
 
@@ -45,7 +46,12 @@ all: $(TARGET)
 # Compile it to PiNum-Lang/bin/ directory
 $(TARGET): $(SRC)
 	@$(MKDIR)
-	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+	$(CC) $(DCFLAGS) $(SRC) -o $(TARGET)
+
+# compiling without the -g flag so it has smaller binary
+release: $(SRC)
+	@$(MKDIR)
+	$(CC) $(RCFLAGS) $(SRC) -o $(TARGET)
 
 # To install it locally
 install: $(TARGET)

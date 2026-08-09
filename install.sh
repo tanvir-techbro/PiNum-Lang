@@ -77,7 +77,7 @@ fi
 
 # 3. Build
 echo "Building PiNum..."
-make -s CC=$CC_BIN >/dev/null
+make release -s CC=$CC_BIN >/dev/null
 
 # 4. Install
 # Checking for termux; sudo wouldn't run on termux
