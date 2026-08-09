@@ -32,6 +32,6 @@
 #include <string.h>
 
 // Walks through the tree
-void codegen(ASTnode *program, FILE *output);
+void codegen_c(ASTnode *program, FILE *output);
 
 #endif // !CODEGEN_H

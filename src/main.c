@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
         if (output == NULL) {
                 pinum_error(STAGE_CODEGEN, ERR_CANNOT_OPEN_FILE, "payload.c");
         }
-        codegen(ast, output);
+        codegen_c(ast, output);
         fclose(output);
         free_ast_node(ast);
         // freeing the list and its tokens' values

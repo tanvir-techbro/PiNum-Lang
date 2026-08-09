@@ -248,7 +248,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 }
 
 // --- MAIN ---
-void codegen(ASTnode *program, FILE *output) {
+void codegen_c(ASTnode *program, FILE *output) {
         fprintf(output, "#include <stdio.h>\n");
         fprintf(output, "#include <string.h>\n");
         fprintf(output, "#include <stdbool.h>\n");
