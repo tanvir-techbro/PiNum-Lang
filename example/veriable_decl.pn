@@ -49,3 +49,13 @@ short int sh = -32768;
 print(li, "\n");
 print(ld, "\n");
 print(sh, "\n");
+
+# read from the user
+int number;
+float ratio2;
+print('Enter an int: ');
+read(number);
+print('Enter a float: ');
+read(ratio2);
+print(number, "\n");
+print(ratio2, "\n");

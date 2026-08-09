@@ -22,6 +22,7 @@
  ********************************************************************/
 
 #include "../include/codegen_c.h"
+#include <stdio.h>
 
 // for symbol table
 static const char **g_sym_names = NULL;
@@ -210,9 +211,11 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break;
         }
         case NODE_BREAK:
-                break; // TODO
+                fprintf(output, "break;");
+                break;
         case NODE_CONTINUE:
-                break; // TODO
+                fprintf(output, "continue;");
+                break;
 
         // ---- Built-in statements ----
         case NODE_PRINT:
