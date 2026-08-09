@@ -49,12 +49,14 @@ static const char *sym_type_of(const char *name) {
         }
         return NULL;
 }
+
 static const char *specifier_for_type(const char *type) {
         if (strcmp(type, "char *") == 0) return "%s";
         if (strcmp(type, "long double") == 0) return "%Lf";
         if (strcmp(type, "long int") == 0) return "%ld";
         if (strcmp(type, "unsigned int") == 0) return "%u";
-        if (strcmp(type, "float") == 0 || strcmp(type, "double") == 0) return "%f";
+        if (strcmp(type, "double") == 0) return "%lf";
+        if (strcmp(type, "float") == 0) return "%f";
         if (strcmp(type, "char") == 0) return "%c";
         return "%d"; // int, bool, and everything else
 }
@@ -197,8 +199,16 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break; // TODO
         case NODE_RETURN:
                 break; // TODO
-        case NODE_READ:
-                break; // TODO
+        case NODE_READ: {
+                const char *type = sym_type_of(node->data.read.name);
+                if (type == NULL) {
+                        // can't pick a format specifier without knowing the variable's type
+                        fprintf(output, "// TODO: unknown type for read(%s)\n", node->data.read.name);
+                        break;
+                }
+                fprintf(output, "scanf(\"%s\", &%s);\n", specifier_for_type(type), node->data.read.name);
+                break;
+        }
         case NODE_BREAK:
                 break; // TODO
         case NODE_CONTINUE:

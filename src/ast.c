@@ -229,6 +229,14 @@ ASTnode *make_directive_node(char *name, char *value) {
         node->data.directive.value = value ? strdup(value) : NULL;
         return node;
 }
+ASTnode *make_print_node(void) {
+        return create_ast_node(NODE_PRINT);
+}
+ASTnode *make_read_node(char *name) {
+        ASTnode *node = create_ast_node(NODE_READ);
+        node->data.read.name = strdup(name);
+        return node;
+}
 
 // --- Helper Functions for Collections ---
 /*
@@ -524,6 +532,9 @@ void print_ast(ASTnode *node, int level) {
                 for (int i = 0; i < node->data.print.arg_count; i++) {
                         print_ast(node->data.print.args[i], level + 1);
                 }
+                break;
+        case NODE_READ:
+                printf("READ: %s\n", node->data.read.name);
                 break;
         case NODE_BREAK:
                 printf("BREAK\n");

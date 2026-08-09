@@ -38,3 +38,8 @@ print(a > b ? 100 : 200, "\n");
 print(a < b ? 100 : 200, "\n");
 int max = a > b ? a : b;
 print(max, "\n");
+
+int data;
+print('Enter data: ');
+read(data);
+print(data, '\n');

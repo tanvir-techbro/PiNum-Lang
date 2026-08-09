@@ -59,7 +59,7 @@ ASTnode *parse_statement(Parser *parser) {
         }
         if (match(parser, TOKEN_PRINT)) {
                 consume(parser, TOKEN_LRPAREN, "'(' after print");
-                ASTnode *node = create_ast_node(NODE_PRINT);
+                ASTnode *node = make_print_node();
                 if (!check(parser, TOKEN_RRPAREN)) {
                         do {
                                 ast_add_print_arg(node, parse_expression(parser));
@@ -68,6 +68,9 @@ ASTnode *parse_statement(Parser *parser) {
                 consume(parser, TOKEN_RRPAREN, "')' after arguments");
                 consume_end_of_statement(parser);
                 return node;
+        }
+        if (match(parser, TOKEN_READ)) {
+                return parse_read_statement(parser);
         }
         if (match(parser, TOKEN_IF)) {
                 return parse_if_statement(parser);
@@ -182,6 +185,13 @@ ASTnode *parse_return_statement(Parser *parser) {
         ASTnode *node = create_ast_node(NODE_RETURN);
         node->data.returns.expression = expression;
         return node;
+}
+ASTnode *parse_read_statement(Parser *parser) {
+        consume(parser, TOKEN_LRPAREN, "'(' after read");
+        token name_token = consume(parser, TOKEN_ID, "a variable name");
+        consume(parser, TOKEN_RRPAREN, "')' after variable name");
+        consume_end_of_statement(parser);
+        return make_read_node(name_token.value);
 }
 // verifies veriable modifier
 static bool is_valid_modifier(const char *modifier, const char *data_type) {
