@@ -26,12 +26,12 @@ if (a < b) {
 # conditions from expressions
 int sum = a + b;
 if (sum == 13) {
-        print(sum, "\n");
+        print("a + b is 13\n");
 }
 
 # nested if
 if (a > 0) {
         if (b < 5) {
-                print("a positive and b small\n");
+                print("a positive and b less than 5\n");
         }
 }

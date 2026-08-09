@@ -97,9 +97,15 @@ token lexer_tokenizer(FILE *buffer) {
         }
 
         // - number handling -
-        if (isdigit(ch) || ch == '.') {
+        // In quote mode numbers are part of the string content, so tokenize them
+        // like any other word (keeps the text in `value`) instead of as a number.
+        if ((isdigit(ch) || ch == '.') && !(SQUOTE_MODE || DQUOTE_MODE)) {
                 lexer_ungetc(ch, buffer);
                 return lexer_tokenize_numbers(buffer);
+        }
+        if (isdigit(ch) && (SQUOTE_MODE || DQUOTE_MODE)) {
+                lexer_ungetc(ch, buffer);
+                return lexer_tokenize_words(buffer);
         }
 
         // --------------- SINGLE CHARACTER TOKEN ---------------
