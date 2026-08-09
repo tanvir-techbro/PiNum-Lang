@@ -190,10 +190,25 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break;
 
         // ---- Statements (control flow) ----
-        case NODE_BLOCK:
-                break; // TODO
+        case NODE_BLOCK: {
+                //
+                fprintf(output, "{\n");
+                for (int i = 0; i < node->data.blocks.count; i++) {
+                        codegen_node(node->data.blocks.statements[i], output, level + 1);
+                }
+                fprintf(output, "}\n");
+                break;
+        }
         case NODE_IF_STAT:
-                break; // TODO
+                fprintf(output, "if (");
+                codegen_node(node->data.if_stat.condition, output, level);
+                fprintf(output, ") ");
+                codegen_node(node->data.if_stat.then_block, output, level);
+                if (node->data.if_stat.else_block) {
+                        fprintf(output, " else ");
+                        codegen_node(node->data.if_stat.else_block, output, level);
+                }
+                break;
         case NODE_WHILE:
                 break; // TODO
         case NODE_FOR:
