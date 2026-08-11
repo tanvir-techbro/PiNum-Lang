@@ -191,7 +191,6 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 
         // ---- Statements (control flow) ----
         case NODE_BLOCK: {
-                //
                 fprintf(output, "{\n");
                 for (int i = 0; i < node->data.blocks.count; i++) {
                         codegen_node(node->data.blocks.statements[i], output, level + 1);
@@ -210,7 +209,11 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 }
                 break;
         case NODE_WHILE:
-                break; // TODO
+                fprintf(output, "while (");
+                codegen_node(node->data.while_loop.condition, output, level);
+                fprintf(output, ") ");
+                codegen_node(node->data.while_loop.body, output, level);
+                break;
         case NODE_FOR:
                 break; // TODO
         case NODE_RETURN:
