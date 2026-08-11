@@ -217,7 +217,10 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
         case NODE_FOR:
                 break; // TODO
         case NODE_RETURN:
-                break; // TODO
+                fprintf(output, "return ");
+                codegen_node(node->data.returns.expression, output, level);
+                fprintf(output, ";\n");
+                break;
         case NODE_READ: {
                 const char *type = sym_type_of(node->data.read.name);
                 if (type == NULL) {
