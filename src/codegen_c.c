@@ -22,7 +22,6 @@
  ********************************************************************/
 
 #include "../include/codegen_c.h"
-#include <stdio.h>
 
 // for symbol table
 static const char **g_sym_names = NULL;

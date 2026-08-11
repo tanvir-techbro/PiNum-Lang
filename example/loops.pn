@@ -1,8 +1,37 @@
-int a = 20;
-int b = 10;
-
-# while loop
-while (b < a) {
-        b = b + 1;
+# while loop: count up
+int i = 0;
+while (i < 5) {
+        print(i, "\n");
+        i = i + 1;
 }
-print(b, '\n');
+
+# continue: skip even numbers
+int j = 0;
+while (j < 10) {
+        j = j + 1;
+        if (j % 2 == 0) {
+                continue;
+        }
+        print(j, "\n");
+}
+
+# break: stop the loop early
+int k = 0;
+while (k < 100) {
+        k = k + 1;
+        if (k == 3) {
+                break;
+        }
+        print(k, "\n");
+}
+
+# return: exit the loop and the program
+int m = 0;
+while (m < 10) {
+        print(m, "\n");
+        if (m == 2) {
+                return 7;
+        }
+        m = m + 1;
+}
+print("never reached\n");
