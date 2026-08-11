@@ -1,0 +1,12 @@
+# Codegen Test 2: Arithmetic and expressions
+int a = 10;
+int b = 3;
+int c = 4;
+print(a + b, "\n");
+print(a - b, "\n");
+print(a * b, "\n");
+print(a / b, "\n");
+print(a % b, "\n");
+print((a + b) * c, "\n");
+int max = a > b ? a : b;
+print(max, "\n");

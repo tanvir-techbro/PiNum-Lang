@@ -1,9 +1,13 @@
-# AST Standard Test 3: Function-like structures and blocks
-int main() {
-    int a = 5;
-    {
-        int a = 10; # Scoped block
-        print(a);
-    }
-    return a;
+# AST Test 3: Blocks and statements
+int a = 5;
+int i = 0;
+while (i < 3) {
+        int b = 10;
+        print(b + i, "\n");
+        i = i + 1;
 }
+print(a, "\n");
+if (a == 5) {
+        print("a is five\n");
+}
+print(i, "\n");

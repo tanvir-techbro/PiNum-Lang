@@ -1,0 +1,13 @@
+# Codegen Test 1: Variables and print
+int count = 10;
+float ratio = 3.5;
+double pi = 3.14159;
+char letter = 'A';
+string name = "pinum";
+bool done = true;
+print(count, "\n");
+print(ratio, "\n");
+print(pi, "\n");
+print(letter, "\n");
+print(name, "\n");
+print(done, "\n");

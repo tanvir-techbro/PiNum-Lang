@@ -1,0 +1,95 @@
+# PiNum-Lang feature demonstration
+
+# --- variables and data types ---
+int count = 10;
+float ratio = 2.5;
+double pi = 3.14159;
+char letter = 'P';
+string name = "PiNum";
+bool ready = true;
+print(count, "\n");
+print(ratio, "\n");
+print(pi, "\n");
+print(letter, "\n");
+print(name, "\n");
+print(ready, "\n");
+
+# --- arithmetic ---
+int a = 10;
+int b = 3;
+print(a + b, "\n");
+print(a - b, "\n");
+print(a * b, "\n");
+print(a / b, "\n");
+print(a % b, "\n");
+
+# --- comparisons and logicals ---
+print(a > b, "\n");
+print(a == b, "\n");
+print(a != b, "\n");
+print(a > b && b > 0, "\n");
+print(a < b || b == 3, "\n");
+
+# --- ternary ---
+int max = a > b ? a : b;
+print(max, "\n");
+
+# --- expressions in assignment ---
+int c = 4;
+int result = (a + b) * 2;
+print(result, "\n");
+result = a + b * c;
+print(result, "\n");
+
+# --- if / else if / else ---
+if (a > b) {
+        print("a is bigger\n");
+} else if (a == b) {
+        print("equal\n");
+} else {
+        print("b is bigger\n");
+}
+
+# --- nested if ---
+if (a > 0) {
+        if (b > 0) {
+                print("both positive\n");
+        }
+}
+
+# --- while loop ---
+int i = 0;
+while (i < 5) {
+        print(i, "\n");
+        i = i + 1;
+}
+
+# --- break and continue ---
+int j = 0;
+while (j < 10) {
+        j = j + 1;
+        if (j % 2 == 0) {
+                continue;
+        }
+        if (j == 7) {
+                break;
+        }
+        print(j, "\n");
+}
+
+# --- read user input ---
+int data;
+print('Enter a number: ');
+read(data);
+print("you entered ", data, "\n");
+
+# --- return ---
+int m = 0;
+while (m < 10) {
+        print(m, "\n");
+        if (m == 3) {
+                return 0;
+        }
+        m = m + 1;
+}
+print("never reached\n");

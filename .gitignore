@@ -28,10 +28,11 @@ runtime/*
 install.sh.sha256
 change_plan.md
 # payload test files
-payload.c
-payload
+payload/*
 a.out
+a.out.c
 
 # dont ignore
 !bin/.gitkeep
 !runtime/.gitkeep
+!payload/.gitkeep

@@ -1,4 +1,4 @@
-# Parser Standard Test 1: Declarations and Assignments
+# Parser Test 1: Declarations and assignments
 int a;
 int b = 10;
 string name = "PiNum";
@@ -6,3 +6,5 @@ float pi = 3.14;
 
 a = b + 5;
 b = a * 2;
+print(a, "\n");
+print(b, "\n");

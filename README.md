@@ -2,16 +2,14 @@
   <img src="extras/assets/pinum_logo.svg" alt="PiNum Logo" width="200" />
 </p>
 
-# PiNum-Lang
+# PiNum-Lang 1.0.0-beta
 
-PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programming language currently under development. It features a custom lexer, parser, and code generation pipeline designed for simplicity and potential transpilation or embedding.
-
+https://tanvir-techbro.github.io/pinum-site - official site for pinum. check for documentation and other info.
+PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programming language currently under development.
 ## ✨ Features
 
 - **C-Style Syntax:** Familiar data types (`int`, `float`, `char`, `string`, `bool`) and control structures (`if`, `else`, `return`).
 - **Standard Library Support:** Includes a modular system using the `@import` directive (e.g., `@import stdlib`, `@import math`).
-- **Specialized Modes:** Supports an `ENGINE_MODE` triggered by the `@for engine` directive, allowing for specialized execution contexts.
-- **Rich Operator Set:** Includes standard arithmetic, logical, and bitwise operators, as well as pointer-like syntax (`&`).
 - **Editor Support:** Built-in syntax highlighting for:
   - **VS Code:** Extension available in `extras/vscode/`.
   - **Neovim:** Lua/Vim syntax files in `extras/nvim/`. To enable it, run the setup script:
@@ -60,11 +58,30 @@ This moves the binary to `/usr/local/bin/`.
 
 ### Running a Program
 
-To execute a `.pn` file:
+To transpile and compile a `.pn` file to a binary (default output is `a.out`):
 
 ```bash
-./bin/pinum example/helloworld.pn
+./bin/pinum example/demonstration.pn
 ```
+
+PiNum transpiles your code to C, then compiles it with an available C compiler (it searches for `cc`, `gcc`, `clang`, or `tcc`, or uses your `$CC`). The compiled binary lands in your current working directory.
+
+### Output Flags
+
+Control what gets produced with the output flags:
+
+```bash
+# compile to a binary named `program` (temporary C file is deleted)
+./bin/pinum -o program example/demonstration.pn
+
+# output only the C source file
+./bin/pinum -o program.c example/demonstration.pn
+
+# output both the C source file and a compiled binary
+./bin/pinum -oc program example/demonstration.pn
+```
+
+Long forms `--output` and `--output-c` are also accepted. Use `--help` to see all flags.
 
 ## 📝 Syntax
 
@@ -78,13 +95,8 @@ Even though its under development, the syntax (to some extent) is defined.
 
 # Libreries
 ```pinum
-# includes standard librery in transpiled code
-@import stdlib
-# includes math librery in transpiled librery
-@import math
-
+# stdlib is imported automatically, no need for @import
 # this flag enables this language to be transpiled into bare C
-# if you include this flag you can't import any libreries
 @for engine
 ```
 
@@ -93,11 +105,26 @@ Even though its under development, the syntax (to some extent) is defined.
 # it has keywords like long, short, unsigned and signed
 
 # declares an intager veriable
-int number
+int number = 10;
 # declares floating point veriable
-float num
+float num = 3.14;
 # declares a duble type verible
-double numero
+double numero = 2.718;
+# declares a string veriable
+string name = "pinum";
+# declares a boolean veriable
+bool ready = true;
+```
+
+# Output & input
+```pinum
+# print accepts any number of arguments
+print("hello ", name, "\n");
+
+# read stores user input into an existing veriable
+int data;
+read(data);
+print(data, "\n");
 ```
 
 # Conditions
@@ -113,17 +140,22 @@ if (condition) {
 
 # Loops
 ```pinum
-# there is 2 loops while and for
-
-# for loop
-for (veriable; condition; increment or decrement) {
-        # task
-}
-
 # while loop
 while (condition) {
         # task
+        if (something) {
+                break;      # exit the loop
+        }
+        if (something_else) {
+                continue;   # skip to the next iteration
+        }
 }
+```
+
+# Return
+```pinum
+# exits the program with the given value
+return 0;
 ```
 
 ## 🛠 Project Structure
@@ -133,6 +165,17 @@ while (condition) {
 - `bin/`: Compiled binaries.
 - `example/`: Sample programs demonstrating language features.
 - `extras/`: Editor extensions and syntax highlighting.
+- `test/`: Automated tests for the lexer, parser, AST, and codegen.
+
+## 🧪 Testing
+
+Run the test suite interactively (choose which category to run, optionally with Valgrind):
+
+```bash
+bash test/run_tests.sh
+```
+
+Tests cover the lexer, parser, AST, and codegen stages. Codegen tests transpile each program to a C file, compile it, and run the resulting binary to confirm it behaves correctly.
 
 ## 🚧 Development Status
 
@@ -140,7 +183,8 @@ PiNum is currently in its early stages:
 - [x] Lexer / Tokenizer
 - [x] ast
 - [x] Parser
-- [ ] Code Generation (In Progress)
+- [x] Code Generation (print, read, variables, if/else, while, return, break, continue)
+- [ ] For loops, functions, data structures (in progress)
 - [ ] Runtime Library (later)
 
 ## 🤝 Contributing

@@ -30,6 +30,7 @@
 #include "../include/version.h"
 #include <errno.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +61,10 @@ static void check_hash(); // verify the installer script hash against release ha
 // 'dir' is the working directory the command should run in (NULL = inherit current).
 int run_cmd(const char *dir, const char *binary, char *const args[]); // helper function to run shell commands safely.
 int handle_update_flag();
+// Compiling the shit
+// returns an absolute path to an available C compiler, or NULL
+static const char *find_compiler(void);
+static void compile_to(const char *compiler, const char *c_path, const char *bin_path);
 
 // --- MAIN ---
 int main(int argc, char *argv[]) {
@@ -68,6 +73,17 @@ int main(int argc, char *argv[]) {
         bool debug_lexer = false; // enabled by --debug-lexer flag
         bool debug_ast = false;   // enabled by --debug-ast flag
         int arg_indx = 1;         // argument index. arg index 0 is the program binary name
+
+        // output mode
+        typedef enum {
+                OUT_AOUT,
+                OUT_C,
+                OUT_BINARY,
+                OUT_BOTH
+        } output_mode_;
+        // output file name, the default output file a.out and default mode OUT_AOUT
+        output_mode_ out_mode = OUT_AOUT;
+        char *out_name = NULL;
 
         // Exits if user does not provide any file
         if (argc < 2) {
@@ -83,6 +99,20 @@ int main(int argc, char *argv[]) {
                 if (strcmp(argv[1], "--help") == 0) {
                         handle_flag_help();
                         return EXIT_SUCCESS;
+                } else if (strcmp(argv[arg_indx], "-o") == 0 || strcmp(argv[arg_indx], "--output") == 0) {
+                        // check if argc too small to hold file name
+                        if (arg_indx + 1 >= argc) {
+                                pinum_error(STAGE_FILE, ERR_NO_OUTPUT_FILE, NULL);
+                        }
+                        // consume the name first so the while loop does not evaluate the file with dot which can lead to error
+                        out_name = argv[++arg_indx];
+                        out_mode = (strrchr(out_name, '.') && strcmp(strrchr(out_name, '.'), ".c") == 0) ? OUT_C : OUT_BINARY;
+                        arg_indx++;
+                } else if (strcmp(argv[arg_indx], "-oc") == 0 || strcmp(argv[arg_indx], "--output-c") == 0) {
+                        if (arg_indx + 1 >= argc) pinum_error(STAGE_FILE, ERR_NO_OUTPUT_FILE, NULL);
+                        out_name = argv[++arg_indx];
+                        out_mode = OUT_BOTH;
+                        arg_indx++;
                 } else if (strcmp(argv[arg_indx], "--debug-all") == 0) {
                         debug_lexer = true;
                         debug_ast = true;
@@ -174,7 +204,20 @@ int main(int argc, char *argv[]) {
                 print_ast(ast, 0);
         }
         // generate C output
-        FILE *output = fopen("payload.c", "w");
+        // FILE *output = fopen("payload.c", "w");
+        char c_buf[1024];
+        char *c_path = "a.out.c";
+        if (out_mode == OUT_C) {
+                c_path = out_name;
+        } else if (out_mode == OUT_BINARY) {
+                snprintf(c_buf, sizeof(c_buf), "%s.tmp.c", out_name);
+                c_path = c_buf;
+        } else if (out_mode == OUT_BOTH) {
+                snprintf(c_buf, sizeof(c_buf), "%s.c", out_name);
+                c_path = c_buf;
+        }
+        FILE *output = fopen(c_path, "w");
+
         if (output == NULL) {
                 pinum_error(STAGE_CODEGEN, ERR_CANNOT_OPEN_FILE, "payload.c");
         }
@@ -183,6 +226,16 @@ int main(int argc, char *argv[]) {
         free_ast_node(ast);
         // freeing the list and its tokens' values
         token_list_free(&list);
+
+        const char *compiler = find_compiler();
+        if (out_mode == OUT_AOUT) {
+                compile_to(compiler, c_path, out_name);
+        } else if (out_mode == OUT_BINARY) {
+                compile_to(compiler, c_path, out_name);
+                remove(c_path); // delete temp .c
+        } else if (out_mode == OUT_BOTH) {
+                compile_to(compiler, c_path, out_name);
+        }
 
         // NOTE: 2 if statement below are and for debugging purposes.
         /*
@@ -207,6 +260,9 @@ void handle_flag_help() {
         printf("pinum version %s\n\n", PINUM_VERSION);
         printf("Usage: pinum [Flags] <file.pn>\n");
         printf("Flags:\n");
+        printf("  %-20s\tOutput a C source file (*.c) or a binary (*).\n", "-o, --output");
+        printf("  %-20s\tOutput both a C source file and a binary.\n", "-oc, --output-c");
+        printf("\n");
         printf("  %-20s\tEnable all debugging functions.\n", "--debug-all");
         printf("  %-20s\tEnable debugging functions for lexer.\n", "--debug-lexer");
         printf("  %-20s\tEnable debugging functions for ast.\n", "--debug-ast");
@@ -381,5 +437,57 @@ int handle_update_flag() {
         cleanup_temp();
 
         return result == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+// - Compiling -
+static const char *find_compiler(void) {
+        // check for overriden custom CC veriable
+        const char *env = getenv("CC");
+        if (env && env[0] != '\0') {
+                return env;
+        }
+        static char path[1027];
+        const char *cands[] = {"cc", "gcc", "clang", "tcc", NULL};
+        const char *paths = getenv("PATH"); // list of directories to search
+        if (!paths) {
+                return NULL;
+        }
+        char dir[1024];
+        const char *p = paths; // keeping track of the current path
+        while (*p) {
+                const char *end = strchr(p, ':');
+                size_t len = end ? (size_t)(end - p) : strlen(p);
+                snprintf(dir, sizeof(dir), "%.*s", (int)len, p);
+                for (int i = 0; cands[i]; i++) {
+                        snprintf(path, sizeof(path), "%s/%s", dir, cands[i]);
+                        if (access(path, X_OK) == 0) {
+                                return path;
+                        }
+                }
+                if (!end) {
+                        break;
+                }
+                p = end + 1;
+        }
+        return NULL;
+}
+static void compile_to(const char *compiler, const char *c_path, const char *bin_path) {
+        if (!compiler) {
+                pinum_error(STAGE_CODEGEN, ERR_NO_COMPILER, NULL);
+        }
+
+        char *args[5];
+        args[0] = (char *)compiler;
+        if (bin_path) {
+                args[1] = "-o";
+                args[2] = (char *)bin_path;
+                args[3] = (char *)c_path;
+                args[4] = NULL;
+        } else {
+                args[1] = (char *)c_path;
+                args[2] = NULL;
+        }
+        if (run_cmd(NULL, compiler, args) != 0) {
+                pinum_error(STAGE_CODEGEN, ERR_COMPILE_FAILED, c_path);
+        }
 }
 // ---------------------------------

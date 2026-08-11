@@ -1,0 +1,13 @@
+# Codegen Test 5: Return and read
+int i = 0;
+while (i < 5) {
+        print(i, "\n");
+        i = i + 1;
+}
+int data;
+read(data);
+print(data, "\n");
+if (data > 0) {
+        return 0;
+}
+return 1;

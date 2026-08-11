@@ -62,6 +62,9 @@ typedef enum {
         ERR_INVALID_FLAG,      // unrecognized flag
         ERR_INVALID_FILE_TYPE, // not a .pn file
         ERR_CANNOT_OPEN_FILE,  // failed to open the input file
+        ERR_NO_OUTPUT_FILE,    // -o/-oc flag without an output name
+        ERR_NO_COMPILER,       // no C compiler found
+        ERR_COMPILE_FAILED,    // C compiler returned a non-zero exit code
 
         // Updater errors
         ERR_UPDATE_START,             // could not start the update check

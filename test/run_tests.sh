@@ -88,6 +88,59 @@ run_tests() {
         done
 }
 
+# --- Codegen Testing Function ---
+# transpiles each .pn file to payload.c, compiles it to the payload binary,
+# then runs the binary to make sure it executes and exits cleanly.
+# Arguments:
+#   $1: Directory containing codegen test files
+#   $2: Valgrind flag ('y' to enable)
+run_codegen_tests() {
+        local dir=$1
+        local use_valgrind=$2
+
+        if [ ! -d "$dir" ]; then
+                echo -e "${RED}Directory $dir does not exist.${NC}"
+                return
+        fi
+
+        files=$(ls "$dir"/*.pn 2>/dev/null)
+        if [ -z "$files" ]; then
+                echo -e "${YELLOW}No tests found in $dir.${NC}"
+                return
+        fi
+
+        echo -e "${CYAN}--- Running Codegen Tests ---${NC}"
+
+        for file in $files; do
+                test_name=$(basename "$file" .pn)
+                echo -e "${GREEN}Testing: $test_name.pn${NC}"
+
+                # each test gets its own output dir under the gitignored payload/
+                test_dir="payload/$test_name"
+                mkdir -p "$test_dir"
+
+                if [ "$use_valgrind" = "y" ]; then
+                        valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum -oc "$test_dir/test result" "$file"
+                else
+                        ./bin/pinum -oc "$test_dir/test result" "$file"
+                fi
+
+                if [ $? -eq 0 ]; then
+                        # run the binary (feed input in case of read())
+                        echo "42" | "$test_dir/test result"
+                        if [ $? -eq 0 ]; then
+                                echo -e "${GREEN}Result: PASS${NC}"
+                        else
+                                echo -e "${RED}Result: FAIL (binary did not exit cleanly)${NC}"
+                        fi
+                else
+                        echo -e "${RED}Result: FAIL (transpile failed)${NC}"
+                fi
+                echo -e "${CYAN}----------------------------------------------------${NC}"
+                echo ""
+        done
+}
+
 # --- Main UI and Interaction ---
 
 # Clear screen for a clean user interface
@@ -156,7 +209,7 @@ case $choice in
         run_tests "test/lexer-tests" "$valgrind_choice" "Lexer"
         run_tests "test/ast-tests" "$valgrind_choice" "AST"
         run_tests "test/parser-tests" "$valgrind_choice" "Parser"
-        run_tests "test/codegen-tests" "$valgrind_choice" "Codegen"
+        run_codegen_tests "test/codegen-tests" "$valgrind_choice"
         ;;
 2)
         run_tests "test/lexer-tests" "$valgrind_choice" "Lexer"
@@ -168,7 +221,7 @@ case $choice in
         run_tests "test/parser-tests" "$valgrind_choice" "Parser"
         ;;
 5)
-        run_tests "test/codegen-tests" "$valgrind_choice" "Codegen"
+        run_codegen_tests "test/codegen-tests" "$valgrind_choice"
         ;;
 esac
 

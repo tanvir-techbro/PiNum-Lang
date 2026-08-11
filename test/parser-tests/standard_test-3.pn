@@ -1,11 +1,18 @@
-# Parser Standard Test 3: Loops
-for (int i = 0; i < 10; i = i + 1) {
-    sum = sum + i;
+# Parser Test 3: Loops
+int count = 0;
+while (count < 5) {
+        count = count + 1;
+        if (count == 3) {
+                continue;
+        }
+        print(count, "\n");
 }
 
-while (running) {
-    count = count - 1;
-    if (count == 0) {
-        return 0;
-    }
+int running = 1;
+while (running == 1) {
+        count = count - 1;
+        if (count == 1) {
+                running = 0;
+        }
 }
+print(count, "\n");

@@ -1,10 +1,8 @@
-# Lexer Standard Test 2: Directives and Comments
+# Lexer Test 2: Comments and directives
+# this is a single line comment
 @import stdlib
-@import math
-
-# This is a single line comment
-@for engine # Testing engine mode toggle
-
-# Nested-looking comments (should be single line)
-# @import something_else
 int a = 10;
+
+# comment between statements
+int b = 20;
+print(a + b, "\n");

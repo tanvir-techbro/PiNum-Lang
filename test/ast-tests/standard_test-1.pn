@@ -1,4 +1,10 @@
-# AST Standard Test 1: Complex Expressions
-int x = (a + b) * (c - d) / (e % f);
-bool check = (x > y && z < w) || !found;
-int bitwise = (a << 2) | (b >> 1) ^ mask;
+# AST Test 1: Expressions and precedence
+int a = 10;
+int b = 3;
+int c = 4;
+int result = (a + b) * (c - 2) / (a % b);
+print(result, "\n");
+int max = a > b ? a : b;
+print(max, "\n");
+bool check = (a > b && b < c) || !(a == b);
+print(check, "\n");

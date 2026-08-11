@@ -157,6 +157,15 @@ static void print_error_message(ErrorStage stage, ErrorCode code, int line, int 
         case ERR_CANNOT_OPEN_FILE:
                 fprintf(stderr, "could not open file '%s'", d);
                 break;
+        case ERR_NO_OUTPUT_FILE:
+                fprintf(stderr, "output flag requires a file name after it");
+                break;
+        case ERR_NO_COMPILER:
+                fprintf(stderr, "no C compiler found (tried cc, gcc, clang, tcc)");
+                break;
+        case ERR_COMPILE_FAILED:
+                fprintf(stderr, "C compiler failed on '%s'", d);
+                break;
         case ERR_UPDATE_START:
                 fprintf(stderr, "could not start the update check");
                 break;
