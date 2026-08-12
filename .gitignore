@@ -23,7 +23,6 @@
 
 # Ignore
 bin/*
-runtime/*
 # sha files would be uploaded with new releases
 install.sh.sha256
 change_plan.md
@@ -34,5 +33,4 @@ a.out.c
 
 # dont ignore
 !bin/.gitkeep
-!runtime/.gitkeep
 !payload/.gitkeep

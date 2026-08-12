@@ -22,6 +22,7 @@
  ********************************************************************/
 
 #include "../include/codegen_c.h"
+#include <stdlib.h>
 
 // for symbol table
 static const char **g_sym_names = NULL;
@@ -272,10 +273,8 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 
 // --- MAIN ---
 void codegen_c(ASTnode *program, FILE *output) {
-        fprintf(output, "#include <stdio.h>\n");
-        fprintf(output, "#include <string.h>\n");
-        fprintf(output, "#include <stdbool.h>\n");
-        fprintf(output, "#include <stdlib.h>\n");
+        char *home_dir = getenv("HOME");
+        fprintf(output, "#include \"%s/.pinum-lang/runtime/pinum_runtime.h\"\n", home_dir);
         fprintf(output, "int main(void) {\n");
         for (int i = 0; i < program->data.program.count; i++) {
                 codegen_node(program->data.program.statements[i], output, 1);

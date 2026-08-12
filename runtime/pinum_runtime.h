@@ -21,12 +21,34 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
-#ifndef PINUM_VERSION_H
-#define PINUM_VERSION_H
+// ~./pinum-lang/runtime/pinum_runtime.h
+#ifndef PINUM_RUNTIME_H
+#define PINUM_RUNTIME_H
 
-#define PINUM_VERSION "1.0.1"
-// update 0.3.5 added semicolon after every expression like javascript and C.
-// update 0.6.0 supports other compilers too.
-// update 0.8.0 chnaged the compiler pipeline from line by line parsing to token stream paring.
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#endif // PINUM_VERSION_H
+// --- HELPER ---
+// --------------
+
+// --- MAIN ---
+/**
+ * @brief takes binary operations done with char and return a char* type
+ * @param c takes the char input
+ * @param count is the number of time c is repeated
+ * @example `char c = ' '; print(c * 5)` will repeat c five times
+ * */
+static inline char *__pinum_repeat_char(char c, int count) {
+        char *out = (char *)malloc((size_t)count + 1);
+        for (int i = 0; i < count; i++) {
+                out[i] = c;
+        }
+        // add null terminator add the end
+        out[count] = '\0';
+        return out;
+}
+// ------------
+
+#endif // !PINUM_RUNTIME_H
