@@ -1,61 +1,65 @@
+# Semicolons are optional — a newline ends a statement.
+# They ARE required to put multiple statements on one line:
+#   int x = 1; print(x, "\n");   # two statements, one line
+
 # all basic data types, with a value
 int count = 10;
-float ratio = 3.5;
-double pi = 3.14159;
-char letter = 'A';
-string name = "pinum";
-bool done = true;
-print(count, "\n");
-print(ratio, "\n");
-print(pi, "\n");
-print(letter, "\n");
-print(name, "\n");
-print(done, "\n");
+float ratio = 3.5
+double pi = 3.14159
+char letter = 'A'
+string name = "pinum"
+bool done = true
+print(count, "\n")
+print(ratio, "\n")
+print(pi, "\n")
+print(letter, "\n")
+print(name, "\n")
+print(done, "\n")
 
 # all basic data types, declared without a value and assigned later
-int a;
-float b;
-double c;
-char d;
-string e;
-bool f;
-a = 1;
-b = 2.5;
-c = 0.75;
-d = 'z';
-e = "assigned later";
-f = false;
-print(a, "\n");
-print(b, "\n");
-print(c, "\n");
-print(d, "\n");
-print(e, "\n");
-print(f, "\n");
+int a
+float b
+double c
+char d
+string e
+bool f
+a = 1
+b = 2.5
+c = 0.75
+d = 'z'
+e = "assigned later"
+f = false
+print(a, "\n")
+print(b, "\n")
+print(c, "\n")
+print(d, "\n")
+print(e, "\n")
+print(f, "\n")
 
 # modifiers: unsigned/signed with int and char
-unsigned int u = 2147483647;
-unsigned char uc = 65;
-signed int si = -5;
-signed char sc = -128;
-print(u, "\n");
-print(uc, "\n");
-print(si, "\n");
-print(sc, "\n");
+unsigned int u = 2147483647
+unsigned char uc = 65
+signed int si = -5
+signed char sc = -128
+print(u, "\n")
+print(uc, "\n")
+print(si, "\n")
+print(sc, "\n")
 
 # modifiers: long with int and double, short with int
-long int li = 123456789;
-long double ld = 0.123456789;
-short int sh = -32768;
-print(li, "\n");
-print(ld, "\n");
-print(sh, "\n");
+long int li = 123456789
+long double ld = 0.123456789
+short int sh = -32768
+print(li, "\n")
+print(ld, "\n")
+print(sh, "\n")
 
 # read from the user
-int number;
-float ratio2;
-print('Enter an int: ');
-read(number);
-print('Enter a float: ');
-read(ratio2);
-print(number, "\n");
-print(ratio2, "\n");
+int number
+float ratio2
+print('Enter an int: ')
+read(number)
+print('Enter a float: ')
+read(ratio2)
+print(number, "\n")
+print(ratio2, "\n")

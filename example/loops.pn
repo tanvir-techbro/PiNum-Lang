@@ -1,37 +1,41 @@
+# Semicolons are optional — a newline ends a statement.
+# They ARE required to put multiple statements on one line:
+#   int x = 1; print(x, "\n");   # two statements, one line
+
 # while loop: count up
 int i = 0;
 while (i < 5) {
-        print(i, "\n");
-        i = i + 1;
+        print(i, "\n")
+        i = i + 1
 }
 
 # continue: skip even numbers
-int j = 0;
+int j = 0
 while (j < 10) {
-        j = j + 1;
+        j = j + 1
         if (j % 2 == 0) {
-                continue;
+                continue
         }
-        print(j, "\n");
+        print(j, "\n")
 }
 
 # break: stop the loop early
-int k = 0;
+int k = 0
 while (k < 100) {
-        k = k + 1;
+        k = k + 1
         if (k == 3) {
-                break;
+                break
         }
-        print(k, "\n");
+        print(k, "\n")
 }
 
 # return: exit the loop and the program
-int m = 0;
+int m = 0
 while (m < 10) {
-        print(m, "\n");
+        print(m, "\n")
         if (m == 2) {
-                return 7;
+                return 7
         }
-        m = m + 1;
+        m = m + 1
 }
-print("never reached\n");
+print("never reached\n")
