@@ -53,6 +53,17 @@ static const char *sym_type_of(const char *name) {
         return NULL;
 }
 
+static bool is_char(ASTnode *node) {
+        if (node->type == NODE_CHAR_LITERAL) {
+                return true;
+        }
+        if (node->type == NODE_IDENTIFIER) {
+                const char *type = sym_type_of(node->data.identifier.name);
+                return type && strcmp(type, "char") == 0;
+        }
+        return false;
+}
+
 static const char *specifier_for_type(const char *type) {
         if (strcmp(type, "char *") == 0) return "%s";
         if (strcmp(type, "long double") == 0) return "%Lf";
@@ -72,6 +83,15 @@ static const char *codegen_specifier(ASTnode *node) {
         case NODE_CHAR_LITERAL: return "%c";
         case NODE_BOOL_LITERAL: return "%d"; // true/false printed as 1/0
         case NODE_TERNARY_EXPRESSION: return codegen_specifier(node->data.ternary_expression.then_expr);
+        case NODE_BINARY_EXPRESSION: {
+                ASTnode *left = node->data.binary_expression.left;
+                ASTnode *right = node->data.binary_expression.right;
+                // a char repetition returns a char* (string), so print it as %s
+                if (node->data.binary_expression.op == TOKEN_STAR && (is_char(left) || is_char(right))) {
+                        return "%s";
+                }
+                return "%d";
+        }
         case NODE_IDENTIFIER: {
                 const char *type = sym_type_of(node->data.identifier.name);
                 return type ? specifier_for_type(type) : "%d";
@@ -135,6 +155,25 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 
         // ---- Expressions ----
         case NODE_BINARY_EXPRESSION:
+                if (node->data.binary_expression.op == TOKEN_STAR) {
+                        if (is_char(node->data.binary_expression.left)) {
+                                // 'a' * 3  →  __pinum_repeat_char('a', 3)
+                                fprintf(output, "__pinum_repeat_char__(");
+                                codegen_node(node->data.binary_expression.left, output, level);
+                                fprintf(output, ", ");
+                                codegen_node(node->data.binary_expression.right, output, level);
+                                fprintf(output, ")");
+                                break;
+                        } else if (is_char(node->data.binary_expression.right)) {
+                                // 3 * 'a'  →  __pinum_repeat_char('a', 3)  (args swapped!)
+                                fprintf(output, "__pinum_repeat_char__(");
+                                codegen_node(node->data.binary_expression.right, output, level);
+                                fprintf(output, ", ");
+                                codegen_node(node->data.binary_expression.left, output, level);
+                                fprintf(output, ")");
+                                break;
+                        }
+                }
                 // put in brakets to keep the order
                 fprintf(output, "(");
                 // left (op) right

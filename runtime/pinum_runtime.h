@@ -40,7 +40,7 @@
  * @param count is the number of time c is repeated
  * @example `char c = ' '; print(c * 5)` will repeat c five times
  * */
-static inline char *__pinum_repeat_char(char c, int count) {
+static inline char *__pinum_repeat_char__(char c, int count) {
         char *out = (char *)malloc((size_t)count + 1);
         for (int i = 0; i < count; i++) {
                 out[i] = c;
