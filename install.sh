@@ -104,8 +104,29 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
         fi
 fi
 
+# 6. VS Code Extension (Optional)
+echo ""
+echo "PiNum has a VS Code extension for syntax highlighting."
+echo "It is recommended if you use VS Code (or Codium)."
+read -p "Do you want to install it? (y/n): " -n 1 -r </dev/tty
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+        VSIX_FILE=$(ls extras/vscode/pinum-lang-*.vsix 2>/dev/null | head -n 1)
+        if command -v code &>/dev/null; then
+                echo "Installing PiNum VS Code extension..."
+                code --install-extension "$VSIX_FILE"
+        elif command -v codium &>/dev/null; then
+                echo "Installing PiNum VS Code extension for Codium..."
+                codium --install-extension "$VSIX_FILE"
+        else
+                echo "VS Code was not found on your system."
+                echo "Install it, then run: code --install-extension extras/vscode/pinum-lang-*.vsix"
+                echo "Or grab the .vsix from the GitHub releases page."
+        fi
+fi
+
 # deleting the temporary build folder
-rm -rf src include example test bin .gitignore .clang-format Makefile CONTRIBUTING.md install.sh runtime/.gitkeep
+rm -rf src include example .github payload test bin .gitignore .clang-format Makefile CONTRIBUTING.md install.sh runtime/.gitkeep
 
 echo ""
 echo "----------------------------------"

@@ -12,7 +12,11 @@
     },
     {
       "name": "keyword.control.pn",
-      "match": "\\b(if|else|print|read|return|import|include|while|for)\\b"
+      "match": "\\b(if|else|while|for|break|continue|return)\\b"
+    },
+    {
+      "name": "support.function.builtin.pn",
+      "match": "\\b(print|read)\\b"
     },
     {
       "name": "storage.type.pn",
@@ -20,7 +24,7 @@
     },
     {
       "name": "constant.language.pn",
-      "match": "\\b(true|false|stdlib|math|engine)\\b"
+      "match": "\\b(true|false)\\b"
     },
     {
       "name": "constant.numeric.pn",
@@ -30,6 +34,17 @@
       "name": "string.quoted.double.pn",
       "begin": "\"",
       "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.pn",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "string.quoted.single.pn",
+      "begin": "'",
+      "end": "'",
       "patterns": [
         {
           "name": "constant.character.escape.pn",

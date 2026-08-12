@@ -1,0 +1,3 @@
+.vscodeignore
+*.vsix
+syntaxes/**/*.tmLanguage.json.tmp

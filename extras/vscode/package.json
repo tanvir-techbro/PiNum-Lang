@@ -2,14 +2,34 @@
   "name": "pinum-lang",
   "publisher": "tanvir",
   "displayName": "PiNum Language Support",
-  "description": "Syntax highlighting for the PiNum transpiler.",
-  "version": "1.0.0",
+  "description": "Syntax highlighting for the PiNum programming language.",
+  "version": "1.0.1",
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.60.0"
   },
   "categories": [
     "Programming Languages"
   ],
+  "keywords": [
+    "pinum",
+    "language",
+    "transpiler",
+    "syntax highlighting"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tanvir-techbro/PiNum-Lang"
+  },
+  "bugs": {
+    "url": "https://github.com/tanvir-techbro/PiNum-Lang/issues"
+  },
+  "homepage": "https://tanvir-techbro.github.io/pinum-site",
+  "license": "MIT",
+  "galleryBanner": {
+    "color": "#010000",
+    "theme": "dark"
+  },
   "contributes": {
     "languages": [{
       "id": "pinum",
