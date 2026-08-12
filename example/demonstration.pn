@@ -30,6 +30,23 @@ print(a * b, "\n")
 print(a / b, "\n")
 print(a % b, "\n")
 
+# --- char repetition (provided by the runtime library) ---
+# 'c' * n (or n * 'c') repeats the char n times, returns a string
+char bar = '='
+print(bar * 30, "\n")
+print('>', bar * 8, '<', "\n")
+print(4 * '-', "\n")
+
+# the multiplier can be any expression
+print('#' * (a - b), "\n")
+
+# building a pyramid is now a one-liner per row
+int row = 0
+while (row < 5) {
+        print('*' * (row * 2 + 1), "\n")
+        row = row + 1
+}
+
 # --- comparisons and logicals ---
 print(a > b, "\n")
 print(a == b, "\n")

@@ -9,6 +9,12 @@ print(a - b, "\n"); print(a * b, "\n")
 print(a / b, "\n")
 print(a % b, "\n")
 
+# char repetition: 'c' * n (or n * 'c') repeats the char n times
+char mark = '*'
+print(mark * 6, "\n")
+print(4 * '-', "\n")
+print('.' * (a - b), "\n")
+
 # precedence: * and / bind tighter than + and -
 int c = 4
 print(a + b * c, "\n")
