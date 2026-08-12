@@ -22,7 +22,9 @@
  ********************************************************************/
 
 #include "../include/codegen_c.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 // for symbol table
 static const char **g_sym_names = NULL;
@@ -274,6 +276,14 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 // --- MAIN ---
 void codegen_c(ASTnode *program, FILE *output) {
         char *home_dir = getenv("HOME");
+        char path[1024];
+        snprintf(path, sizeof(path), "%s/.pinum-lang/runtime/pinum_runtime.h", home_dir);
+
+        // check for .pinum-lang directory
+        if (access(path, F_OK)) {
+                pinum_error(STAGE_CODEGEN, ERR_RUNTIME_MISSING, path);
+        }
+
         fprintf(output, "#include \"%s/.pinum-lang/runtime/pinum_runtime.h\"\n", home_dir);
         fprintf(output, "int main(void) {\n");
         for (int i = 0; i < program->data.program.count; i++) {

@@ -91,6 +91,9 @@ void cli_parse(int argc, char *argv[], cli_options *opts) {
                 } else if (strcmp(argv[arg_indx], "--version") == 0 || strcmp(argv[arg_indx], "-v") == 0) {
                         opts->action = CLI_ACTION_VERSION;
                         return;
+                } else if (strcmp(argv[arg_indx], "--repair") == 0 || strcmp(argv[arg_indx], "-r") == 0) {
+                        opts->action = CLI_ACTION_REPAIR;
+                        return;
                 } else if (strcmp(argv[arg_indx], "--update") == 0 || strcmp(argv[arg_indx], "-u") == 0) {
                         opts->action = CLI_ACTION_UPDATE;
                         return;
@@ -147,9 +150,10 @@ void cli_print_help() {
         printf("  %-20s\tEnable debugging functions for lexer.\n", "--debug-lexer");
         printf("  %-20s\tEnable debugging functions for ast.\n", "--debug-ast");
         printf("\n");
-        printf("  %-20s\tDisplay pinum version information.\n", "--version or -v");
-        printf("  %-20s\tUpdate pinum to the latest version.\n", "--update or -u");
-        printf("  %-20s\tDisplay this output.\n", "--help or -h");
+        printf("  %-20s\tDisplay pinum version information.\n", "-v, --version");
+        printf("  %-20s\tUpdate pinum to the latest version.\n", "-u, --update");
+        printf("  %-20s\tReinstall to get ~/.pinum-lang directory back.\n", "-r, --repair");
+        printf("  %-20s\tDisplay this output.\n", "-h, --help");
         printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
 }
 
@@ -278,6 +282,25 @@ int cli_update() {
                 printf("Up to date!\n");
                 return EXIT_SUCCESS;
         }
+        // downloads and verifies the installer; exits on any failure
+        check_hash();
+
+        printf("Verification successful!\n");
+        printf("\nExecuting installer...\n");
+        char *bash_args[] = {
+            "bash",
+            "install.sh",
+            NULL,
+        };
+        int result = run_cmd(g_update_dir, "bash", bash_args);
+
+        cleanup_temp();
+
+        return result == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+// handle flags '--repair'/-r
+int cli_repair(void) {
         // downloads and verifies the installer; exits on any failure
         check_hash();
 

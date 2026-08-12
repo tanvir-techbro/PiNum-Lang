@@ -34,6 +34,7 @@ typedef enum {
         CLI_ACTION_RUN,     // compile a .pn file
         CLI_ACTION_HELP,    // print the usage text
         CLI_ACTION_VERSION, // print the version
+        CLI_ACTION_REPAIR,  // reinstall the .pinum-lang directory
         CLI_ACTION_UPDATE   // run the self-updater
 } cli_action;
 
@@ -67,7 +68,8 @@ void cli_parse(int argc, char *argv[], cli_options *opts);
 // handle the flags '--help'/-h and '--version'/-v
 void cli_print_help(void);
 void cli_print_version(void);
-
+// handle flags '--repair'/-r; returns EXIT_SUCCESS or EXIT_FAILURE
+int cli_repair(void);
 // handle '--update'/-u; returns EXIT_SUCCESS or EXIT_FAILURE
 int cli_update(void);
 

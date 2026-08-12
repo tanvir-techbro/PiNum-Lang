@@ -68,6 +68,9 @@ int main(int argc, char *argv[]) {
         case CLI_ACTION_UPDATE:
                 // the update flag handles its own output and messaging
                 return cli_update();
+        case CLI_ACTION_REPAIR:
+                // reinstalls the missing .pinum-lang directory
+                return cli_repair();
         case CLI_ACTION_RUN:
                 break; // fall through to the pipeline
         }

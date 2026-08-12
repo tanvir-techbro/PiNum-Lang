@@ -166,6 +166,9 @@ static void print_error_message(ErrorStage stage, ErrorCode code, int line, int 
         case ERR_COMPILE_FAILED:
                 fprintf(stderr, "C compiler failed on '%s'", d);
                 break;
+        case ERR_RUNTIME_MISSING:
+                fprintf(stderr, "runtime not found at '%s' - run 'pinum --repair' (or 'pinum -r') to restore it", d);
+                break;
         case ERR_UPDATE_START:
                 fprintf(stderr, "could not start the update check");
                 break;

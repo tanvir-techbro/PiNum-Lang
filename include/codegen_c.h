@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 // Walks through the tree
 void codegen_c(ASTnode *program, FILE *output);
