@@ -87,6 +87,17 @@ Long forms `--output` and `--output-c` are also accepted. Use `--help` to see al
 
 Even though its under development, the syntax (to some extent) is defined.
 
+**Semicolons are optional.** A newline ends a statement, but semicolons let you write multiple statements on one line:
+
+```pinum
+# both of these work
+int a = 5;
+int b = 5
+
+# semicolons are needed to pack statements on one line
+int c = 1; print(c, "\n"); c = c + 1; print(c, "\n");
+```
+
 # Comments
 ```pinum
 # this is a comment!
@@ -105,26 +116,29 @@ Even though its under development, the syntax (to some extent) is defined.
 # it has keywords like long, short, unsigned and signed
 
 # declares an intager veriable
-int number = 10;
+int number = 10
 # declares floating point veriable
-float num = 3.14;
+float num = 3.14
 # declares a duble type verible
-double numero = 2.718;
+double numero = 2.718
 # declares a string veriable
-string name = "pinum";
+string name = "pinum"
 # declares a boolean veriable
-bool ready = true;
+bool ready = true
 ```
 
 # Output & input
 ```pinum
 # print accepts any number of arguments
-print("hello ", name, "\n");
+print("hello ", name, "\n")
 
 # read stores user input into an existing veriable
-int data;
-read(data);
-print(data, "\n");
+int data
+read(data)
+print(data, "\n")
+
+# multiple statements on one line
+int n = 2; n = n + 3; print(n, "\n")
 ```
 
 # Conditions
@@ -155,7 +169,7 @@ while (condition) {
 # Return
 ```pinum
 # exits the program with the given value
-return 0;
+return 0
 ```
 
 ## 🛠 Project Structure
