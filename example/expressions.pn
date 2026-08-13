@@ -15,6 +15,13 @@ print(mark * 6, "\n")
 print(4 * '-', "\n")
 print('.' * (a - b), "\n")
 
+# string addition: "a" + "b" concatenates the two strings
+string first = "foo"
+string second = "bar"
+print(first + second, "\n")
+print(first + second + "!", "\n")
+print("concatenation works with " + "literals too", "\n")
+
 # precedence: * and / bind tighter than + and -
 int c = 4
 print(a + b * c, "\n")

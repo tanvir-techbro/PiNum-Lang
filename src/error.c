@@ -176,7 +176,7 @@ static void print_error_message(ErrorStage stage, ErrorCode code, int line, int 
                 fprintf(stderr, "could not check for updates (network or server error)");
                 break;
         case ERR_UPDATE_TMP_DIR:
-                fprintf(stderr, "failed to create a temporary directory in /tmp");
+                fprintf(stderr, "failed to create a temporary directory");
                 break;
         case ERR_UPDATE_DOWNLOAD_SCRIPT:
                 fprintf(stderr, "failed to download install.sh, try again");

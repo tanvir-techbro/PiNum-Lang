@@ -47,6 +47,13 @@ while (row < 5) {
         row = row + 1
 }
 
+# --- string addition (provided by the runtime library) ---
+# "a" + "b" concatenates the two strings, returns a new string
+string first = "PiNum"
+string last = "-Lang"
+print(first + last, "\n")
+print("Hello, " + name + "!", "\n")
+
 # --- comparisons and logicals ---
 print(a > b, "\n")
 print(a == b, "\n")

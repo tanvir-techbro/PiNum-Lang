@@ -203,8 +203,13 @@ static void cleanup_temp(void) {
 }
 // downloads the installer and its checksum, then verifies the hash; exits on any failure.
 static void check_hash() {
+        // pick a temp directory that exists (Termux uses $TMPDIR, not /tmp)
+        const char *tmpdir = getenv("TMPDIR");
+        if (tmpdir == NULL) tmpdir = "/tmp";
+
         // creating a unique directory
-        char dir_template[] = "/tmp/pinum_update_XXXXXX";
+        char dir_template[1024];
+        snprintf(dir_template, sizeof(dir_template), "%s/pinum_update_XXXXXX", tmpdir);
         char *tmp_dir = mkdtemp(dir_template);
         if (!tmp_dir) {
                 pinum_error(STAGE_UPDATER, ERR_UPDATE_TMP_DIR, NULL);

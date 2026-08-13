@@ -26,6 +26,7 @@
 #define PINUM_RUNTIME_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,6 +48,26 @@ static inline char *__pinum_repeat_char__(char c, int count) {
         }
         // add null terminator add the end
         out[count] = '\0';
+        return out;
+}
+
+/**
+ * @brief takes 2 string and adds them
+ * @returns combined string
+ * */
+static inline char *__pinum_add_string__(const char *s1, const char *s2) {
+        // Initialize the strings if null
+        if (!s1) s1 = "";
+        if (!s2) s2 = "";
+
+        size_t len1 = strlen(s1);
+        size_t len2 = strlen(s2);
+        char *out = (char *)malloc(len1 + len2 + 1); // +1 for null terminator
+
+        memcpy(out, s1, len1);
+        memcpy(out + len1, s2, len2);
+        out[len1 + len2] = '\0';
+
         return out;
 }
 // ------------

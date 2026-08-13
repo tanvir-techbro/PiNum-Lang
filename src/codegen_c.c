@@ -64,6 +64,25 @@ static bool is_char(ASTnode *node) {
         return false;
 }
 
+static bool is_string(ASTnode *node) {
+        if (node->type == NODE_STRING_LITERAL) {
+                return true;
+        }
+        if (node->type == NODE_IDENTIFIER) {
+                const char *type = sym_type_of(node->data.identifier.name);
+                return type && strcmp(type, "char *") == 0;
+        }
+        // "a" + b + "c" parses as ("a" + b) + "c"; the left side of the
+        // outer + is itself a string-producing binary expression.
+        if (node->type == NODE_BINARY_EXPRESSION) {
+                ASTnode *left = node->data.binary_expression.left;
+                ASTnode *right = node->data.binary_expression.right;
+                return node->data.binary_expression.op == TOKEN_PLUS &&
+                       is_string(left) && is_string(right);
+        }
+        return false;
+}
+
 static const char *specifier_for_type(const char *type) {
         if (strcmp(type, "char *") == 0) return "%s";
         if (strcmp(type, "long double") == 0) return "%Lf";
@@ -86,8 +105,13 @@ static const char *codegen_specifier(ASTnode *node) {
         case NODE_BINARY_EXPRESSION: {
                 ASTnode *left = node->data.binary_expression.left;
                 ASTnode *right = node->data.binary_expression.right;
+                tokenType op = node->data.binary_expression.op;
                 // a char repetition returns a char* (string), so print it as %s
-                if (node->data.binary_expression.op == TOKEN_STAR && (is_char(left) || is_char(right))) {
+                if (op == TOKEN_STAR && (is_char(left) || is_char(right))) {
+                        return "%s";
+                }
+                // adding two strings returns a char* too
+                if (op == TOKEN_PLUS && is_string(left) && is_string(right)) {
                         return "%s";
                 }
                 return "%d";
@@ -173,6 +197,15 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                                 fprintf(output, ")");
                                 break;
                         }
+                }
+                if (node->data.binary_expression.op == TOKEN_PLUS && is_string(node->data.binary_expression.left) && is_string(node->data.binary_expression.right)) {
+                        // "a" + "b"  →  __pinum_add_string__("a", "b")
+                        fprintf(output, "__pinum_add_string__(");
+                        codegen_node(node->data.binary_expression.left, output, level);
+                        fprintf(output, ", ");
+                        codegen_node(node->data.binary_expression.right, output, level);
+                        fprintf(output, ")");
+                        break;
                 }
                 // put in brakets to keep the order
                 fprintf(output, "(");
