@@ -26,6 +26,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+// function definitions
+static void codegen_node(ASTnode *node, FILE *output, int level);
+
 // for symbol table
 static const char **g_sym_names = NULL;
 static const char **g_sym_types = NULL;
@@ -162,6 +165,43 @@ static const char *codegen_operator(tokenType op) {
         case TOKEN_EXCLAMATION: return "!"; // unary operator
         default:
                 return lexer_token_type_to_string(op);
+        }
+}
+
+static void codegen_for_param(ASTnode *node, FILE *output, int level) {
+        if (node == NULL) {
+                return;
+        }
+        switch (node->type) {
+        case NODE_VAR_DECL: {
+                // build the full C type, e.g. "long int" or "char *"
+                const char *base_type = codegen_type(node->data.var_decl.type_name);
+                char full_type[64];
+                if (node->data.var_decl.modifiers) {
+                        snprintf(full_type, sizeof(full_type), "%s %s", node->data.var_decl.modifiers, base_type);
+                } else {
+                        snprintf(full_type, sizeof(full_type), "%s", base_type);
+                }
+                sym_register(node->data.var_decl.name, full_type);
+                // get the modifier
+                if (node->data.var_decl.modifiers) {
+                        fprintf(output, "%s ", node->data.var_decl.modifiers);
+                }
+                // get type and name
+                fprintf(output, "%s %s", base_type, node->data.var_decl.name);
+                // check if they have any value assigned
+                if (node->data.var_decl.value) {
+                        fprintf(output, " = ");
+                        codegen_node(node->data.var_decl.value, output, level);
+                }
+                break;
+        }
+        case NODE_ASSIGN:
+                fprintf(output, "%s = ", node->data.assign.name);
+                codegen_node(node->data.assign.value, output, level);
+                break;
+        default:
+                codegen_node(node, output, level);
         }
 }
 
@@ -323,7 +363,17 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 codegen_node(node->data.while_loop.body, output, level);
                 break;
         case NODE_FOR:
-                break; // TODO
+                fprintf(output, "for (");
+                codegen_for_param(node->data.for_loop.init, output, level);
+                fprintf(output, "; ");
+                if (node->data.for_loop.condition) {
+                        codegen_node(node->data.for_loop.condition, output, level);
+                }
+                fprintf(output, "; ");
+                codegen_for_param(node->data.for_loop.increment, output, level);
+                fprintf(output, ")");
+                codegen_node(node->data.for_loop.body, output, level);
+                break;
         case NODE_RETURN:
                 fprintf(output, "return ");
                 codegen_node(node->data.returns.expression, output, level);

@@ -146,7 +146,7 @@ ASTnode *parse_while_statement(Parser *parser) {
 
         return make_while_node(condition, body);
 }
-// for(init; condition; inc) {dory}
+// for(init; condition; inc) {body}
 ASTnode *parse_for_statement(Parser *parser) {
         consume(parser, TOKEN_LRPAREN, "'('");
 

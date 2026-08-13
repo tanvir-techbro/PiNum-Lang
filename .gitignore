@@ -26,6 +26,7 @@ bin/*
 # sha files would be uploaded with new releases
 install.sh.sha256
 change_plan.md
+hashmap_plan.md
 # payload test files
 payload/*
 a.out
