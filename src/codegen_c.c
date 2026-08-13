@@ -77,8 +77,16 @@ static bool is_string(ASTnode *node) {
         if (node->type == NODE_BINARY_EXPRESSION) {
                 ASTnode *left = node->data.binary_expression.left;
                 ASTnode *right = node->data.binary_expression.right;
-                return node->data.binary_expression.op == TOKEN_PLUS &&
-                       is_string(left) && is_string(right);
+                tokenType op = node->data.binary_expression.op;
+                // concat: "a" + "b" produces a string
+                if (op == TOKEN_PLUS) {
+                        return is_string(left) && is_string(right);
+                }
+                // repetition: "ab" * 3 or 'a' * 3 produces a string
+                if (op == TOKEN_STAR) {
+                        return is_string(left) || is_string(right) ||
+                               is_char(left) || is_char(right);
+                }
         }
         return false;
 }
@@ -108,6 +116,10 @@ static const char *codegen_specifier(ASTnode *node) {
                 tokenType op = node->data.binary_expression.op;
                 // a char repetition returns a char* (string), so print it as %s
                 if (op == TOKEN_STAR && (is_char(left) || is_char(right))) {
+                        return "%s";
+                }
+                // a string repetition returns a char* too
+                if (op == TOKEN_STAR && (is_string(left) || is_string(right))) {
                         return "%s";
                 }
                 // adding two strings returns a char* too
@@ -179,6 +191,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 
         // ---- Expressions ----
         case NODE_BINARY_EXPRESSION:
+                // char repetition
                 if (node->data.binary_expression.op == TOKEN_STAR) {
                         if (is_char(node->data.binary_expression.left)) {
                                 // 'a' * 3  →  __pinum_repeat_char('a', 3)
@@ -198,6 +211,27 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                                 break;
                         }
                 }
+                // string repetition
+                if (node->data.binary_expression.op == TOKEN_STAR) {
+                        if (is_string(node->data.binary_expression.left)) {
+                                // 'a' * 3  →  __pinum_repeat_char('a', 3)
+                                fprintf(output, "__pinum_repeat_string__(");
+                                codegen_node(node->data.binary_expression.left, output, level);
+                                fprintf(output, ", ");
+                                codegen_node(node->data.binary_expression.right, output, level);
+                                fprintf(output, ")");
+                                break;
+                        } else if (is_string(node->data.binary_expression.right)) {
+                                // 3 * 'a'  →  __pinum_repeat_char('a', 3)  (args swapped!)
+                                fprintf(output, "__pinum_repeat_string__(");
+                                codegen_node(node->data.binary_expression.right, output, level);
+                                fprintf(output, ", ");
+                                codegen_node(node->data.binary_expression.left, output, level);
+                                fprintf(output, ")");
+                                break;
+                        }
+                }
+                // string addition
                 if (node->data.binary_expression.op == TOKEN_PLUS && is_string(node->data.binary_expression.left) && is_string(node->data.binary_expression.right)) {
                         // "a" + "b"  →  __pinum_add_string__("a", "b")
                         fprintf(output, "__pinum_add_string__(");
