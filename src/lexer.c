@@ -131,8 +131,18 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("+");
                 } else {
-                        tokens.type = TOKEN_PLUS;
-                        tokens.value = strdup("+");
+                        ch = lexer_getc(buffer);
+                        if (ch == '+') {
+                                tokens.type = TOKEN_PPLUS;
+                                tokens.value = strdup("++");
+                        } else if (ch == '=') {
+                                tokens.type = TOKEN_PEQUAL;
+                                tokens.value = strdup("+=");
+                        } else {
+                                lexer_ungetc(ch, buffer);
+                                tokens.type = TOKEN_PLUS;
+                                tokens.value = strdup("+");
+                        }
                 }
                 break;
         case '-':
@@ -140,8 +150,18 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("-");
                 } else {
-                        tokens.type = TOKEN_MINUS;
-                        tokens.value = strdup("-");
+                        ch = lexer_getc(buffer);
+                        if (ch == '-') {
+                                tokens.type = TOKEN_MMINUS;
+                                tokens.value = strdup("--");
+                        } else if (ch == '=') {
+                                tokens.type = TOKEN_MEQUAL;
+                                tokens.value = strdup("-=");
+                        } else {
+                                lexer_ungetc(ch, buffer);
+                                tokens.type = TOKEN_MINUS;
+                                tokens.value = strdup("-");
+                        }
                 }
                 break;
         case '*':
@@ -149,8 +169,15 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("*");
                 } else {
-                        tokens.type = TOKEN_STAR;
-                        tokens.value = strdup("*");
+                        ch = lexer_getc(buffer);
+                        if (ch == '=') {
+                                tokens.type = TOKEN_SEQUAL;
+                                tokens.value = strdup("*=");
+                        } else {
+                                lexer_ungetc(ch, buffer);
+                                tokens.type = TOKEN_STAR;
+                                tokens.value = strdup("*");
+                        }
                 }
                 break;
         case '/':
@@ -158,8 +185,15 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("/");
                 } else {
-                        tokens.type = TOKEN_FSLASH;
-                        tokens.value = strdup("/");
+                        ch = lexer_getc(buffer);
+                        if (ch == '=') {
+                                tokens.type = TOKEN_FSEQUAL;
+                                tokens.value = strdup("/=");
+                        } else {
+                                lexer_ungetc(ch, buffer);
+                                tokens.type = TOKEN_FSLASH;
+                                tokens.value = strdup("/");
+                        }
                 }
                 break;
         case ',':
@@ -323,8 +357,15 @@ token lexer_tokenizer(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                         tokens.value = strdup("%");
                 } else {
-                        tokens.type = TOKEN_PERCENT;
-                        tokens.value = strdup("%");
+                        ch = lexer_getc(buffer);
+                        if (ch == '=') {
+                                tokens.type = TOKEN_PCEQUAL;
+                                tokens.value = strdup("%=");
+                        } else {
+                                lexer_ungetc(ch, buffer);
+                                tokens.type = TOKEN_PERCENT;
+                                tokens.value = strdup("%");
+                        }
                 }
                 break;
         case '^':
@@ -879,6 +920,20 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_LEQUAL";
         case TOKEN_GEQUAL:
                 return "TOKEN_GEQUAL";
+        case TOKEN_PPLUS:
+                return "TOKEN_PPLUS";
+        case TOKEN_PEQUAL:
+                return "TOKEN_PEQUAL";
+        case TOKEN_MMINUS:
+                return "TOKEN_MMINUS";
+        case TOKEN_MEQUAL:
+                return "TOKEN_MEQUAL";
+        case TOKEN_SEQUAL:
+                return "TOKEN_SEQUAL";
+        case TOKEN_FSEQUAL:
+                return "TOKEN_FSEQUAL";
+        case TOKEN_PCEQUAL:
+                return "TOKEN_PCEQUAL";
         case TOKEN_NTERMINATOR:
                 return "TOKEN_NTERMINATOR";
         case TOKEN_NLINE:

@@ -120,7 +120,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
                 codium --install-extension "$VSIX_FILE"
         else
                 echo "VS Code was not found on your system."
-                echo "Install it, then run: code --install-extension extras/vscode/pinum-lang-*.vsix"
+                echo "Install it, then run inside vscode: code --install-extension ~/.pinum-lang/extras/vscode/pinum-lang-*.vsix"
                 echo "Or grab the .vsix from the GitHub releases page."
         fi
 fi

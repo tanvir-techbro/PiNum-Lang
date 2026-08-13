@@ -29,6 +29,58 @@ while (k < 100) {
         print(k, "\n")
 }
 
+# for loop: for (init; condition; increment) { body }
+# the classic counter loop
+for (int i = 0; i < 5; i = i + 1) {
+        print(i, "\n")
+}
+
+# shorter with the ++ operator
+for (int i = 0; i < 5; i++) {
+        print(i, "\n")
+}
+
+# init can assign to a variable declared outside the loop
+int jj = 0
+for (jj = 3; jj < 7; jj++) {
+        print(jj, "\n")
+}
+
+# stepping by more than one with +=
+for (int k = 0; k < 10; k += 2) {
+        print(k, "\n")
+}
+
+# counting down with --
+for (int n = 5; n > 0; n--) {
+        print(n, "\n")
+}
+
+# empty parts: for(;;) is an infinite loop
+int cnt = 0
+for (;;) {
+        cnt = cnt + 1
+        if (cnt == 3) {
+                break
+        }
+        print(cnt, "\n")
+}
+
+# continue skips the rest of the current iteration
+for (int p = 0; p < 6; p++) {
+        if (p % 2 == 0) {
+                continue
+        }
+        print(p, "\n")
+}
+
+# nested for loops
+for (int x = 0; x < 3; x++) {
+        for (int y = 0; y < 2; y++) {
+                print(x * y, "\n")
+        }
+}
+
 # return: exit the loop and the program
 int m = 0
 while (m < 10) {

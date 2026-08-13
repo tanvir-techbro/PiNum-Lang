@@ -367,6 +367,32 @@ ASTnode *parse_call(Parser *parser) {
                         access->data.array_access.name = node->data.identifier.name;
                         access->data.array_access.index = index;
                         node = access;
+                }
+                // postfix increment
+                // i++  →  i = (i + 1)
+                else if (match(parser, TOKEN_PPLUS)) {
+                        if (node->type != NODE_IDENTIFIER) {
+                                token trigger = parser->tokens->tokens[parser->current - 1];
+                                pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
+                        }
+                        char *name = strdup(node->data.identifier.name);
+                        free_ast_node(node);
+                        ASTnode *inc = make_binary_node(make_identifier_node(name), TOKEN_PLUS, make_int_node(1));
+                        node = make_assign_node(name, inc);
+                        free(name);
+                }
+                // postfix decrement
+                // i--  →  i = (i - 1)
+                else if (match(parser, TOKEN_MMINUS)) {
+                        if (node->type != NODE_IDENTIFIER) {
+                                token trigger = parser->tokens->tokens[parser->current - 1];
+                                pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
+                        }
+                        char *name = strdup(node->data.identifier.name);
+                        free_ast_node(node);
+                        ASTnode *dec = make_binary_node(make_identifier_node(name), TOKEN_MINUS, make_int_node(1));
+                        node = make_assign_node(name, dec);
+                        free(name);
                 } else {
                         break;
                 }
@@ -486,6 +512,31 @@ ASTnode *parse_assignment(Parser *parser) {
                 char *name = strdup(node->data.identifier.name);
                 free_ast_node(node);
                 ASTnode *assign = make_assign_node(name, value);
+                free(name);
+                return assign;
+        }
+        // compound assignments: +=, -=, *=, /=, %=
+        if (match(parser, TOKEN_PEQUAL) || match(parser, TOKEN_MEQUAL) ||
+            match(parser, TOKEN_SEQUAL) || match(parser, TOKEN_FSEQUAL) ||
+            match(parser, TOKEN_PCEQUAL)) {
+                token trigger = parser->tokens->tokens[parser->current - 1];
+                ASTnode *value = parse_assignment(parser);
+                if (node->type != NODE_IDENTIFIER) {
+                        pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
+                }
+                char *name = strdup(node->data.identifier.name);
+                free_ast_node(node);
+                // i += v  →  i = (i + v)
+                tokenType op = TOKEN_PLUS;
+                switch (trigger.type) {
+                case TOKEN_MEQUAL: op = TOKEN_MINUS; break;
+                case TOKEN_SEQUAL: op = TOKEN_STAR; break;
+                case TOKEN_FSEQUAL: op = TOKEN_FSLASH; break;
+                case TOKEN_PCEQUAL: op = TOKEN_PERCENT; break;
+                default: break;
+                }
+                ASTnode *sum = make_binary_node(make_identifier_node(name), op, value);
+                ASTnode *assign = make_assign_node(name, sum);
                 free(name);
                 return assign;
         }

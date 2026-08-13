@@ -98,10 +98,17 @@ typedef enum {
         TOKEN_SQUOTE,      // ' single quotation mark
         TOKEN_DQUOTE,      // " double quotation mark
         // Multi-character operators
-        TOKEN_EEQUAL, // "==" double equal
-        TOKEN_NEQUAL, // "!=" not equal
-        TOKEN_LEQUAL, // "<=" less than or equal
-        TOKEN_GEQUAL, // ">=" greater than or equal
+        TOKEN_EEQUAL,  // "==" double equal
+        TOKEN_NEQUAL,  // "!=" not equal
+        TOKEN_LEQUAL,  // "<=" less than or equal
+        TOKEN_GEQUAL,  // ">=" greater than or equal
+        TOKEN_PPLUS,   // "++" increment
+        TOKEN_PEQUAL,  // "+=" add and assign
+        TOKEN_MMINUS,  // "--" decrement
+        TOKEN_MEQUAL,  // "-=" subtract and assign
+        TOKEN_SEQUAL,  // "*=" multiply and assign
+        TOKEN_FSEQUAL, // "/=" divide and assign
+        TOKEN_PCEQUAL, // "%=" modulo and assign
         // special character tokens
         TOKEN_NTERMINATOR, // '\0' null terminator
         TOKEN_NLINE,       // '\n' newline character

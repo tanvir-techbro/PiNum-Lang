@@ -72,6 +72,25 @@ print(result, "\n")
 result = a + b * c
 print(result, "\n")
 
+# --- compound assignment operators ---
+int amount = 10
+amount += 5       # same as amount = amount + 5
+print(amount, "\n")
+amount -= 3
+print(amount, "\n")
+amount *= 2
+print(amount, "\n")
+amount /= 3
+print(amount, "\n")
+amount %= 4
+print(amount, "\n")
+
+# --- increment / decrement ---
+amount++
+print(amount, "\n")
+amount--
+print(amount, "\n")
+
 # --- if / else if / else ---
 if (a > b) {
         print("a is bigger\n")
@@ -106,6 +125,21 @@ while (j < 10) {
                 break
         }
         print(j, "\n")
+}
+
+# --- for loop ---
+for (int f = 0; f < 5; f++) {
+        print(f, "\n")
+}
+
+# counted loop with a step
+for (int step = 0; step < 10; step += 2) {
+        print(step, "\n")
+}
+
+# counting down
+for (int down = 5; down > 0; down--) {
+        print(down, "\n")
 }
 
 # --- read user input ---
