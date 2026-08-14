@@ -21,4 +21,51 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
+// NOTE: Hashng algorithm used FNV-1a
 #include "../include/_hashmap.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
+#define FNV_OFFSET_BASIS 14695981039346656037ULL // 64 bit
+#define FNV_PRIME 1099511628211ULL
+
+// --- built in hash/eq helpers ---
+// hm_hash_fn
+size_t hm_hash_str(const void *key) {
+        const unsigned char *k = key;
+        size_t hash = FNV_OFFSET_BASIS;
+        while (*k) {
+                hash ^= (unsigned char)(*k);
+                hash *= FNV_PRIME;
+                k++;
+        }
+        return hash;
+}
+size_t hm_hash_int(const void *key) {
+        uint64_t hash = (size_t)*(const int *)key;
+        hash ^= hash >> 33; // simple mixer so ints like 2,4,8,16 don't clump in the same buckets
+        hash *= 0xff51afd7ed558ccdULL;
+        hash ^= hash >> 33;
+        return (size_t)hash;
+}
+size_t hm_hash_ptr(const void *key) {
+        uintptr_t hash = (uintptr_t)key; // pointers are already well spread
+        return (size_t)hash ^ (hash >> 32);
+}
+// hm_eq_fn
+bool hm_eq_str(const void *a, const void *b) {
+        if (a == b) return true; // Quick check: same pointer address
+        if (!a || !b) return false;
+
+        return strcmp((const char *)a, (const char *)b) == 0;
+}
+bool hm_eq_int(const void *a, const void *b) {
+        if (a == b) return true;
+        if (!a || !b) return false;
+
+        return *(const int *)a == *(const int *)b;
+}
+bool hm_eq_ptr(const void *a, const void *b) {
+        return a == b;
+}
