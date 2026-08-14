@@ -171,7 +171,7 @@ void cli_print_version() {
 static char g_latest_version[64] = {0};
 // returns 1 if an update is available, 0 if up to date; exits on failure.
 static int check_update() {
-        FILE *online_version = popen("curl -sSL --fail https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/VERSION", "r");
+        FILE *online_version = popen("curl -sSL --fail https://raw.githubusercontent.com/pinum-project/PiNum-Lang/main/VERSION", "r");
         if (online_version == NULL) {
                 pinum_error(STAGE_UPDATER, ERR_UPDATE_START, NULL);
         }
@@ -229,7 +229,7 @@ static void check_hash() {
 
         // script url, pinned to the same release tag as the checksum
         char script_url[1024] = {0};
-        snprintf(script_url, sizeof(script_url), "https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/v%s/install.sh", g_latest_version);
+        snprintf(script_url, sizeof(script_url), "https://raw.githubusercontent.com/pinum-project/PiNum-Lang/v%s/install.sh", g_latest_version);
 
         // downloading install.sh into the installer_path
         printf("Downloading installer script (install.sh)...\n");
