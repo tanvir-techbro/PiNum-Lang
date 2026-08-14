@@ -25,10 +25,57 @@
 #include "../include/_hashmap.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define FNV_OFFSET_BASIS 14695981039346656037ULL // 64 bit
 #define FNV_PRIME 1099511628211ULL
+
+// --- Construction and Destruction ---
+HashMap *hashmap_create(hm_hash_fn hash, hm_eq_fn eq, hm_free_fn key_free, hm_free_fn value_free) {
+        HashMap *map = malloc(sizeof(HashMap));
+        if (map == NULL) {
+                return NULL;
+        }
+        const size_t initial_capacity = 16;
+        map->buckets = calloc(initial_capacity, sizeof(HMNode *));
+        if (map->buckets == NULL) {
+                free(map);
+                return NULL;
+        }
+        map->capacity = initial_capacity;
+        map->size = 0;
+        map->max_load_factor = 1.0f;
+        map->hash = hash;
+        map->eq = eq;
+        map->key_free = key_free;     // NULL, caller owns keys
+        map->value_free = value_free; // NULL, caller owns values
+        return map;
+}
+void hashmap_free(HashMap *map) {
+        if (map == NULL) {
+                return;
+        }
+        hashmap_clear(map);
+        free(map->buckets);
+        free(map);
+}
+void hashmap_clear(HashMap *map) {
+        for (size_t i = 0; i < map->capacity; i++) {
+                HMNode *n = map->buckets[i];
+                // traverse linked list
+                while (n) {
+                        HMNode *next = n->next;
+                        if (map->key_free) map->key_free(n->key);
+                        if (map->value_free) map->value_free(n->value);
+                        free(n);
+                        n = next;
+                }
+                map->buckets[i] = NULL;
+        }
+        map->size = 0;
+}
 
 // --- built in hash/eq helpers ---
 // hm_hash_fn

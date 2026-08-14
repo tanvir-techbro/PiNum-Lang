@@ -57,7 +57,7 @@ typedef struct {
         HMNode *node;
 } HashMapIter;
 
-// --- Construction and Destruction
+// --- Construction and Destruction ---
 HashMap *hashmap_create(hm_hash_fn hash, hm_eq_fn eq, hm_free_fn key_free, hm_free_fn value_free);
 void hashmap_free(HashMap *map);
 void hashmap_clear(HashMap *map);
