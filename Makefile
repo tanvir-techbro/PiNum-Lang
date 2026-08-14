@@ -25,11 +25,10 @@
 CC ?= cc
 RCFLAGS += -Wall -Wextra -O3    # cflags for release make
 DCFLAGS += -Wall -Wextra -g -O3 # cflags for default make
-SRC = src/main.c src/cli.c src/lexer.c src/lexer_filter.c src/parser.c src/ast.c src/codegen_c.c src/helper.c src/error.c
+SRC = src/main.c src/cli.c src/lexer.c src/lexer_filter.c src/parser.c src/ast.c src/codegen_c.c src/helper.c src/error.c src/_hashmap.c
 VERSION = $(shell cat VERSION)
 
 TARGET = bin/pinum
-TEST_TARGET = bin/test_lexer
 MKDIR = mkdir -p bin
 RM = rm -f
 
@@ -59,7 +58,7 @@ install: $(TARGET)
 
 # Rule to clean up the binary
 clean:
-	$(RM) $(TARGET) $(TEST_TARGET)
+	$(RM) $(TARGET)
 
 # Neovim syntax activation
 nvim:
