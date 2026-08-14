@@ -77,6 +77,17 @@ void hashmap_clear(HashMap *map) {
         map->size = 0;
 }
 
+// --- capacity ---
+size_t hashmap_size(HashMap *map) {
+        return map->size;
+}
+bool hashmap_empty(HashMap *map) {
+        if (map->size == 0) {
+                return true;
+        }
+        return false;
+}
+
 // --- built in hash/eq helpers ---
 // hm_hash_fn
 size_t hm_hash_str(const void *key) {
@@ -97,8 +108,10 @@ size_t hm_hash_int(const void *key) {
         return (size_t)hash;
 }
 size_t hm_hash_ptr(const void *key) {
-        uintptr_t hash = (uintptr_t)key; // pointers are already well spread
-        return (size_t)hash ^ (hash >> 32);
+        uintptr_t hash = (uintptr_t)key;
+        hash ^= hash >> 16; // works on both 32-bit and 64-bit
+        hash ^= hash >> 8;
+        return (size_t)hash;
 }
 // hm_eq_fn
 bool hm_eq_str(const void *a, const void *b) {
