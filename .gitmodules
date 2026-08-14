@@ -1,0 +1,3 @@
+[submodule "extras/vscode"]
+	path = extras/vscode
+	url = https://github.com/pinum-project/pinum-vscode.git

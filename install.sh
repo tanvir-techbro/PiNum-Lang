@@ -105,6 +105,13 @@ if [ -d "$HOME/.config/nvim" ] || [ -d "$HOME/.local/share/nvim" ]; then
 fi
 
 # 6. VS Code Extension (Optional)
+# the extension lives in the extras/vscode submodule; a shallow clone of the
+# repo does not fetch submodules, so pull it in before looking for the .vsix
+if [ ! -f extras/vscode/pinum-lang-*.vsix ]; then
+        echo "Fetching the VS Code extension..."
+        git submodule update --init --depth 1 extras/vscode 2>/dev/null || \
+                git clone --depth 1 https://github.com/pinum-project/pinum-vscode.git extras/vscode 2>/dev/null || true
+fi
 echo ""
 echo "PiNum has a VS Code extension for syntax highlighting."
 echo "It is recommended if you use VS Code (or Codium)."

@@ -63,6 +63,11 @@ release: $(SRC)
 wasm: $(SRC)
 	$(WASI_CC) $(WASMFLAGS) $(SRC) -o $(WASM_TARGET)
 
+# VS Code extension (init the extras/vscode submodule, falling back to a plain clone)
+vscode:
+	@git submodule update --init --depth 1 extras/vscode 2>/dev/null || \
+		git clone --depth 1 https://github.com/pinum-project/pinum-vscode.git extras/vscode
+
 # To install it locally
 install: $(TARGET)
 	mv $(TARGET) $(INSTALL_PATH)/
@@ -76,4 +81,4 @@ nvim:
 	@$(MKDIR)
 	chmod +x activate_syntax.sh && ./activate_syntax.sh
 
-.PHONY: all test clean nvim install wasm
+.PHONY: all test clean nvim install wasm vscode
