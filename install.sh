@@ -19,7 +19,7 @@
 #  EXPRESS OR IMPLIED.                                             #
 #                                                                  #
 #  If you find any bug you would be highly encouraged to create a  #
-#  github issue at <https://github.com/tanvir-techbro/PiNum-Lang>  #
+#  github issue at <https://github.com/pinum-project/PiNum-Lang>  #
 #  or contact <surjointelligence.team@gmail.com>                   #
 #******************************************************************#
 
@@ -32,7 +32,7 @@
 
 set -e
 
-REPO_URL="https://github.com/tanvir-techbro/PiNum-Lang"
+REPO_URL="https://github.com/pinum-project/PiNum-Lang"
 INSTALL_DIR="$HOME/.pinum-lang"
 
 # 1. Check for dependencies

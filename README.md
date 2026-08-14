@@ -4,7 +4,7 @@
 
 # PiNum-Lang 1.0.0-beta
 
-https://tanvir-techbro.github.io/pinum-site - official site for pinum. check for documentation and other info.
+https://pinum-project.github.io - official site for pinum. check for documentation and other info.
 PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programming language currently under development.
 ## ✨ Features
 
@@ -26,7 +26,7 @@ The fastest way to install PiNum-Lang on your system:
 
 #### Linux/macOS (bash/zsh)
 ```bash
-curl -sSL https://raw.githubusercontent.com/tanvir-techbro/PiNum-Lang/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/pinum-project/PiNum-Lang/main/install.sh | bash
 ```
 *This will build the language and ask if you want to activate Neovim syntax highlighting and install the VS Code extension automatically.*
 

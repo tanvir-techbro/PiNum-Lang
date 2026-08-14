@@ -17,7 +17,7 @@
  *  EXPRESS OR IMPLIED.                                             *
  *                                                                  *
  *  If you find any bug you would be highly encouraged to create a  *
- *  github issue at <https://github.com/tanvir-techbro/PiNum-Lang>  *
+ *  github issue at <https://github.com/pinum-project/PiNum-Lang>  *
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
@@ -158,7 +158,7 @@ void cli_print_help() {
         printf("  %-20s\tUpdate pinum to the latest version.\n", "-u, --update");
         printf("  %-20s\tReinstall to get ~/.pinum-lang directory back.\n", "-r, --repair");
         printf("  %-20s\tDisplay this output.\n", "-h, --help");
-        printf("\nIf you find any issue, create a github issue at <https://github.com/tanvir-techbro/PiNum-Lang>\n");
+        printf("\nIf you find any issue, create a github issue at <https://github.com/pinum-project/PiNum-Lang>\n");
 }
 
 // handle the flags '--version' and '-v'
@@ -249,7 +249,7 @@ static void check_hash() {
 
         // hash url
         char hash_url[1024] = {0};
-        snprintf(hash_url, sizeof(hash_url), "https://github.com/tanvir-techbro/PiNum-Lang/releases/download/v%s/install.sh.sha256", g_latest_version);
+        snprintf(hash_url, sizeof(hash_url), "https://github.com/pinum-project/PiNum-Lang/releases/download/v%s/install.sh.sha256", g_latest_version);
 
         // downloading install.sh.sha256 into the hash_path
         printf("Downloading checksum file (install.sh.sha256)...\n");
