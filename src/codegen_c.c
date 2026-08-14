@@ -431,6 +431,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 
 // --- MAIN ---
 void codegen_c(ASTnode *program, FILE *output) {
+#ifndef __wasm__
         char *home_dir = getenv("HOME");
         char path[1024];
         snprintf(path, sizeof(path), "%s/.pinum-lang/runtime/pinum_runtime.h", home_dir);
@@ -441,6 +442,9 @@ void codegen_c(ASTnode *program, FILE *output) {
         }
 
         fprintf(output, "#include \"%s/.pinum-lang/runtime/pinum_runtime.h\"\n", home_dir);
+#else
+        fprintf(output, "#include \"pinum_runtime.h\"\n");
+#endif
         fprintf(output, "int main(void) {\n");
         for (int i = 0; i < program->data.program.count; i++) {
                 codegen_node(program->data.program.statements[i], output, 1);

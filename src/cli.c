@@ -30,11 +30,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#ifndef __wasm__
 #include <sys/wait.h>
 #include <unistd.h>
+#endif
 
 // the parameter 'binary' is the command to execute (searched in $PATH).
 // 'dir' is the working directory the command should run in (NULL = inherit current).
+#ifndef __wasm__
 int run_cmd(const char *dir, const char *binary, char *const args[]) {
         // fork the process
         pid_t pid = fork();
@@ -63,6 +66,7 @@ int run_cmd(const char *dir, const char *binary, char *const args[]) {
         // fork entirely failed
         return -1;
 }
+#endif
 
 // --- FLAG PARSING ---
 void cli_parse(int argc, char *argv[], cli_options *opts) {
@@ -163,6 +167,7 @@ void cli_print_version() {
 }
 
 // --- Updating pipeline ---
+#ifndef __wasm__
 static char g_latest_version[64] = {0};
 // returns 1 if an update is available, 0 if up to date; exits on failure.
 static int check_update() {
@@ -322,3 +327,4 @@ int cli_repair(void) {
 
         return result == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+#endif

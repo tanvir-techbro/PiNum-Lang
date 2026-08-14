@@ -88,6 +88,54 @@ bool hashmap_empty(HashMap *map) {
         return false;
 }
 
+// --- element access / lookup ---
+bool hashmap_insert(HashMap *map, void *key, void *value) {
+        size_t hash = map->hash(key);
+        size_t idx = hash & (map->capacity - 1); // power-of-two trick
+
+        // walk the chain with eq_fn
+        // check if the key already exists
+        for (HMNode *n = map->buckets[idx]; n; n = n->next) {
+                if (map->eq(key, n->key)) {
+                        return false;
+                }
+        }
+        // create new storage slot
+        HMNode *node = malloc(sizeof(HMNode));
+        if (node == NULL) {
+                return false;
+        }
+        node->key = key;
+        node->value = value;
+        node->hash = hash;
+        node->next = map->buckets[idx];
+        map->buckets[idx] = node;
+        map->size++;
+        return true;
+}
+bool hashmap_put(HashMap *map, void *key, void *value) {
+        size_t hash = map->hash(key);
+        size_t idx = hash & (map->capacity - 1);
+
+        for (HMNode *n = map->buckets[idx]; n; n = n->next) {
+                if (map->eq(key, n->key)) {
+                        if (map->value_free) map->value_free(n->value);
+                        n->value = value; // overwrite, size unchanged
+                        return true;
+                }
+        }
+        // not found → insert new node (same as insert)
+        HMNode *node = malloc(sizeof(HMNode));
+        if (node == NULL) return false;
+        node->key = key;
+        node->value = value;
+        node->hash = hash;
+        node->next = map->buckets[idx];
+        map->buckets[idx] = node;
+        map->size++;
+        return true;
+}
+
 // --- built in hash/eq helpers ---
 // hm_hash_fn
 size_t hm_hash_str(const void *key) {

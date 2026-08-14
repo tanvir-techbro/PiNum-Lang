@@ -31,6 +31,7 @@ hashmap_plan.md
 payload/*
 a.out
 a.out.c
+pinum.wasm
 
 # dont ignore
 !bin/.gitkeep

@@ -67,10 +67,20 @@ int main(int argc, char *argv[]) {
                 return EXIT_SUCCESS;
         case CLI_ACTION_UPDATE:
                 // the update flag handles its own output and messaging
+#ifndef __wasm__
                 return cli_update();
+#else
+                fprintf(stderr, "Updating is not supported in the web version.\n");
+                return EXIT_FAILURE;
+#endif
         case CLI_ACTION_REPAIR:
                 // reinstalls the missing .pinum-lang directory
+#ifndef __wasm__
                 return cli_repair();
+#else
+                fprintf(stderr, "Repairing is not supported in the web version.\n");
+                return EXIT_FAILURE;
+#endif
         case CLI_ACTION_RUN:
                 break; // fall through to the pipeline
         }
@@ -224,6 +234,7 @@ static void compile_to(const char *compiler, const char *c_path, const char *bin
                 pinum_error(STAGE_CODEGEN, ERR_NO_COMPILER, NULL);
         }
 
+#ifndef __wasm__
         char *args[5];
         args[0] = (char *)compiler;
         if (bin_path) {
@@ -238,4 +249,8 @@ static void compile_to(const char *compiler, const char *c_path, const char *bin
         if (run_cmd(NULL, compiler, args) != 0) {
                 pinum_error(STAGE_CODEGEN, ERR_COMPILE_FAILED, c_path);
         }
+#else
+        fprintf(stderr, "Compiling to a native binary is not supported in the web version.\n");
+        pinum_error(STAGE_CODEGEN, ERR_COMPILE_FAILED, c_path);
+#endif
 }
