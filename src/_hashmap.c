@@ -149,7 +149,36 @@ void *hashmap_get(HashMap *map, const void *key, bool *found) {
         return NULL;
 }
 bool hashmap_contains(HashMap *map, const void *key) {
-        //
+        size_t hash = map->hash(key);
+        size_t idx = hash & (map->capacity - 1);
+
+        for (HMNode *n = map->buckets[idx]; n; n = n->next) {
+                if (map->eq(key, n->key)) {
+                        return true;
+                }
+        }
+        return false;
+}
+bool hashmap_erase(HashMap *map, const void *key) {
+        size_t hash = map->hash(key);
+        size_t idx = hash & (map->capacity - 1);
+
+        // crnt points at the "link" that owns the current node:
+        // the bucket head, or the previous node's ->next
+        HMNode **crnt = &map->buckets[idx];
+        while (*crnt) {
+                HMNode *n = *crnt;
+                if (map->eq(key, n->key)) {
+                        *crnt = n->next; // unlink
+                        if (map->key_free) map->key_free(n->key);
+                        if (map->value_free) map->value_free(n->value);
+                        free(n);
+                        map->size--;
+                        return true;
+                }
+                crnt = &n->next; // just advance the link not the node
+        }
+        return false;
 }
 
 // --- built in hash/eq helpers ---
