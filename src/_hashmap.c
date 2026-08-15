@@ -23,7 +23,6 @@
 
 // NOTE: Hashng algorithm used FNV-1a
 #include "../include/_hashmap.h"
-#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -180,6 +179,57 @@ bool hashmap_erase(HashMap *map, const void *key) {
                 crnt = &n->next; // just advance the link not the node
         }
         return false;
+}
+
+// --- iteration ---
+HashMapIter hashmap_begin(HashMap *map) {
+        HashMapIter it = {.map = map, .bucket_idx = 0, .node = NULL};
+        for (size_t i = 0; i < map->capacity; i++) {
+                if (map->buckets[i]) {
+                        it.bucket_idx = i;
+                        it.node = map->buckets[i];
+                        break;
+                }
+        }
+        return it;
+}
+bool hashmap_iter_valid(HashMapIter *it) {
+        return it->node != NULL;
+}
+void hashmap_iter_next(HashMapIter *it) {
+        if (it->node) {
+                it->node = it->node->next;
+        }
+        while (!it->node && it->bucket_idx + 1 < it->map->capacity) {
+                it->bucket_idx++;
+                it->node = it->map->buckets[it->bucket_idx];
+        }
+}
+void *hashmap_iter_key(HashMapIter *it) {
+        return it->node ? it->node->key : NULL;
+}
+void *hashmap_iter_value(HashMapIter *it) {
+        return it->node ? it->node->value : NULL;
+}
+HashMapIter hashmap_erase_iter(HashMapIter *it) {
+        HMNode **crnt = &it->map->buckets[it->bucket_idx];
+        while (*crnt && *crnt != it->node) {
+                crnt = &(*crnt)->next;
+        }
+        if (!*crnt) {
+                return *it; // node already gone leave iterator as is
+        }
+
+        HMNode *next = (*crnt)->next;
+        if (it->map->key_free) it->map->key_free((*crnt)->key);
+        if (it->map->value_free) it->map->value_free((*crnt)->value);
+        free(*crnt);
+        *crnt = next; // unlink
+        it->map->size--;
+
+        it->node = next;       // try to continue in this chain
+        hashmap_iter_next(it); // skips empties; sets node=NULL at end
+        return *it;
 }
 
 // --- bucket interface ---

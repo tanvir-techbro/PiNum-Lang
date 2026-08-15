@@ -44,11 +44,11 @@ typedef struct {
         HMNode **buckets;
         size_t capacity;
         size_t size;
-        float max_load_factor; // size devided by capacity. default 1.0
         hm_hash_fn hash;
         hm_eq_fn eq;
         hm_free_fn key_free;
         hm_free_fn value_free;
+        float max_load_factor; // size devided by capacity. default 1.0
 } HashMap;
 
 typedef struct {
