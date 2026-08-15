@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report a bug! Before submitting:
-        - Search [existing issues](https://github.com/tanvir-techbro/PiNum-Lang/issues) to avoid duplicates.
+        - Search [existing issues](https://github.com/pinum-project/PiNum-Lang/issues) to avoid duplicates.
         - Make sure you are on the latest release or the `development` branch.
 
   - type: textarea

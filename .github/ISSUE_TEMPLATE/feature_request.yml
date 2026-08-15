@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for proposing a feature! Before submitting:
-        - Search [existing issues](https://github.com/tanvir-techbro/PiNum-Lang/issues) and the [README](https://github.com/tanvir-techbro/PiNum-Lang) to see if it's already planned.
+        - Search [existing issues](https://github.com/pinum-project/PiNum-Lang/issues) and the [README](https://github.com/pinum-project/PiNum-Lang) to see if it's already planned.
         - Check the "Development Status" section in the README for work in progress.
 
   - type: textarea

@@ -19,7 +19,7 @@
 #  EXPRESS OR IMPLIED.                                             #
 #                                                                  #
 #  If you find any bug you would be highly encouraged to create a  #
-#  github issue at <https://github.com/pinum-project/PiNum-Lang>  #
+#  github issue at <https://github.com/pinum-project/PiNum-Lang>   #
 #  or contact <surjointelligence.team@gmail.com>                   #
 #******************************************************************#
 
