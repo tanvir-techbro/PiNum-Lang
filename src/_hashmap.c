@@ -23,6 +23,7 @@
 
 // NOTE: Hashng algorithm used FNV-1a
 #include "../include/_hashmap.h"
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -179,6 +180,68 @@ bool hashmap_erase(HashMap *map, const void *key) {
                 crnt = &n->next; // just advance the link not the node
         }
         return false;
+}
+
+// --- bucket interface ---
+size_t hashmap_bucket_count(HashMap *map) {
+        return map->capacity;
+}
+size_t hashmap_bucket_size(HashMap *map, size_t bucket_idx) {
+        if (bucket_idx >= map->capacity) {
+                return 0;
+        }
+        size_t count = 0;
+        for (HMNode *n = map->buckets[bucket_idx]; n; n = n->next) {
+                count++;
+        }
+        return count;
+}
+float hashmap_load_factor(HashMap *map) {
+        float lodfac = (float)map->size / map->capacity;
+        return lodfac;
+}
+float hashmap_max_load_factor(HashMap *map) {
+        return map->max_load_factor;
+}
+void hashmap_set_max_load_factor(HashMap *map, float lodfac) {
+        if (lodfac <= 0.0f) {
+                return;
+        }
+        map->max_load_factor = lodfac;
+}
+void hashmap_rehash(HashMap *map, size_t new_bucket_count) {
+        // round up to power of two
+        size_t cap = 1;
+        while (cap < new_bucket_count) {
+                cap <<= 1;
+        }
+
+        // new array
+        HMNode **new_buckets = calloc(cap, sizeof(HMNode *));
+        if (!new_buckets) return;
+        // reinsert every node using stored hash
+        for (size_t i = 0; i < map->capacity; i++) {
+                HMNode *n = map->buckets[i];
+                while (n) {
+                        HMNode *next = n->next;
+                        size_t idx = n->hash & (cap - 1);
+                        n->next = new_buckets[idx];
+                        new_buckets[idx] = n;
+                        n = next;
+                }
+        }
+        // swap arrays
+        free(map->buckets);
+        map->buckets = new_buckets;
+        map->capacity = cap;
+}
+void hashmap_reserve(HashMap *map, size_t element_count) {
+        float needed = (float)element_count / map->max_load_factor;
+        size_t cap = (size_t)needed;
+        if ((float)cap < needed) cap++; // round up for fractional part
+        if (cap > map->capacity) {
+                hashmap_rehash(map, cap);
+        }
 }
 
 // --- built in hash/eq helpers ---
