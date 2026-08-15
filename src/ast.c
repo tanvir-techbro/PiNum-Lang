@@ -427,6 +427,7 @@ void free_ast_node(ASTnode *node) {
         }
 
         // Finally, free the node container itself.
+        free(node->resolved_type);
         free(node);
 }
 

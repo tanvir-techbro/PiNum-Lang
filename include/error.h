@@ -33,9 +33,10 @@
  * @brief Identifies which part of the pipeline reported a message.
  */
 typedef enum {
-        STAGE_LEXER,   // Lexer / tokenizer
-        STAGE_PARSER,  // Parser / syntax analysis
-        STAGE_CODEGEN, // Code generator
+        STAGE_LEXER,    // Lexer / tokenizer
+        STAGE_PARSER,   // Parser / syntax analysis
+        STAGE_SEMANTIC, // Semantic analysis
+        STAGE_CODEGEN,  // Code generator
         STAGE_UPDATER, // Self-update pipeline
         STAGE_FILE,    // File / CLI handling
         STAGE_INTERNAL // Internal errors (allocation, etc.)
@@ -56,6 +57,10 @@ typedef enum {
         ERR_INVALID_CALL_TARGET,      // tried to call a non-function
         ERR_INVALID_ASSIGN_TARGET,    // invalid assignment target
         ERR_MISSING_END_OF_STATEMENT, // expected ';' or newline
+
+        // Semantic analysis errors
+        ERR_UNDECLARED_VARIABLE,  // used a variable that was never declared
+        ERR_REDECLARED_VARIABLE,  // declared a variable already in scope
 
         // File / CLI errors
         ERR_NO_INPUT_FILE,     // no input file provided

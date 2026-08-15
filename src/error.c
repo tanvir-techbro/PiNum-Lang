@@ -44,6 +44,8 @@ static const char *stage_name(ErrorStage stage) {
                 return "lexer";
         case STAGE_PARSER:
                 return "parser";
+        case STAGE_SEMANTIC:
+                return "semantic";
         case STAGE_CODEGEN:
                 return "codegen";
         case STAGE_UPDATER:
@@ -144,6 +146,12 @@ static void print_error_message(ErrorStage stage, ErrorCode code, int line, int 
                 break;
         case ERR_MISSING_END_OF_STATEMENT:
                 fprintf(stderr, "expected ';' or newline after statement, found '%s'", d);
+                break;
+        case ERR_UNDECLARED_VARIABLE:
+                fprintf(stderr, "use of undeclared variable '%s'", d);
+                break;
+        case ERR_REDECLARED_VARIABLE:
+                fprintf(stderr, "variable '%s' already declared in this scope", d);
                 break;
         case ERR_NO_INPUT_FILE:
                 fprintf(stderr, "no input file provided");

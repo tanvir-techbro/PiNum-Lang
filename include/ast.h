@@ -87,7 +87,8 @@ typedef struct ASTnode ASTnode;
  * using a single, unified type.
  */
 struct ASTnode {
-        nodeType type; // What kind of node this is.
+        nodeType type;       // What kind of node this is.
+        char *resolved_type; // Set by semantic analysis; e.g. "int", "char *", "long int". NULL if not yet analyzed.
 
         union {
                 // NODE_PROGRAM: The top-level entry point.
