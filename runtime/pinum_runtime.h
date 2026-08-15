@@ -48,6 +48,13 @@
  * @example `char c = ' '; print(c * 5)` will repeat c five times
  * */
 static inline char *__pinum_repeat_char__(char c, int count) {
+        // return empty if char is empty or count <= 0
+        if (!c || count <= 0) {
+                char *empty = (char *)malloc(1);
+                if (empty) empty[0] = '\0';
+                return empty;
+        }
+
         char *out = (char *)malloc((size_t)count + 1);
         for (int i = 0; i < count; i++) {
                 out[i] = c;

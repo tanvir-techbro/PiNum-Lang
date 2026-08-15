@@ -135,6 +135,9 @@ bool hashmap_put(HashMap *map, void *key, void *value) {
         map->size++;
         return true;
 }
+void *hashmap_get(HashMap *map, const void *key, bool *found) {
+        //
+}
 
 // --- built in hash/eq helpers ---
 // hm_hash_fn

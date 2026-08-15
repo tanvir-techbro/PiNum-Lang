@@ -133,7 +133,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 # deleting the temporary build folder
-rm -rf src include example .github payload test bin .gitignore .clang-format Makefile CONTRIBUTING.md install.sh runtime/.gitkeep
+rm -rf src include example .github payload test bin .gitignore .clang-format Makefile CONTRIBUTING.md install.sh runtime/.gitkeep lib/.gitkeep
 
 echo ""
 echo "----------------------------------"
