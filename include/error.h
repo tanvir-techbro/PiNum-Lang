@@ -37,9 +37,9 @@ typedef enum {
         STAGE_PARSER,   // Parser / syntax analysis
         STAGE_SEMANTIC, // Semantic analysis
         STAGE_CODEGEN,  // Code generator
-        STAGE_UPDATER, // Self-update pipeline
-        STAGE_FILE,    // File / CLI handling
-        STAGE_INTERNAL // Internal errors (allocation, etc.)
+        STAGE_UPDATER,  // Self-update pipeline
+        STAGE_FILE,     // File / CLI handling
+        STAGE_INTERNAL  // Internal errors (allocation, etc.)
 } ErrorStage;
 
 /*
@@ -59,8 +59,8 @@ typedef enum {
         ERR_MISSING_END_OF_STATEMENT, // expected ';' or newline
 
         // Semantic analysis errors
-        ERR_UNDECLARED_VARIABLE,  // used a variable that was never declared
-        ERR_REDECLARED_VARIABLE,  // declared a variable already in scope
+        ERR_UNDECLARED_VAR, // used a variable that was never declared
+        ERR_REDECLARED_VAR, // declared a variable already in scope
 
         // File / CLI errors
         ERR_NO_INPUT_FILE,     // no input file provided

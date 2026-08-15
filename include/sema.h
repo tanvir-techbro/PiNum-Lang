@@ -24,4 +24,17 @@
 #ifndef SEMA_H
 #define SEMA_H
 
+#include "_hashmap.h"
+#include "ast.h"
+#include <stddef.h>
+
+typedef struct {
+        HashMap **frames;      // stack of symbol tables
+        size_t frame_count;    // number of scopes currently open
+        size_t frame_capacity; // allocated slots
+} SemAnalyzer;
+
+// entry point
+void semantic_analyze(ASTnode *program);
+
 #endif // !SEMA_H

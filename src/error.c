@@ -147,10 +147,10 @@ static void print_error_message(ErrorStage stage, ErrorCode code, int line, int 
         case ERR_MISSING_END_OF_STATEMENT:
                 fprintf(stderr, "expected ';' or newline after statement, found '%s'", d);
                 break;
-        case ERR_UNDECLARED_VARIABLE:
+        case ERR_UNDECLARED_VAR:
                 fprintf(stderr, "use of undeclared variable '%s'", d);
                 break;
-        case ERR_REDECLARED_VARIABLE:
+        case ERR_REDECLARED_VAR:
                 fprintf(stderr, "variable '%s' already declared in this scope", d);
                 break;
         case ERR_NO_INPUT_FILE:
