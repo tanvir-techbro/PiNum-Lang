@@ -136,6 +136,19 @@ bool hashmap_put(HashMap *map, void *key, void *value) {
         return true;
 }
 void *hashmap_get(HashMap *map, const void *key, bool *found) {
+        size_t hash = map->hash(key);
+        size_t idx = hash & (map->capacity - 1); // power-of-two trick
+
+        for (HMNode *n = map->buckets[idx]; n; n = n->next) {
+                if (map->eq(key, n->key)) {
+                        *found = true;
+                        return n->value;
+                }
+        }
+        *found = false;
+        return NULL;
+}
+bool hashmap_contains(HashMap *map, const void *key) {
         //
 }
 

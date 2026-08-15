@@ -236,6 +236,7 @@ static void check_hash() {
         char *curl_installer_args[] = {
             "curl",
             "-sSL",
+            "--fail",
             script_url,
             "-o",
             installer_path,
@@ -256,6 +257,7 @@ static void check_hash() {
         char *curl_hash_args[] = {
             "curl",
             "-sSL",
+            "--fail",
             hash_url,
             "-o",
             hash_path,
@@ -311,6 +313,8 @@ int cli_update() {
 
 // handle flags '--repair'/-r
 int cli_repair(void) {
+        // fetch the latest version first so check_hash() builds valid download URLs
+        check_update();
         // downloads and verifies the installer; exits on any failure
         check_hash();
 
