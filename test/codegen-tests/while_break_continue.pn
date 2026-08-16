@@ -1,4 +1,4 @@
-# Codegen Test 4: While, break, continue
+# Codegen: while, break, continue
 int i = 0;
 while (i < 10) {
         i = i + 1;

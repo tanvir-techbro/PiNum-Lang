@@ -1,0 +1,10 @@
+# Semantic invalid: undeclared variable inside a function body
+int inverse(int n) {
+        if (n == 0) {
+                return 0
+        }
+        print(hidden, "\n")
+        return 100 / n
+}
+int x = inverse(2)
+print(x, "\n")

@@ -1,4 +1,4 @@
-# Parser Test 3: Loops
+# Parser: loops
 int count = 0;
 while (count < 5) {
         count = count + 1;

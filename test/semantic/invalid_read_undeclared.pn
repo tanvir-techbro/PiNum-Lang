@@ -1,0 +1,5 @@
+# Semantic invalid: read() into an undeclared variable
+int a = 1
+read(a)
+read(missing)
+print(a, "\n")

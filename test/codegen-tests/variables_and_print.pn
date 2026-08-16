@@ -1,4 +1,4 @@
-# Codegen Test 1: Variables and print
+# Codegen: variables and print
 int count = 10;
 float ratio = 3.5;
 double pi = 3.14159;

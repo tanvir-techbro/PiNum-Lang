@@ -1,4 +1,4 @@
-# Parser Test 2: Control flow (if-else)
+# Parser: control flow (if-else)
 int x = 10;
 if (x > 10) {
         print("Greater\n");

@@ -1,4 +1,4 @@
-# AST Test 1: Expressions and precedence
+# AST: expressions and precedence
 int a = 10;
 int b = 3;
 int c = 4;

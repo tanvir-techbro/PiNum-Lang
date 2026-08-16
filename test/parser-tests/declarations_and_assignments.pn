@@ -1,4 +1,4 @@
-# Parser Test 1: Declarations and assignments
+# Parser: declarations and assignments
 int a;
 int b = 10;
 string name = "PiNum";

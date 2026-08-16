@@ -1,4 +1,4 @@
-# Lexer Test 2: Comments and directives
+# Lexer: comments and directives
 # this is a single line comment
 @import stdlib
 int a = 10;

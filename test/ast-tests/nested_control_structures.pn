@@ -1,4 +1,4 @@
-# AST Test 2: Nested control structures
+# AST: nested control structures
 int outer = 5;
 int inner = 3;
 if (outer > 0) {

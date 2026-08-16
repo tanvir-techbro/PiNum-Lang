@@ -1,4 +1,4 @@
-# Codegen Test 3: If / else / else if
+# Codegen: if / else / else if
 int a = 10;
 int b = 3;
 if (a > b) {

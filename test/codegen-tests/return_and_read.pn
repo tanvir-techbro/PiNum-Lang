@@ -1,4 +1,4 @@
-# Codegen Test 5: Return and read
+# Codegen: return and read
 int i = 0;
 while (i < 5) {
         print(i, "\n");

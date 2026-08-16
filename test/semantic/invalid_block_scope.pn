@@ -1,0 +1,7 @@
+# Semantic invalid: undeclared variable inside a block scope
+int a = 1
+if (a > 0) {
+        print(a, "\n")
+        print(b, "\n")
+}
+print(a, "\n")

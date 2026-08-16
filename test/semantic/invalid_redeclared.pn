@@ -1,0 +1,4 @@
+# Semantic invalid: redeclaring a variable in the same scope
+int x = 5
+int x = 10
+print(x, "\n")

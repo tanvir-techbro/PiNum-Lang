@@ -1,4 +1,4 @@
-# Lexer Test 1: Basic tokens and literals
+# Lexer: basic tokens and literals
 int my_val = 42;
 float f = 3.14159;
 double d = 2.718;

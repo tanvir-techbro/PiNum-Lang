@@ -46,7 +46,8 @@ if [ ! -f "bin/pinum" ]; then
 fi
 
 # --- Core Testing Function ---
-# logic: iterates through all .pn files in a directory and executes bin/pinum on them
+# logic: iterates through all .pn files in a directory, executes bin/pinum on
+# them and asserts the compiler exits cleanly (PASS) or not (FAIL).
 # Arguments:
 #   $1: Directory containing test files
 #   $2: Valgrind flag ('y' to enable)
@@ -78,11 +79,83 @@ run_tests() {
 
                 if [ "$use_valgrind" = "y" ]; then
                         # Run with Valgrind to check for memory leaks/errors
-                        valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum --debug-all "$file"
+                        valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum --debug-all "$file" >/dev/null 2>&1
                 else
                         # Normal execution
-                        ./bin/pinum --debug-all "$file"
+                        ./bin/pinum --debug-all "$file" >/dev/null 2>&1
                 fi
+                exit_code=$?
+
+                if [ "$exit_code" -eq 0 ]; then
+                        echo -e "${GREEN}Result: PASS${NC}"
+                else
+                        echo -e "${RED}Result: FAIL (compiler exited with $exit_code)${NC}"
+                fi
+                echo -e "${CYAN}----------------------------------------------------${NC}"
+                echo ""
+        done
+}
+
+# --- Semantic Testing Function ---
+# runs each .pn file and checks the exit code: files prefixed with
+# "valid_" must compile (exit 0), files prefixed with "invalid_" must be
+# rejected by semantic analysis (non-zero exit).
+# Arguments:
+#   $1: Directory containing semantic test files
+#   $2: Valgrind flag ('y' to enable)
+run_semantic_tests() {
+        local dir=$1
+        local use_valgrind=$2
+
+        if [ ! -d "$dir" ]; then
+                echo -e "${RED}Directory $dir does not exist.${NC}"
+                return
+        fi
+
+        files=$(ls "$dir"/*.pn 2>/dev/null)
+        if [ -z "$files" ]; then
+                echo -e "${YELLOW}No tests found in $dir.${NC}"
+                return
+        fi
+
+        echo -e "${CYAN}--- Running Semantic Tests ---${NC}"
+
+        for file in $files; do
+                test_name=$(basename "$file")
+                expect_fail=0
+                case "$test_name" in
+                invalid_*) expect_fail=1 ;;
+                esac
+
+                echo -e "${GREEN}Testing: $test_name${NC}"
+                if [ "$use_valgrind" = "y" ]; then
+                        echo "42" | valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum -oc "$file.tmp.out" "$file" >/dev/null 2>&1
+                else
+                        echo "42" | ./bin/pinum -oc "$file.tmp.out" "$file" >/dev/null 2>&1
+                fi
+                exit_code=$?
+
+                if [ "$expect_fail" -eq 1 ] && [ "$exit_code" -ne 0 ]; then
+                        echo -e "${GREEN}Result: PASS (correctly rejected, exit $exit_code)${NC}"
+                elif [ "$expect_fail" -eq 0 ] && [ "$exit_code" -eq 0 ]; then
+                        # valid files are full programs: compile+run to confirm they execute
+                        if [ -f "$file.tmp.out" ]; then
+                                echo "42" | "$file.tmp.out" >/dev/null 2>&1
+                                if [ $? -eq 0 ]; then
+                                        echo -e "${GREEN}Result: PASS (compiled and ran)${NC}"
+                                else
+                                        echo -e "${RED}Result: FAIL (compiled but did not run cleanly)${NC}"
+                                fi
+                        else
+                                echo -e "${RED}Result: FAIL (did not produce an executable)${NC}"
+                        fi
+                elif [ "$expect_fail" -eq 1 ] && [ "$exit_code" -eq 0 ]; then
+                        echo -e "${RED}Result: FAIL (invalid file was accepted)${NC}"
+                else
+                        echo -e "${RED}Result: FAIL (valid file was rejected, exit $exit_code)${NC}"
+                fi
+
+                rm -f "$file.tmp.out" "$file.tmp.out.c"
                 echo -e "${CYAN}----------------------------------------------------${NC}"
                 echo ""
         done
@@ -170,19 +243,20 @@ echo "2) Lexer tests"
 echo "3) AST tests"
 echo "4) Parser tests"
 echo "5) Codegen tests"
-echo "6) Exit"
+echo "6) Semantic tests"
+echo "7) Exit"
 echo ""
 
-read -p "Enter your choice [1-6]: " choice
+read -p "Enter your choice [1-7]: " choice
 
 # Handle Exit choice
-if [ "$choice" -eq 6 ]; then
+if [ "$choice" -eq 7 ]; then
         echo "Exiting."
         exit 0
 fi
 
 # Input validation for menu choice
-if [[ ! "$choice" =~ ^[1-5]$ ]]; then
+if [[ ! "$choice" =~ ^[1-6]$ ]]; then
         echo -e "${RED}Invalid choice. Exiting.${NC}"
         exit 1
 fi
@@ -210,6 +284,7 @@ case $choice in
         run_tests "test/ast-tests" "$valgrind_choice" "AST"
         run_tests "test/parser-tests" "$valgrind_choice" "Parser"
         run_codegen_tests "test/codegen-tests" "$valgrind_choice"
+        run_semantic_tests "test/semantic" "$valgrind_choice"
         ;;
 2)
         run_tests "test/lexer-tests" "$valgrind_choice" "Lexer"
@@ -222,6 +297,9 @@ case $choice in
         ;;
 5)
         run_codegen_tests "test/codegen-tests" "$valgrind_choice"
+        ;;
+6)
+        run_semantic_tests "test/semantic" "$valgrind_choice"
         ;;
 esac
 

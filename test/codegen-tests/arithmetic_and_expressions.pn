@@ -1,10 +1,12 @@
-# Lexer Test 3: Operators and strings with digits
+# Codegen: arithmetic and expressions
 int a = 10;
 int b = 3;
+int c = 4;
 print(a + b, "\n");
 print(a - b, "\n");
 print(a * b, "\n");
 print(a / b, "\n");
 print(a % b, "\n");
-print("version 2.0.1\n");
-print("year 2026\n");
+print((a + b) * c, "\n");
+int max = a > b ? a : b;
+print(max, "\n");

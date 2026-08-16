@@ -1,4 +1,4 @@
-# AST Test 3: Blocks and statements
+# AST: blocks and statements
 int a = 5;
 int i = 0;
 while (i < 3) {
