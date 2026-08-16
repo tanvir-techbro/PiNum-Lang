@@ -111,6 +111,10 @@ bool hashmap_insert(HashMap *map, void *key, void *value) {
         node->next = map->buckets[idx];
         map->buckets[idx] = node;
         map->size++;
+
+        if (hashmap_load_factor(map) > map->max_load_factor) {
+                hashmap_rehash(map, map->capacity * 2);
+        }
         return true;
 }
 bool hashmap_put(HashMap *map, void *key, void *value) {
@@ -120,6 +124,9 @@ bool hashmap_put(HashMap *map, void *key, void *value) {
         for (HMNode *n = map->buckets[idx]; n; n = n->next) {
                 if (map->eq(key, n->key)) {
                         if (map->value_free) map->value_free(n->value);
+                        // caller's new key is redundant now that we keep the old one -- free it
+                        // so it isn't silently leaked (map owns keys passed to put()).
+                        if (map->key_free) map->key_free(key);
                         n->value = value; // overwrite, size unchanged
                         return true;
                 }
@@ -133,6 +140,10 @@ bool hashmap_put(HashMap *map, void *key, void *value) {
         node->next = map->buckets[idx];
         map->buckets[idx] = node;
         map->size++;
+
+        if (hashmap_load_factor(map) > map->max_load_factor) {
+                hashmap_rehash(map, map->capacity * 2);
+        }
         return true;
 }
 void *hashmap_get(HashMap *map, const void *key, bool *found) {
@@ -227,8 +238,18 @@ HashMapIter hashmap_erase_iter(HashMapIter *it) {
         *crnt = next; // unlink
         it->map->size--;
 
-        it->node = next;       // try to continue in this chain
-        hashmap_iter_next(it); // skips empties; sets node=NULL at end
+        // `next` (if non-NULL) is already the correct node to visit next --
+        // do NOT call hashmap_iter_next() here, it would step past it via ->next
+        // and skip an element. Only search forward through buckets if the
+        // chain ended.
+        it->node = next;
+        if (!it->node) {
+                while (it->bucket_idx + 1 < it->map->capacity) {
+                        it->bucket_idx++;
+                        it->node = it->map->buckets[it->bucket_idx];
+                        if (it->node) break;
+                }
+        }
         return *it;
 }
 
