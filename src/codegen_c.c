@@ -29,39 +29,12 @@
 // function definitions
 static void codegen_node(ASTnode *node, FILE *output, int level);
 
-// for symbol table
-static const char **g_sym_names = NULL;
-static const char **g_sym_types = NULL;
-static int g_sym_count = 0;
-static int g_sym_capacity = 0;
-
-static void sym_register(const char *name, const char *type) {
-        // dynamic size allocation
-        if (g_sym_count >= g_sym_capacity) {
-                // first time assign the capacity to 16
-                g_sym_capacity = g_sym_capacity ? g_sym_capacity * 2 : 16;
-                g_sym_names = realloc(g_sym_names, g_sym_capacity * sizeof(char *));
-                g_sym_types = realloc(g_sym_types, g_sym_capacity * sizeof(char *));
-        }
-        g_sym_names[g_sym_count] = name;
-        g_sym_types[g_sym_count] = strdup(type); // ours to free, so local buffers are safe
-        g_sym_count++;
-}
-static const char *sym_type_of(const char *name) {
-        for (int i = 0; i < g_sym_count; i++) {
-                if (strcmp(g_sym_names[i], name) == 0) {
-                        return g_sym_types[i];
-                }
-        }
-        return NULL;
-}
-
 static bool is_char(ASTnode *node) {
         if (node->type == NODE_CHAR_LITERAL) {
                 return true;
         }
         if (node->type == NODE_IDENTIFIER) {
-                const char *type = sym_type_of(node->data.identifier.name);
+                const char *type = node->resolved_type;
                 return type && strcmp(type, "char") == 0;
         }
         return false;
@@ -72,7 +45,7 @@ static bool is_string(ASTnode *node) {
                 return true;
         }
         if (node->type == NODE_IDENTIFIER) {
-                const char *type = sym_type_of(node->data.identifier.name);
+                const char *type = node->resolved_type;
                 return type && strcmp(type, "char *") == 0;
         }
         // "a" + b + "c" parses as ("a" + b) + "c"; the left side of the
@@ -132,7 +105,7 @@ static const char *codegen_specifier(ASTnode *node) {
                 return "%d";
         }
         case NODE_IDENTIFIER: {
-                const char *type = sym_type_of(node->data.identifier.name);
+                const char *type = node->resolved_type;
                 return type ? specifier_for_type(type) : "%d";
         }
         default:
@@ -182,7 +155,6 @@ static void codegen_for_param(ASTnode *node, FILE *output, int level) {
                 } else {
                         snprintf(full_type, sizeof(full_type), "%s", base_type);
                 }
-                sym_register(node->data.var_decl.name, full_type);
                 // get the modifier
                 if (node->data.var_decl.modifiers) {
                         fprintf(output, "%s ", node->data.var_decl.modifiers);
@@ -316,7 +288,6 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 } else {
                         snprintf(full_type, sizeof(full_type), "%s", base_type);
                 }
-                sym_register(node->data.var_decl.name, full_type);
                 // get the modifier
                 if (node->data.var_decl.modifiers) {
                         fprintf(output, "%s ", node->data.var_decl.modifiers);
@@ -380,7 +351,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 fprintf(output, ";\n");
                 break;
         case NODE_READ: {
-                const char *type = sym_type_of(node->data.read.name);
+                const char *type = node->resolved_type;
                 if (type == NULL) {
                         // can't pick a format specifier without knowing the variable's type
                         fprintf(output, "// TODO: unknown type for read(%s)\n", node->data.read.name);
@@ -450,13 +421,4 @@ void codegen_c(ASTnode *program, FILE *output) {
                 codegen_node(program->data.program.statements[i], output, 1);
         }
         fprintf(output, "\nreturn 0;\n}\n");
-
-        // free the arrays and the type strings we allocated
-        for (int i = 0; i < g_sym_count; i++) {
-                free((void *)g_sym_types[i]);
-        }
-        free(g_sym_names);
-        free(g_sym_types);
-        g_sym_count = 0;
-        g_sym_capacity = 0;
 }

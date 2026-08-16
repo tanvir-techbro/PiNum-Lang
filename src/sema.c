@@ -199,6 +199,7 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                 if (!type) {
                         pinum_error_at(STAGE_SEMANTIC, ERR_UNDECLARED_VAR, node->line, node->col, node->data.read.name);
                 }
+                node->resolved_type = strdup(type);
                 break;
         }
         case NODE_BREAK: break;
