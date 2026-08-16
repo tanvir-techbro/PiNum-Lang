@@ -430,6 +430,7 @@ ASTnode *parse_call(Parser *parser) {
                         free_ast_node(node);
                         ASTnode *inc = make_binary_node(make_identifier_node(name), TOKEN_PLUS, make_int_node(1));
                         node = make_assign_node(name, inc);
+                        ast_set_loc(node, line, col);
                         free(name);
                 }
                 // postfix decrement
@@ -445,6 +446,7 @@ ASTnode *parse_call(Parser *parser) {
                         free_ast_node(node);
                         ASTnode *dec = make_binary_node(make_identifier_node(name), TOKEN_MINUS, make_int_node(1));
                         node = make_assign_node(name, dec);
+                        ast_set_loc(node, line, col);
                         free(name);
                 } else {
                         break;

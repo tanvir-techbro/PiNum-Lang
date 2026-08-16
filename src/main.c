@@ -28,6 +28,7 @@
 #include "../include/lexer.h"
 #include "../include/mode.h"
 #include "../include/parser.h"
+#include "../include/sema.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -145,6 +146,10 @@ int main(int argc, char *argv[]) {
                 // NOTE: this function call is for debugging purposes.
                 print_ast(ast, 0);
         }
+
+        // --- SEMANTIC ANALYSIS ---
+        // catches undeclared/redeclared variables before codegen
+        semantic_analyze(ast);
 
         // --- CODE GENERATION ---
         // decide where the generated C goes based on the output mode

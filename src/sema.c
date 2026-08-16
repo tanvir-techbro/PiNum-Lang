@@ -81,10 +81,165 @@ static char *sem_fulltype(const char *type_name, const char *modifiers) {
         return out;
 }
 
+// - Walker -
+static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
+        switch (node->type) {
+
+        // ---- Program & blocks ----
+        case NODE_PROGRAM:
+                sem_push_scope(a);
+                for (int i = 0; i < node->data.program.count; i++) {
+                        sem_analyze_node(a, node->data.program.statements[i]);
+                }
+                sem_pop_scope(a);
+                break;
+        case NODE_BLOCK:
+                sem_push_scope(a);
+                for (int i = 0; i < node->data.blocks.count; i++) {
+                        sem_analyze_node(a, node->data.blocks.statements[i]);
+                }
+                sem_pop_scope(a);
+                break;
+
+        // ---- Literals (nothing to check) ----
+        case NODE_INT_LITERAL: break;
+        case NODE_FLOAT_LITERAL: break;
+        case NODE_STRING_LITERAL: break;
+        case NODE_BOOL_LITERAL: break;
+        case NODE_CHAR_LITERAL: break;
+
+        // ---- Identifiers & element access ----
+        case NODE_IDENTIFIER: {
+                const char *type = sem_resolve(a, node->data.identifier.name);
+                if (!type) {
+                        pinum_error_at(STAGE_SEMANTIC, ERR_UNDECLARED_VAR, node->line, node->col, node->data.identifier.name);
+                }
+                node->resolved_type = strdup(type);
+                break;
+        }
+        case NODE_ARRAY_ACCESS: {
+                const char *type = sem_resolve(a, node->data.array_access.name);
+                if (!type) {
+                        pinum_error_at(STAGE_SEMANTIC, ERR_UNDECLARED_VAR, node->line, node->col, node->data.array_access.name);
+                }
+                node->resolved_type = strdup(type);
+                sem_analyze_node(a, node->data.array_access.index);
+                break;
+        }
+        case NODE_MEMBER_ACCESS:
+                sem_analyze_node(a, node->data.memeber_access.object);
+                break;
+
+        // ---- Expressions (binary / unary / ternary) ----
+        case NODE_BINARY_EXPRESSION:
+                sem_analyze_node(a, node->data.binary_expression.left);
+                sem_analyze_node(a, node->data.binary_expression.right);
+                break;
+        case NODE_UNARY_EXPRESSION:
+                sem_analyze_node(a, node->data.unary_expression.left);
+                break;
+        case NODE_TERNARY_EXPRESSION:
+                sem_analyze_node(a, node->data.ternary_expression.condition);
+                sem_analyze_node(a, node->data.ternary_expression.then_expr);
+                sem_analyze_node(a, node->data.ternary_expression.else_expr);
+                break;
+
+        // ---- Declarations & assignment ----
+        case NODE_VAR_DECL: {
+                char *type = sem_fulltype(node->data.var_decl.type_name, node->data.var_decl.modifiers);
+                sem_declare(a, node->data.var_decl.name, type, node->line, node->col);
+                free(type); // sem_declare strdup'd it so we can free this copy
+                if (node->data.var_decl.value) {
+                        sem_analyze_node(a, node->data.var_decl.value);
+                }
+                break;
+        }
+        case NODE_ASSIGN: {
+                const char *type = sem_resolve(a, node->data.assign.name);
+                if (!type) {
+                        pinum_error_at(STAGE_SEMANTIC, ERR_UNDECLARED_VAR, node->line, node->col, node->data.assign.name);
+                }
+                sem_analyze_node(a, node->data.assign.value);
+                break;
+        }
+
+        // ---- Statements (control flow) ----
+        case NODE_IF_STAT:
+                sem_analyze_node(a, node->data.if_stat.condition);
+                sem_analyze_node(a, node->data.if_stat.then_block);
+                if (node->data.if_stat.else_block) {
+                        sem_analyze_node(a, node->data.if_stat.else_block);
+                }
+                break;
+        case NODE_WHILE:
+                sem_analyze_node(a, node->data.while_loop.condition);
+                sem_analyze_node(a, node->data.while_loop.body);
+                break;
+        case NODE_FOR:
+                sem_push_scope(a);
+                if (node->data.for_loop.init) {
+                        sem_analyze_node(a, node->data.for_loop.init);
+                }
+                if (node->data.for_loop.condition) {
+                        sem_analyze_node(a, node->data.for_loop.condition);
+                }
+                if (node->data.for_loop.increment) {
+                        sem_analyze_node(a, node->data.for_loop.increment);
+                }
+                sem_analyze_node(a, node->data.for_loop.body);
+                sem_pop_scope(a);
+                break;
+        case NODE_RETURN:
+                if (node->data.returns.expression) {
+                        sem_analyze_node(a, node->data.returns.expression);
+                }
+                break;
+        case NODE_READ: {
+                const char *type = sem_resolve(a, node->data.read.name);
+                if (!type) {
+                        pinum_error_at(STAGE_SEMANTIC, ERR_UNDECLARED_VAR, node->line, node->col, node->data.read.name);
+                }
+                break;
+        }
+        case NODE_BREAK: break;
+        case NODE_CONTINUE: break;
+
+        // ---- Built-in statements ----
+        case NODE_PRINT:
+                for (int i = 0; i < node->data.print.arg_count; i++) {
+                        sem_analyze_node(a, node->data.print.args[i]);
+                }
+                break;
+
+        // ---- Functions ----
+        case NODE_FUNC_DEF:
+                sem_push_scope(a);
+                for (int i = 0; i < node->data.func_def.param_count; i++) {
+                        sem_analyze_node(a, node->data.func_def.params[i]);
+                }
+                if (node->data.func_def.body) {
+                        sem_analyze_node(a, node->data.func_def.body);
+                }
+                sem_pop_scope(a);
+                break;
+        case NODE_FUNC_CALL:
+                for (int i = 0; i < node->data.func_call.arg_count; i++) {
+                        sem_analyze_node(a, node->data.func_call.args[i]);
+                }
+                break;
+
+        // ---- Directives & other ----
+        case NODE_IMPORT: break;
+        case NODE_DIRECTIVE: break;
+
+        default:
+                break;
+        }
+}
+
 // --- MAIN ---
 void semantic_analyze(ASTnode *program) {
         SemAnalyzer a = {0};
-        sem_push_scope(&a);
-        sem_pop_scope(&a);
+        sem_analyze_node(&a, program);
         free(a.frames);
 }
