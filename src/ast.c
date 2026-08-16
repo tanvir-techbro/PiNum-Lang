@@ -238,6 +238,14 @@ ASTnode *make_read_node(char *name) {
         return node;
 }
 
+/*
+ * @brief sets the location for better error message
+ */
+void ast_set_loc(ASTnode *node, int line, int col) {
+        node->line = line;
+        node->col = col;
+}
+
 // --- Helper Functions for Collections ---
 /*
  * @brief Adds a statement to a program or block node.

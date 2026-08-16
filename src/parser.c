@@ -58,8 +58,10 @@ ASTnode *parse_statement(Parser *parser) {
                 return parse_declaration(parser);
         }
         if (match(parser, TOKEN_PRINT)) {
+                token print_token = parser->tokens->tokens[parser->current - 1];
                 consume(parser, TOKEN_LRPAREN, "'(' after print");
                 ASTnode *node = make_print_node();
+                ast_set_loc(node, print_token.line, print_token.col);
                 if (!check(parser, TOKEN_RRPAREN)) {
                         do {
                                 ast_add_print_arg(node, parse_expression(parser));
@@ -85,15 +87,22 @@ ASTnode *parse_statement(Parser *parser) {
                 return parse_return_statement(parser);
         }
         if (match(parser, TOKEN_BREAK)) {
+                token kw = parser->tokens->tokens[parser->current - 1];
                 consume_end_of_statement(parser);
-                return create_ast_node(NODE_BREAK);
+                ASTnode *node = create_ast_node(NODE_BREAK);
+                ast_set_loc(node, kw.line, kw.col);
+                return node;
         }
         if (match(parser, TOKEN_CONTINUE)) {
+                token kw = parser->tokens->tokens[parser->current - 1];
                 consume_end_of_statement(parser);
-                return create_ast_node(NODE_CONTINUE);
+                ASTnode *node = create_ast_node(NODE_CONTINUE);
+                ast_set_loc(node, kw.line, kw.col);
+                return node;
         }
         if (match(parser, TOKEN_ATSIGN)) {
                 // The lexer splits '@import' into TOKEN_ATSIGN and TOKEN_IMPORT
+                token atsign_tok = parser->tokens->tokens[parser->current - 1];
                 token name_token = advance(parser);
                 char *name = name_token.value;
                 char *value = NULL;
@@ -101,7 +110,9 @@ ASTnode *parse_statement(Parser *parser) {
                 if (check(parser, TOKEN_ID) || check(parser, TOKEN_LIB_STDLIB)) {
                         value = advance(parser).value;
                 }
-                return make_directive_node(name, value);
+                ASTnode *node = make_directive_node(name, value);
+                ast_set_loc(node, atsign_tok.line, atsign_tok.col);
+                return node;
         }
 
         // Skip newlines before statement
@@ -119,6 +130,7 @@ ASTnode *parse_statement(Parser *parser) {
         // TODO: add more statements to be parsed
 }
 ASTnode *parse_if_statement(Parser *parser) {
+        token kw = parser->tokens->tokens[parser->current - 1]; // 'if' keyword
         // Parsing the expresseion inside ( )
         consume(parser, TOKEN_LRPAREN, "'('");
         ASTnode *condition = parse_expression(parser);
@@ -135,19 +147,25 @@ ASTnode *parse_if_statement(Parser *parser) {
                 }
         }
 
-        return make_if_stat_node(condition, then_block, else_block);
+        ASTnode *node = make_if_stat_node(condition, then_block, else_block);
+        ast_set_loc(node, kw.line, kw.col);
+        return node;
 }
 ASTnode *parse_while_statement(Parser *parser) {
+        token kw = parser->tokens->tokens[parser->current - 1]; // 'while' keyword
         // parsing the expression inside ( )
         consume(parser, TOKEN_LRPAREN, "'('");
         ASTnode *condition = parse_expression(parser);
         consume(parser, TOKEN_RRPAREN, "')'");
         ASTnode *body = parse_block(parser);
 
-        return make_while_node(condition, body);
+        ASTnode *node = make_while_node(condition, body);
+        ast_set_loc(node, kw.line, kw.col);
+        return node;
 }
 // for(init; condition; inc) {body}
 ASTnode *parse_for_statement(Parser *parser) {
+        token kw = parser->tokens->tokens[parser->current - 1]; // 'for' keyword
         consume(parser, TOKEN_LRPAREN, "'('");
 
         // init
@@ -177,13 +195,17 @@ ASTnode *parse_for_statement(Parser *parser) {
         consume(parser, TOKEN_RRPAREN, "')'");
 
         ASTnode *body = parse_block(parser);
-        return make_for_node(init, condition, inc, body);
+        ASTnode *node = make_for_node(init, condition, inc, body);
+        ast_set_loc(node, kw.line, kw.col);
+        return node;
 }
 ASTnode *parse_return_statement(Parser *parser) {
+        token kw = parser->tokens->tokens[parser->current - 1]; // 'return' keyword
         ASTnode *expression = parse_expression(parser);
         consume_end_of_statement(parser);
         ASTnode *node = create_ast_node(NODE_RETURN);
         node->data.returns.expression = expression;
+        ast_set_loc(node, kw.line, kw.col);
         return node;
 }
 ASTnode *parse_read_statement(Parser *parser) {
@@ -191,7 +213,9 @@ ASTnode *parse_read_statement(Parser *parser) {
         token name_token = consume(parser, TOKEN_ID, "a variable name");
         consume(parser, TOKEN_RRPAREN, "')' after variable name");
         consume_end_of_statement(parser);
-        return make_read_node(name_token.value);
+        ASTnode *node = make_read_node(name_token.value);
+        ast_set_loc(node, name_token.line, name_token.col);
+        return node;
 }
 // verifies veriable modifier
 static bool is_valid_modifier(const char *modifier, const char *data_type) {
@@ -251,7 +275,9 @@ ASTnode *parse_declaration(Parser *parser) {
         // expecting for a semicolon at the end
         consume_end_of_statement(parser);
 
-        return make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
+        ASTnode *decl = make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
+        ast_set_loc(decl, name_token.line, name_token.col);
+        return decl;
 }
 ASTnode *parse_block(Parser *parser) {
         consume(parser, TOKEN_LCPAREN, "'{'");
@@ -280,19 +306,34 @@ ASTnode *parse_func_def_param(Parser *parser) {
 // Takes the parsed binary node and makes a specific node
 ASTnode *parse_primary(Parser *parser) {
         if (match(parser, TOKEN_INUM)) {
-                return make_int_node(parser->tokens->tokens[parser->current - 1].int_value);
+                token tok = parser->tokens->tokens[parser->current - 1];
+                ASTnode *node = make_int_node(tok.int_value);
+                ast_set_loc(node, tok.line, tok.col);
+                return node;
         }
         if (match(parser, TOKEN_FNUM)) {
-                return make_float_node(parser->tokens->tokens[parser->current - 1].float_value);
+                token tok = parser->tokens->tokens[parser->current - 1];
+                ASTnode *node = make_float_node(tok.float_value);
+                ast_set_loc(node, tok.line, tok.col);
+                return node;
         }
         if (match(parser, TOKEN_ID)) {
-                return make_identifier_node(parser->tokens->tokens[parser->current - 1].value);
+                token tok = parser->tokens->tokens[parser->current - 1];
+                ASTnode *node = make_identifier_node(tok.value);
+                ast_set_loc(node, tok.line, tok.col);
+                return node;
         }
         if (match(parser, TOKEN_TRUE)) {
-                return make_bool_node(true);
+                token tok = parser->tokens->tokens[parser->current - 1];
+                ASTnode *node = make_bool_node(true);
+                ast_set_loc(node, tok.line, tok.col);
+                return node;
         }
         if (match(parser, TOKEN_FALSE)) {
-                return make_bool_node(false);
+                token tok = parser->tokens->tokens[parser->current - 1];
+                ASTnode *node = make_bool_node(false);
+                ast_set_loc(node, tok.line, tok.col);
+                return node;
         }
 
         if (match(parser, TOKEN_LRPAREN)) {
@@ -302,7 +343,8 @@ ASTnode *parse_primary(Parser *parser) {
         }
 
         if (match(parser, TOKEN_DQUOTE) || match(parser, TOKEN_SQUOTE)) {
-                tokenType quote = parser->tokens->tokens[parser->current - 1].type;
+                token quote_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType quote = quote_tok.type;
                 // Collect string content
                 char *str_content = strdup("");
                 int content_tokens = 0;
@@ -321,10 +363,13 @@ ASTnode *parse_primary(Parser *parser) {
                 if (quote == TOKEN_SQUOTE && content_tokens == 1 && str_content[0] != '\0' && str_content[1] == '\0') {
                         char c = str_content[0];
                         free(str_content);
-                        return make_char_node(c);
+                        ASTnode *charnode = make_char_node(c);
+                        ast_set_loc(charnode, quote_tok.line, quote_tok.col);
+                        return charnode;
                 }
                 ASTnode *node = make_string_node(str_content);
                 free(str_content);
+                ast_set_loc(node, quote_tok.line, quote_tok.col);
                 return node;
         }
 
@@ -345,9 +390,12 @@ ASTnode *parse_call(Parser *parser) {
                                 token trigger = parser->tokens->tokens[parser->current - 1];
                                 pinum_error_at(STAGE_PARSER, ERR_INVALID_CALL_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                         }
+                        int line = node->line;
+                        int col = node->col;
                         char *name = strdup(node->data.identifier.name);
                         free_ast_node(node);
                         ASTnode *call = make_func_call_node(name, NULL, 0);
+                        ast_set_loc(call, line, col);
                         free(name);
                         // if the next token is not ')' TOKEN_RRPAREN, there must be args
                         if (!check(parser, TOKEN_RRPAREN)) {
@@ -366,6 +414,7 @@ ASTnode *parse_call(Parser *parser) {
                         ASTnode *access = create_ast_node(NODE_ARRAY_ACCESS);
                         access->data.array_access.name = node->data.identifier.name;
                         access->data.array_access.index = index;
+                        ast_set_loc(access, node->line, node->col);
                         node = access;
                 }
                 // postfix increment
@@ -375,6 +424,8 @@ ASTnode *parse_call(Parser *parser) {
                                 token trigger = parser->tokens->tokens[parser->current - 1];
                                 pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                         }
+                        int line = node->line;
+                        int col = node->col;
                         char *name = strdup(node->data.identifier.name);
                         free_ast_node(node);
                         ASTnode *inc = make_binary_node(make_identifier_node(name), TOKEN_PLUS, make_int_node(1));
@@ -388,6 +439,8 @@ ASTnode *parse_call(Parser *parser) {
                                 token trigger = parser->tokens->tokens[parser->current - 1];
                                 pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                         }
+                        int line = node->line;
+                        int col = node->col;
                         char *name = strdup(node->data.identifier.name);
                         free_ast_node(node);
                         ASTnode *dec = make_binary_node(make_identifier_node(name), TOKEN_MINUS, make_int_node(1));
@@ -403,9 +456,12 @@ ASTnode *parse_call(Parser *parser) {
 // parses and refers to parse_call
 ASTnode *parse_unary(Parser *parser) {
         if (match(parser, TOKEN_EXCLAMATION) || match(parser, TOKEN_MINUS)) {
-                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                token op_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType op = op_tok.type;
                 ASTnode *left = parse_unary(parser);
-                return make_unary_node(op, left);
+                ASTnode *node = make_unary_node(op, left);
+                ast_set_loc(node, op_tok.line, op_tok.col);
+                return node;
         }
         return parse_call(parser);
 }
@@ -416,9 +472,11 @@ ASTnode *parse_factors(Parser *parser) {
 
         // TOKEN_STAR may be used for multiplication, TOKEN_FSLASH may be used for division and TOKEN_PERCENT may be used for modulo
         while (match(parser, TOKEN_STAR) || match(parser, TOKEN_FSLASH) || match(parser, TOKEN_PERCENT)) {
-                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                token op_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType op = op_tok.type;
                 ASTnode *right = parse_primary(parser);
                 node = make_binary_node(node, op, right);
+                ast_set_loc(node, op_tok.line, op_tok.col);
         }
         return node;
 }
@@ -428,9 +486,11 @@ ASTnode *parse_term(Parser *parser) {
         ASTnode *node = parse_factors(parser);
 
         while (match(parser, TOKEN_PLUS) || match(parser, TOKEN_MINUS)) {
-                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                token op_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType op = op_tok.type;
                 ASTnode *right = parse_factors(parser);
                 node = make_binary_node(node, op, right);
+                ast_set_loc(node, op_tok.line, op_tok.col);
         }
         return node;
 }
@@ -441,9 +501,11 @@ ASTnode *parse_comparison(Parser *parser) {
 
         while (match(parser, TOKEN_LABRACKET) || match(parser, TOKEN_RABRACKET) ||
                match(parser, TOKEN_LEQUAL) || match(parser, TOKEN_GEQUAL)) {
-                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                token op_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType op = op_tok.type;
                 ASTnode *right = parse_term(parser);
                 node = make_binary_node(node, op, right);
+                ast_set_loc(node, op_tok.line, op_tok.col);
         }
         return node;
 }
@@ -453,9 +515,11 @@ ASTnode *parse_equality(Parser *parser) {
         ASTnode *node = parse_comparison(parser);
 
         while (match(parser, TOKEN_EEQUAL) || match(parser, TOKEN_NEQUAL)) {
-                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                token op_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType op = op_tok.type;
                 ASTnode *right = parse_comparison(parser);
                 node = make_binary_node(node, op, right);
+                ast_set_loc(node, op_tok.line, op_tok.col);
         }
         return node;
 }
@@ -465,9 +529,11 @@ ASTnode *parse_logical_and(Parser *parser) {
         ASTnode *node = parse_equality(parser);
 
         while (match(parser, TOKEN_AND)) {
-                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                token op_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType op = op_tok.type;
                 ASTnode *right = parse_equality(parser);
                 node = make_binary_node(node, op, right);
+                ast_set_loc(node, op_tok.line, op_tok.col);
         }
         return node;
 }
@@ -477,9 +543,11 @@ ASTnode *parse_logical_or(Parser *parser) {
         ASTnode *node = parse_logical_and(parser);
 
         while (match(parser, TOKEN_OR)) {
-                tokenType op = parser->tokens->tokens[parser->current - 1].type;
+                token op_tok = parser->tokens->tokens[parser->current - 1];
+                tokenType op = op_tok.type;
                 ASTnode *right = parse_logical_and(parser);
                 node = make_binary_node(node, op, right);
+                ast_set_loc(node, op_tok.line, op_tok.col);
         }
         return node;
 }
@@ -491,10 +559,12 @@ ASTnode *parse_ternary(Parser *parser) {
         ASTnode *then_expr = NULL;
         ASTnode *else_expr = NULL;
         if (match(parser, TOKEN_QUESTION)) {
+                token q_tok = parser->tokens->tokens[parser->current - 1];
                 then_expr = parse_ternary(parser);
                 consume(parser, TOKEN_COLON, "':'");
                 else_expr = parse_ternary(parser);
                 node = make_ternary_node(node, then_expr, else_expr);
+                ast_set_loc(node, q_tok.line, q_tok.col);
         }
         return node;
 }
@@ -509,9 +579,12 @@ ASTnode *parse_assignment(Parser *parser) {
                 if (node->type != NODE_IDENTIFIER) {
                         pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                 }
+                int line = node->line;
+                int col = node->col;
                 char *name = strdup(node->data.identifier.name);
                 free_ast_node(node);
                 ASTnode *assign = make_assign_node(name, value);
+                ast_set_loc(assign, line, col);
                 free(name);
                 return assign;
         }
@@ -524,6 +597,8 @@ ASTnode *parse_assignment(Parser *parser) {
                 if (node->type != NODE_IDENTIFIER) {
                         pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                 }
+                int line = node->line;
+                int col = node->col;
                 char *name = strdup(node->data.identifier.name);
                 free_ast_node(node);
                 // i += v  →  i = (i + v)
@@ -537,6 +612,7 @@ ASTnode *parse_assignment(Parser *parser) {
                 }
                 ASTnode *sum = make_binary_node(make_identifier_node(name), op, value);
                 ASTnode *assign = make_assign_node(name, sum);
+                ast_set_loc(assign, line, col);
                 free(name);
                 return assign;
         }

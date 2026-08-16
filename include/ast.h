@@ -88,6 +88,8 @@ typedef struct ASTnode ASTnode;
  */
 struct ASTnode {
         nodeType type;       // What kind of node this is.
+        int line;            // line of current token
+        int col;             // column of current token
         char *resolved_type; // Set by semantic analysis; e.g. "int", "char *", "long int". NULL if not yet analyzed.
 
         union {
@@ -263,6 +265,8 @@ ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count);
 ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int param_count, ASTnode *body);
 ASTnode *make_print_node(void);
 ASTnode *make_read_node(char *name);
+// sets the source location on a node for better error messages
+void ast_set_loc(ASTnode *node, int line, int col);
 // helper functions for collection
 void ast_add_statement(ASTnode *parent, ASTnode *stmt);
 void ast_add_arg(ASTnode *func_call, ASTnode *arg);
