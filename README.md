@@ -98,20 +98,20 @@ int b = 5
 int c = 1; print(c, "\n"); c = c + 1; print(c, "\n");
 ```
 
-# Comments
+### Comments
 ```pinum
 # this is a comment!
 # there is only single line comments.
 ```
 
-# Libreries
+### Libreries
 ```pinum
 # stdlib is imported automatically, no need for @import
 # this flag enables this language to be transpiled into bare C
 @for engine
 ```
 
-# Veriable declaration
+### Veriable declaration
 ```pinum
 # it has keywords like long, short, unsigned and signed
 
@@ -127,7 +127,7 @@ string name = "pinum"
 bool ready = true
 ```
 
-# Output & input
+### Output & input
 ```pinum
 # print accepts any number of arguments
 print("hello ", name, "\n")
@@ -141,7 +141,7 @@ print(data, "\n")
 int n = 2; n = n + 3; print(n, "\n")
 ```
 
-# Conditions
+### Conditions
 ```pinum
 if (condition) {
         # task 1
@@ -152,7 +152,7 @@ if (condition) {
 }
 ```
 
-# Loops
+### Loops
 ```pinum
 # while loop
 while (condition) {
@@ -166,7 +166,7 @@ while (condition) {
 }
 ```
 
-# Return
+### Return
 ```pinum
 # exits the program with the given value
 return 0
