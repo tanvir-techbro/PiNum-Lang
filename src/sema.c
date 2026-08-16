@@ -47,7 +47,7 @@ static void sem_pop_scope(SemAnalyzer *a) {
         hashmap_free(a->frames[--a->frame_count]);
 }
 // - declare / resolve -
-static void sem_declare(SemAnalyzer *a, const char *name, const char *type) {
+static void sem_declare(SemAnalyzer *a, const char *name, const char *type, int line, int col) {
         // previous scope / frame
         HashMap *frame = a->frames[a->frame_count - 1];
         char *k = strdup(name);
@@ -56,7 +56,7 @@ static void sem_declare(SemAnalyzer *a, const char *name, const char *type) {
         if (!hashmap_insert(frame, k, v)) {
                 free(k);
                 free(v);
-                pinum_error_at(STAGE_SEMANTIC, ERR_REDECLARED_VAR, 0, 0, name);
+                pinum_error_at(STAGE_SEMANTIC, ERR_REDECLARED_VAR, line, col, name);
         }
 }
 static const char *sem_resolve(SemAnalyzer *a, const char *name) {
