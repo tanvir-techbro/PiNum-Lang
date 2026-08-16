@@ -116,6 +116,7 @@ static const char *codegen_specifier(ASTnode *node) {
 // maps a PiNum type name to its C equivalent
 static const char *codegen_type(const char *type_name) {
         if (strcmp(type_name, "string") == 0) return "char *";
+        if (strcmp(type_name, "list") == 0) return "list";
         return type_name; // int, float, double, char, bool map 1:1
 }
 
@@ -197,6 +198,15 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
         case NODE_CHAR_LITERAL:
                 fprintf(output, "'%c'", node->data.char_literal.value);
                 break;
+        case NODE_LIST_LITERAL: {
+                fprintf(output, "list_create(%d", node->data.list_literal.count);
+                for (int i = 0; i < node->data.list_literal.count; i++) {
+                        fprintf(output, ", ");
+                        codegen_node(node->data.list_literal.elements[i], output, level);
+                }
+                fprintf(output, ")");
+                break;
+        }
         case NODE_IDENTIFIER:
                 fprintf(output, "%s", node->data.identifier.name);
                 break;

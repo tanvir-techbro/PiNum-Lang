@@ -62,6 +62,7 @@ typedef enum {
         TOKEN_DOUBLE,   // double datatype
         TOKEN_CHAR,     // char datatype
         TOKEN_STRING,   // string datatype, basiclly char array in the transpiled code
+        TOKEN_LIST,     // list datatype (generic)
         TOKEN_TRUE,     // boolean literal true
         TOKEN_FALSE,    // boolean literal false
         // single character tokens

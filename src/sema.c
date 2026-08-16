@@ -70,9 +70,13 @@ static const char *sem_resolve(SemAnalyzer *a, const char *name) {
         }
         return NULL;
 }
-// full C type for a symbol, e.g. "long int", "char *"
-static char *sem_fulltype(const char *type_name, const char *modifiers) {
-        const char *base = strcmp(type_name, "string") == 0 ? "char *" : type_name;
+// full C type for a symbol, e.g. "long int", "char *", "list"
+static char *sem_fulltype(const char *type_name, const char *modifiers, const char *element_type) {
+        (void)element_type; // for future monomorphized types like list_int *
+        const char *base;
+        if (strcmp(type_name, "string") == 0) base = "char *";
+        else if (strcmp(type_name, "list") == 0) base = "list";
+        else base = type_name;
         if (modifiers == NULL) {
                 return strdup(base);
         }
@@ -107,6 +111,12 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
         case NODE_STRING_LITERAL: break;
         case NODE_BOOL_LITERAL: break;
         case NODE_CHAR_LITERAL: break;
+        case NODE_LIST_LITERAL: {
+                for (int i = 0; i < node->data.list_literal.count; i++) {
+                        sem_analyze_node(a, node->data.list_literal.elements[i]);
+                }
+                break;
+        }
 
         // ---- Identifiers & element access ----
         case NODE_IDENTIFIER: {
@@ -146,7 +156,7 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
 
         // ---- Declarations & assignment ----
         case NODE_VAR_DECL: {
-                char *type = sem_fulltype(node->data.var_decl.type_name, node->data.var_decl.modifiers);
+                char *type = sem_fulltype(node->data.var_decl.type_name, node->data.var_decl.modifiers, node->data.var_decl.element_type);
                 sem_declare(a, node->data.var_decl.name, type, node->line, node->col);
                 free(type); // sem_declare strdup'd it so we can free this copy
                 if (node->data.var_decl.value) {

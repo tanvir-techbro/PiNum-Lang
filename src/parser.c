@@ -53,6 +53,7 @@ ASTnode *parse_statement(Parser *parser) {
         if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
             check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_CHAR) ||
             check(parser, TOKEN_STRING) || check(parser, TOKEN_BOOL) ||
+            check(parser, TOKEN_LIST) ||
             check(parser, TOKEN_UNSIGNED) || check(parser, TOKEN_SIGNED) ||
             check(parser, TOKEN_LONG) || check(parser, TOKEN_SHORT)) {
                 return parse_declaration(parser);
@@ -172,7 +173,7 @@ ASTnode *parse_for_statement(Parser *parser) {
         ASTnode *init = NULL;
         if (!check(parser, TOKEN_SEMICOLON)) {
                 if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
-                    check(parser, TOKEN_DOUBLE)) {
+                    check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_LIST)) {
                         init = parse_declaration(parser);
                 } else {
                         init = parse_expression(parser);
@@ -228,9 +229,42 @@ static bool is_valid_modifier(const char *modifier, const char *data_type) {
                 return strcmp(data_type, "int") == 0;
         return false;
 }
+
+// parse a type: simple (int, float, etc.) or generic (list<int>)
+static void parse_type(Parser *parser, char **out_type_name, char **out_element_type) {
+        *out_type_name = NULL;
+        *out_element_type = NULL;
+
+        if (match(parser, TOKEN_INT)) *out_type_name = "int";
+        else if (match(parser, TOKEN_FLOAT)) *out_type_name = "float";
+        else if (match(parser, TOKEN_DOUBLE)) *out_type_name = "double";
+        else if (match(parser, TOKEN_CHAR)) *out_type_name = "char";
+        else if (match(parser, TOKEN_STRING)) *out_type_name = "string";
+        else if (match(parser, TOKEN_BOOL)) *out_type_name = "bool";
+        else if (match(parser, TOKEN_LIST)) {
+                *out_type_name = "list";
+                consume(parser, TOKEN_LABRACKET, "'<' after list");
+                // parse element type
+                if (match(parser, TOKEN_INT)) *out_element_type = "int";
+                else if (match(parser, TOKEN_FLOAT)) *out_element_type = "float";
+                else if (match(parser, TOKEN_DOUBLE)) *out_element_type = "double";
+                else if (match(parser, TOKEN_CHAR)) *out_element_type = "char";
+                else if (match(parser, TOKEN_STRING)) *out_element_type = "string";
+                else if (match(parser, TOKEN_BOOL)) *out_element_type = "bool";
+                else {
+                        token found = peek(parser);
+                        pinum_expected_at(STAGE_PARSER, found.line, found.col, "element type (int, float, etc.)", peek_display(parser));
+                }
+                consume(parser, TOKEN_RABRACKET, "'>' after element type");
+        } else {
+                token found = peek(parser);
+                pinum_expected_at(STAGE_PARSER, found.line, found.col, "a data type (int, float, list<int>, etc.)", peek_display(parser));
+        }
+}
 ASTnode *parse_declaration(Parser *parser) {
         char *modifier = NULL;
         char *data_type = NULL;
+        char *element_type = NULL;
         token modifier_token = {0};
 
         // Modifier (optional)
@@ -248,17 +282,8 @@ ASTnode *parse_declaration(Parser *parser) {
                 modifier_token = parser->tokens->tokens[parser->current - 1];
         }
 
-        // Data Type (Required)
-        if (match(parser, TOKEN_INT)) data_type = "int";
-        else if (match(parser, TOKEN_FLOAT)) data_type = "float";
-        else if (match(parser, TOKEN_DOUBLE)) data_type = "double";
-        else if (match(parser, TOKEN_CHAR)) data_type = "char";
-        else if (match(parser, TOKEN_STRING)) data_type = "string";
-        else if (match(parser, TOKEN_BOOL)) data_type = "bool";
-        else {
-                token found = peek(parser);
-                pinum_expected_at(STAGE_PARSER, found.line, found.col, "a data type (int, float, etc.)", peek_display(parser));
-        }
+        // Data Type (Required) - supports generic types like list<int>
+        parse_type(parser, &data_type, &element_type);
 
         if (!is_valid_modifier(modifier, data_type)) {
                 pinum_error_at(STAGE_PARSER, ERR_INVALID_MODIFIER, modifier_token.line, modifier_token.col, modifier);
@@ -276,6 +301,9 @@ ASTnode *parse_declaration(Parser *parser) {
         consume_end_of_statement(parser);
 
         ASTnode *decl = make_var_decl_node(data_type, modifier, var_name, initializer, false, 0);
+        if (element_type) {
+                decl->data.var_decl.element_type = strdup(element_type);
+        }
         ast_set_loc(decl, name_token.line, name_token.col);
         return decl;
 }
@@ -371,6 +399,27 @@ ASTnode *parse_primary(Parser *parser) {
                 free(str_content);
                 ast_set_loc(node, quote_tok.line, quote_tok.col);
                 return node;
+        }
+
+        if (match(parser, TOKEN_LSPAREN)) {
+                token bracket_tok = parser->tokens->tokens[parser->current - 1];
+                ASTnode **elements = NULL;
+                int count = 0;
+                int capacity = 0;
+                if (!check(parser, TOKEN_RSPAREN)) {
+                        do {
+                                ASTnode *elem = parse_expression(parser);
+                                if (count >= capacity) {
+                                        capacity = capacity == 0 ? 4 : capacity * 2;
+                                        elements = realloc(elements, sizeof(ASTnode *) * capacity);
+                                }
+                                elements[count++] = elem;
+                        } while (match(parser, TOKEN_COMMA));
+                }
+                consume(parser, TOKEN_RSPAREN, "']' after list elements");
+                ASTnode *list_node = make_list_literal_node(elements, count);
+                ast_set_loc(list_node, bracket_tok.line, bracket_tok.col);
+                return list_node;
         }
 
         // Error

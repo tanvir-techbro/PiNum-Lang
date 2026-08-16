@@ -113,6 +113,8 @@ const char *node_type_name(nodeType type) {
                 return "break statement";
         case NODE_CONTINUE:
                 return "continue statement";
+        case NODE_LIST_LITERAL:
+                return "list literal";
         default:
                 return "expression";
         }
@@ -199,6 +201,7 @@ ASTnode *make_var_decl_node(char *type_name, char *modifiers, char *name, ASTnod
         node->data.var_decl.value = value;
         node->data.var_decl.is_array = is_array;
         node->data.var_decl.array_size = array_size;
+        node->data.var_decl.element_type = NULL;
         return node;
 }
 ASTnode *make_assign_node(char *name, ASTnode *value) {
@@ -235,6 +238,13 @@ ASTnode *make_print_node(void) {
 ASTnode *make_read_node(char *name) {
         ASTnode *node = create_ast_node(NODE_READ);
         node->data.read.name = strdup(name);
+        return node;
+}
+ASTnode *make_list_literal_node(ASTnode **elements, int count) {
+        ASTnode *node = create_ast_node(NODE_LIST_LITERAL);
+        node->data.list_literal.elements = elements;
+        node->data.list_literal.count = count;
+        node->data.list_literal.capacity = count;
         return node;
 }
 
@@ -339,6 +349,7 @@ void free_ast_node(ASTnode *node) {
                 free(node->data.var_decl.type_name);
                 free(node->data.var_decl.modifiers);
                 free(node->data.var_decl.name);
+                free(node->data.var_decl.element_type);
                 free_ast_node(node->data.var_decl.value);
                 break;
         case NODE_ASSIGN:
@@ -430,6 +441,12 @@ void free_ast_node(ASTnode *node) {
         case NODE_BREAK:
         case NODE_CONTINUE:
                 break;
+        case NODE_LIST_LITERAL:
+                for (int i = 0; i < node->data.list_literal.count; i++) {
+                        free_ast_node(node->data.list_literal.elements[i]);
+                }
+                free(node->data.list_literal.elements);
+                break;
         default:
                 break;
         }
@@ -467,11 +484,15 @@ void print_ast(ASTnode *node, int level) {
                 }
                 break;
         case NODE_VAR_DECL:
-                printf("VAR_DECL: %s %s %s%s\n",
+                printf("VAR_DECL: %s %s %s%s%s\n",
                        node->data.var_decl.modifiers ? node->data.var_decl.modifiers : "",
                        node->data.var_decl.type_name ? node->data.var_decl.type_name : "",
                        node->data.var_decl.name,
-                       node->data.var_decl.is_array ? "[]" : "");
+                       node->data.var_decl.element_type ? "<" : "",
+                       node->data.var_decl.element_type ? node->data.var_decl.element_type : "");
+                if (node->data.var_decl.element_type) printf(">");
+                if (node->data.var_decl.is_array) printf("[]");
+                printf("\n");
                 if (node->data.var_decl.value) {
                         print_ast(node->data.var_decl.value, level + 1);
                 }
@@ -550,6 +571,15 @@ void print_ast(ASTnode *node, int level) {
                 break;
         case NODE_CONTINUE:
                 printf("CONTINUE\n");
+                break;
+        case NODE_LIST_LITERAL:
+                printf("LIST_LITERAL [%d elements]\n", node->data.list_literal.count);
+                for (int i = 0; i < node->data.list_literal.count; i++) {
+                        for (int j = 0; j < level + 1; j++)
+                                printf("  ");
+                        printf("[%d]: ", i);
+                        print_ast(node->data.list_literal.elements[i], level + 1);
+                }
                 break;
         default:
                 printf("NODE_TYPE: %d\n", node->type);
