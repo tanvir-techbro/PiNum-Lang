@@ -78,8 +78,9 @@ run_tests() {
                 echo -e "${GREEN}Testing: $test_name${NC}"
 
                 if [ "$use_valgrind" = "y" ]; then
-                        # Run with Valgrind to check for memory leaks/errors
-                        valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum --debug-all "$file" >/dev/null 2>&1
+                        # Run with Valgrind to check for memory leaks/errors.
+                        # Keep stderr (the leak report) visible; hide the debug dump on stdout.
+                        valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum --debug-all "$file" >/dev/null
                 else
                         # Normal execution
                         ./bin/pinum --debug-all "$file" >/dev/null 2>&1
@@ -129,7 +130,8 @@ run_semantic_tests() {
 
                 echo -e "${GREEN}Testing: $test_name${NC}"
                 if [ "$use_valgrind" = "y" ]; then
-                        echo "42" | valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum -oc "$file.tmp.out" "$file" >/dev/null 2>&1
+                        # keep stderr (the leak report) visible for the invalid files
+                        echo "42" | valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum -oc "$file.tmp.out" "$file" >/dev/null
                 else
                         echo "42" | ./bin/pinum -oc "$file.tmp.out" "$file" >/dev/null 2>&1
                 fi
