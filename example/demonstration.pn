@@ -142,6 +142,37 @@ for (int down = 5; down > 0; down--) {
         print(down, "\n")
 }
 
+# --- for (range) sugar ---
+# for (N) runs the body N times: expands to
+#   for (int __pinum_i0 = 0; __pinum_i0 < N; __pinum_i0++)
+for (5) {
+        print("beep\n")
+}
+
+# the range is any expression, evaluated each iteration
+int sides = 3
+for (sides) {
+        print("side\n")
+}
+
+# nested range loops each get a unique hidden counter, so uniforms are easy
+for (3) {
+        for (2) {
+                print("*")
+        }
+        print("\n")
+}
+
+# --- vec<T> — a growable vector, monomorphized per element type ---
+vec<int> nums = [3, 5, 6]
+print(nums, "\n")
+vec<float> ratios = [1.5, 2.5]
+print(ratios, "\n")
+vec<string> words = ["PiNum", "rocks"]
+print(words, "\n")
+vec<int> empty = []
+print(empty, "\n")
+
 # --- read user input ---
 int data
 print('Enter a number: ')

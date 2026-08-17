@@ -1,0 +1,33 @@
+# vec<T> — a growable vector, monomorphized per element type.
+#
+# Each `vec<T>` compiles to its own C struct with by-value contiguous
+# storage — vec_int, vec_float, vec_double, vec_char, vec_bool, vec_string —
+# so there is no pointer boxing and elements are cache-friendly.
+
+# --- int vector (literal syntax [ ... ]) ---
+vec<int> nums = [3, 5, 6]
+print(nums, "\n")
+
+# --- float / double ---
+vec<float> ratios = [1.5, 2.5]
+print(ratios, "\n")
+vec<double> dbl = [3.14159, 2.71828]
+print(dbl, "\n")
+
+# --- char / bool / string ---
+vec<char> letters = ['a', 'b', 'c']
+print(letters, "\n")
+vec<bool> flags = [true, false, true]
+print(flags, "\n")
+vec<string> words = ["PiNum", "rocks"]
+print(words, "\n")
+
+# --- mixing vecs with scalars in one print ---
+print("nums: ", nums, " | words: ", words, "\n")
+
+# --- empty vector ---
+vec<int> empty = []
+print(empty, "\n")
+
+# --- runtime helpers also expose append (wired when methods land) ---
+# (generated C: __pinum_vec_int_append(&nums, 7))

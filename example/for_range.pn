@@ -1,0 +1,41 @@
+# for (RANGE) — run a body a fixed number of times.
+#
+# `for (N) { body }` expands at parse time to a classic for loop:
+#     for (int __pinum_i0 = 0; __pinum_i0 < N; __pinum_i0++) { body }
+# Each range loop gets a unique hidden counter, so nesting just works.
+
+# --- basic count ---
+for (4) {
+        print("go!\n")
+}
+
+# --- the range is any expression, re-evaluated each iteration ---
+int rows = 3
+for (rows) {
+        print("row\n")
+}
+
+# --- the range as an inline expression ---
+int base = 2
+for (base * 3) {
+        print("multi\n")
+}
+
+# --- nested range loops (each gets a unique hidden counter) ---
+for (3) {
+        for (2) {
+                print("*")
+        }
+        print("\n")
+}
+
+# --- a pyramid: the outer classic loop owns the counter, ---
+# --- range loops just repeat fixed widths per row           ---
+int width = 1
+while (width <= 7) {
+        for (width) {
+                print('#')
+        }
+        print("\n")
+        width = width + 2
+}

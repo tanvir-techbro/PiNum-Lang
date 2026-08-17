@@ -171,16 +171,33 @@ ASTnode *parse_for_statement(Parser *parser) {
 
         // init
         ASTnode *init = NULL;
-        if (!check(parser, TOKEN_SEMICOLON)) {
-                if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
-                    check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_VEC)) {
-                        init = parse_declaration(parser);
-                } else {
-                        init = parse_expression(parser);
-                        consume(parser, TOKEN_SEMICOLON, "';'");
-                }
-        } else {
+        // for (int i = 0; i < n; i++) {body}
+        if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
+            check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_VEC)) {
+                init = parse_declaration(parser);
+        } else if (check(parser, TOKEN_SEMICOLON)) {
                 advance(parser); // skip empty init ';'
+        } else {
+                // for (range) {body}  OR  for (i = 0; cond; inc) {body}
+                ASTnode *range = parse_expression(parser);
+                // for (range)  →  for (int __pinum_i<N> = 0; __pinum_i<N> < RANGE; __pinum_i<N>++)
+                if (check(parser, TOKEN_RRPAREN)) {
+                        consume(parser, TOKEN_RRPAREN, "')'");
+                        ASTnode *body = parse_block(parser);
+
+                        // generate uniques index name for each scope
+                        static int rng_counter = 0;
+                        const char *idx = "__pinum_i";
+                        char idx_name[32];
+                        snprintf(idx_name, sizeof(idx_name), "%s%d", idx, rng_counter++);
+                        ASTnode *rinit = make_var_decl_node("int", NULL, (char *)idx_name, make_int_node(0), false, 0);
+                        ASTnode *cond = make_binary_node(make_identifier_node((char *)idx_name), TOKEN_LABRACKET, range);
+                        ASTnode *inc = make_assign_node((char *)idx_name,
+                                                        make_binary_node(make_identifier_node((char *)idx_name), TOKEN_PLUS, make_int_node(1)));
+                        return make_for_node(rinit, cond, inc, body);
+                }
+                consume(parser, TOKEN_SEMICOLON, "';'");
+                init = range;
         }
         // condition
         ASTnode *condition = NULL;
