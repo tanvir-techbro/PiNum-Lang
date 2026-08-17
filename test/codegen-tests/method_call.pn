@@ -1,0 +1,25 @@
+# Codegen: method calls — obj.append(x)  →  __pinum_vec_<t>_append(&obj, x)
+vec<int> nums = [1, 2];
+nums.append(3);
+nums.append(4);
+print(nums, "\n");
+
+# property reads
+print("size: ", nums.size, "\n");
+
+# append on every vec type
+vec<string> words = ["a"];
+words.append("b");
+words.append("c");
+print(words, "\n");
+vec<float> ratios = [0.5];
+ratios.append(1.5);
+print(ratios, "\n");
+vec<char> letters = ['x'];
+letters.append('y');
+print(letters, "\n");
+
+# args can be expressions
+int step = 10;
+nums.append(step + 100);
+print(nums, "\n");

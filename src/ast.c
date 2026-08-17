@@ -247,6 +247,14 @@ ASTnode *make_list_literal_node(ASTnode **elements, int count) {
         node->data.list_literal.capacity = count;
         return node;
 }
+ASTnode *make_member_access_node(ASTnode *object, char *member, ASTnode **args, int arg_count) {
+        ASTnode *node = create_ast_node(NODE_MEMBER_ACCESS);
+        node->data.member_access.object = object;
+        node->data.member_access.member = strdup(member);
+        node->data.member_access.args = args;
+        node->data.member_access.arg_count = arg_count;
+        return node;
+}
 
 /*
  * @brief sets the location for better error message
@@ -295,6 +303,13 @@ void ast_add_arg(ASTnode *func_call, ASTnode *arg) {
         // Simple realloc for every new argument. Consider using capacity logic if performance becomes an issue.
         func_call->data.func_call.args = (ASTnode **)realloc(func_call->data.func_call.args, sizeof(ASTnode *) * (func_call->data.func_call.arg_count + 1));
         func_call->data.func_call.args[func_call->data.func_call.arg_count++] = arg;
+}
+/*
+ * @brief Adds an argument to a method-call's argument list (built before the member node exists).
+ */
+void ast_add_member_arg(ASTnode ***args, int *arg_count, ASTnode *arg) {
+        *args = (ASTnode **)realloc(*args, sizeof(ASTnode *) * (*arg_count + 1));
+        (*args)[(*arg_count)++] = arg;
 }
 /*
  * @brief Adds a parameter to a function definition node.
@@ -373,8 +388,12 @@ void free_ast_node(ASTnode *node) {
                 free_ast_node(node->data.func_def.body);
                 break;
         case NODE_MEMBER_ACCESS:
-                free_ast_node(node->data.memeber_access.object);
-                free(node->data.memeber_access.member);
+                free_ast_node(node->data.member_access.object);
+                free(node->data.member_access.member);
+                for (int i = 0; i < node->data.member_access.arg_count; i++) {
+                        free_ast_node(node->data.member_access.args[i]);
+                }
+                free(node->data.member_access.args);
                 break;
         case NODE_ARRAY_ACCESS:
                 free(node->data.array_access.name);
@@ -500,6 +519,14 @@ void print_ast(ASTnode *node, int level) {
         case NODE_ASSIGN:
                 printf("ASSIGN: %s\n", node->data.assign.name);
                 print_ast(node->data.assign.value, level + 1);
+                break;
+        case NODE_MEMBER_ACCESS:
+                printf("MEMBER: %s (method: %s)\n", node->data.member_access.member,
+                       node->data.member_access.arg_count > 0 ? "yes" : "no");
+                print_ast(node->data.member_access.object, level + 1);
+                for (int i = 0; i < node->data.member_access.arg_count; i++) {
+                        print_ast(node->data.member_access.args[i], level + 1);
+                }
                 break;
         case NODE_INT_LITERAL:
                 printf("INT: %d\n", node->data.int_literal.value);

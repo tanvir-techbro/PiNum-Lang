@@ -134,11 +134,13 @@ struct ASTnode {
                         ASTnode *body; // NODE_BLOCK containing the function code
                 } func_def;
 
-                // NODE_MEMBER_ACCESS: obj.member
+                // NODE_MEMBER_ACCESS: obj.member  (arg_count > 0 → method call obj.method(args))
                 struct {
                         ASTnode *object;
                         char *member;
-                } memeber_access;
+                        ASTnode **args; // NULL when property read
+                        int arg_count;
+                } member_access;
 
                 // NODE_ARRAY_ACCESS: arr[index]
                 struct {
@@ -274,11 +276,13 @@ ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int
 ASTnode *make_print_node(void);
 ASTnode *make_read_node(char *name);
 ASTnode *make_list_literal_node(ASTnode **elements, int count);
+ASTnode *make_member_access_node(ASTnode *object, char *member, ASTnode **args, int arg_count);
 // sets the source location on a node for better error messages
 void ast_set_loc(ASTnode *node, int line, int col);
 // helper functions for collection
 void ast_add_statement(ASTnode *parent, ASTnode *stmt);
 void ast_add_arg(ASTnode *func_call, ASTnode *arg);
+void ast_add_member_arg(ASTnode ***args, int *arg_count, ASTnode *arg);
 void ast_add_param(ASTnode *func_def, ASTnode *param);
 void ast_add_print_arg(ASTnode *print, ASTnode *arg);
 // Memory management

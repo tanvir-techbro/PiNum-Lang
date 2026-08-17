@@ -483,6 +483,39 @@ ASTnode *parse_call(Parser *parser) {
                         ast_set_loc(access, node->line, node->col);
                         node = access;
                 }
+                // member access / method call
+                // obj.member  or  obj.method(args)
+                else if (match(parser, TOKEN_DOT)) {
+                        token m = consume(parser, TOKEN_ID, "a member name after '.'");
+                        ASTnode **args = NULL;
+                        int arg_count = 0;
+                        if (match(parser, TOKEN_LRPAREN)) {
+                                if (!check(parser, TOKEN_RRPAREN)) {
+                                        do {
+                                                ast_add_member_arg(&args, &arg_count, parse_expression(parser));
+                                        } while (match(parser, TOKEN_COMMA));
+                                }
+                                consume(parser, TOKEN_RRPAREN, "')' after arguments");
+                        }
+                        node = make_member_access_node(node, m.value, args, arg_count);
+                        ast_set_loc(node, m.line, m.col);
+                }
+                // method call
+                // obj.method()
+                else if (match(parser, TOKEN_DOT)) {
+                        token m = consume(parser, TOKEN_DOT, "a member name after '.'");
+                        ASTnode **arg = NULL;
+                        int arg_count = 0;
+                        if (match(parser, TOKEN_RRPAREN)) {
+                                if (!match(parser, TOKEN_RRPAREN)) {
+                                        do {
+                                                ast_add_member_arg(&arg, &arg_count, parse_expression(parser));
+                                        } while (match(parser, TOKEN_COMMA));
+                                }
+                                consume(parser, TOKEN_RRPAREN, "')' after arguments");
+                        }
+                        node = make_member_access_node(node, m.value, arg, arg_count);
+                }
                 // postfix increment
                 // i++  →  i = (i + 1)
                 else if (match(parser, TOKEN_PPLUS)) {
@@ -542,7 +575,7 @@ ASTnode *parse_factors(Parser *parser) {
         while (match(parser, TOKEN_STAR) || match(parser, TOKEN_FSLASH) || match(parser, TOKEN_PERCENT)) {
                 token op_tok = parser->tokens->tokens[parser->current - 1];
                 tokenType op = op_tok.type;
-                ASTnode *right = parse_primary(parser);
+                ASTnode *right = parse_call(parser);
                 node = make_binary_node(node, op, right);
                 ast_set_loc(node, op_tok.line, op_tok.col);
         }

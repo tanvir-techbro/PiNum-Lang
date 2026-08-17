@@ -173,6 +173,13 @@ print(words, "\n")
 vec<int> empty = []
 print(empty, "\n")
 
+# --- method calls: obj.append(x), property reads: obj.size ---
+nums.append(7)
+print(nums, "\n")
+words.append("rules")
+print(words, "\n")
+print("nums has ", nums.size, " elements\n")
+
 # --- read user input ---
 int data
 print('Enter a number: ')

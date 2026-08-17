@@ -143,9 +143,22 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                 sem_analyze_node(a, node->data.array_access.index);
                 break;
         }
-        case NODE_MEMBER_ACCESS:
-                sem_analyze_node(a, node->data.memeber_access.object);
+        case NODE_MEMBER_ACCESS: {
+                sem_analyze_node(a, node->data.member_access.object);
+                const char *obj_type = node->data.member_access.object->resolved_type;
+                if (node->data.member_access.arg_count > 0) {
+                        // method call: validate obj type vec_* and method append
+                        if (!obj_type || strncmp(obj_type, "vec_", 4) != 0 || strcmp(node->data.member_access.member, "append") != 0) {
+                                pinum_error_at(STAGE_SEMANTIC, ERR_UNKNOWN, node->line, node->col, node->data.member_access.member);
+                        }
+                }
+                for (int i = 0; i < node->data.member_access.arg_count; i++) {
+                        sem_analyze_node(a, node->data.member_access.args[i]);
+                }
+                // scalar for now (method calls return void; property reads are numeric)
+                node->resolved_type = strdup("int");
                 break;
+        }
 
         // ---- Expressions (binary / unary / ternary) ----
         case NODE_BINARY_EXPRESSION:

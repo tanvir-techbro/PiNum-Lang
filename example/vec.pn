@@ -31,3 +31,19 @@ print(empty, "\n")
 
 # --- runtime helpers also expose append (wired when methods land) ---
 # (generated C: __pinum_vec_int_append(&nums, 7))
+
+# --- method calls: obj.append(x) ---
+# appends an element to the vector (expands to __pinum_vec_<t>_append)
+nums.append(7)
+nums.append(8)
+print(nums, "\n")
+words.append("lang")
+print(words, "\n")
+
+# --- property reads: obj.size ---
+print("nums size: ", nums.size, "\n")
+
+# --- method call args can be any expression ---
+int extra = 21
+nums.append(extra * 2)
+print(nums, "\n")

@@ -110,6 +110,9 @@ static const char *codegen_specifier(ASTnode *node) {
                 const char *type = node->resolved_type;
                 return type ? specifier_for_type(type) : "%d";
         }
+        case NODE_MEMBER_ACCESS:
+                // properties like .size / .capacity are size_t
+                return "%zu";
         default:
                 return "%d";
         }
@@ -444,6 +447,25 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break; // TODO
         case NODE_FUNC_CALL:
                 break; // TODO
+
+        // ---- Member access & method calls ----
+        case NODE_MEMBER_ACCESS: {
+                ASTnode *obj = node->data.member_access.object;
+                const char *member = node->data.member_access.member;
+                if (node->data.member_access.arg_count > 0) {
+                        // vec.append(x)  →  __pinum_vec_<t>_append(&obj, x);
+                        fprintf(output, "__pinum_%s_append(&", obj->resolved_type);
+                        codegen_node(obj, output, level);
+                        fprintf(output, ", ");
+                        codegen_node(node->data.member_access.args[0], output, level);
+                        fprintf(output, ");\n");
+                } else {
+                        // property read: obj.member
+                        codegen_node(obj, output, level);
+                        fprintf(output, ".%s", member);
+                }
+                break;
+        }
 
         // ---- Directives & other ----
         case NODE_DIRECTIVE:
