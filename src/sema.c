@@ -21,8 +21,11 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
+/* Semaintic Analysis + Symbol table */
+
 #include "../include/sema.h"
 #include "../include/error.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -70,18 +73,22 @@ static const char *sem_resolve(SemAnalyzer *a, const char *name) {
         }
         return NULL;
 }
-// full C type for a symbol, e.g. "long int", "char *", "list"
+// full C type for a symbol, e.g. "long int", "char *", "vec", "vec_int"
 static char *sem_fulltype(const char *type_name, const char *modifiers, const char *element_type) {
-        (void)element_type; // for future monomorphized types like list_int *
-        const char *base;
-        if (strcmp(type_name, "string") == 0) base = "char *";
-        else if (strcmp(type_name, "list") == 0) base = "list";
-        else base = type_name;
+        char *base;
+        if (strcmp(type_name, "string") == 0) base = strdup("char *");
+        else if (strcmp(type_name, "vec") == 0) {
+                // monomorphize vec<T> → vec_T
+                char buf[32];
+                snprintf(buf, sizeof(buf), "vec_%s", element_type ? element_type : "int");
+                base = strdup(buf);
+        } else base = strdup(type_name);
         if (modifiers == NULL) {
-                return strdup(base);
+                return base;
         }
         char *out = malloc(strlen(modifiers) + strlen(base) + 2);
         sprintf(out, "%s %s", modifiers, base);
+        free(base);
         return out;
 }
 
@@ -161,6 +168,12 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                 free(type); // sem_declare strdup'd it so we can free this copy
                 if (node->data.var_decl.value) {
                         sem_analyze_node(a, node->data.var_decl.value);
+                        // give a [ ... ] literal in a vec<T> decl its concrete type
+                        if (node->data.var_decl.value->type == NODE_LIST_LITERAL && node->data.var_decl.element_type) {
+                                char buf[32];
+                                snprintf(buf, sizeof(buf), "vec_%s", node->data.var_decl.element_type);
+                                node->data.var_decl.value->resolved_type = strdup(buf);
+                        }
                 }
                 break;
         }

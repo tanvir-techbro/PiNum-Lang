@@ -53,7 +53,7 @@ ASTnode *parse_statement(Parser *parser) {
         if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
             check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_CHAR) ||
             check(parser, TOKEN_STRING) || check(parser, TOKEN_BOOL) ||
-            check(parser, TOKEN_LIST) ||
+            check(parser, TOKEN_VEC) ||
             check(parser, TOKEN_UNSIGNED) || check(parser, TOKEN_SIGNED) ||
             check(parser, TOKEN_LONG) || check(parser, TOKEN_SHORT)) {
                 return parse_declaration(parser);
@@ -173,7 +173,7 @@ ASTnode *parse_for_statement(Parser *parser) {
         ASTnode *init = NULL;
         if (!check(parser, TOKEN_SEMICOLON)) {
                 if (check(parser, TOKEN_INT) || check(parser, TOKEN_FLOAT) ||
-                    check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_LIST)) {
+                    check(parser, TOKEN_DOUBLE) || check(parser, TOKEN_VEC)) {
                         init = parse_declaration(parser);
                 } else {
                         init = parse_expression(parser);
@@ -230,7 +230,7 @@ static bool is_valid_modifier(const char *modifier, const char *data_type) {
         return false;
 }
 
-// parse a type: simple (int, float, etc.) or generic (list<int>)
+// parse a type: simple (int, float, etc.) or generic (vec<int>)
 static void parse_type(Parser *parser, char **out_type_name, char **out_element_type) {
         *out_type_name = NULL;
         *out_element_type = NULL;
@@ -241,9 +241,9 @@ static void parse_type(Parser *parser, char **out_type_name, char **out_element_
         else if (match(parser, TOKEN_CHAR)) *out_type_name = "char";
         else if (match(parser, TOKEN_STRING)) *out_type_name = "string";
         else if (match(parser, TOKEN_BOOL)) *out_type_name = "bool";
-        else if (match(parser, TOKEN_LIST)) {
-                *out_type_name = "list";
-                consume(parser, TOKEN_LABRACKET, "'<' after list");
+        else if (match(parser, TOKEN_VEC)) {
+                *out_type_name = "vec";
+                consume(parser, TOKEN_LABRACKET, "'<' after vec");
                 // parse element type
                 if (match(parser, TOKEN_INT)) *out_element_type = "int";
                 else if (match(parser, TOKEN_FLOAT)) *out_element_type = "float";
@@ -258,7 +258,7 @@ static void parse_type(Parser *parser, char **out_type_name, char **out_element_
                 consume(parser, TOKEN_RABRACKET, "'>' after element type");
         } else {
                 token found = peek(parser);
-                pinum_expected_at(STAGE_PARSER, found.line, found.col, "a data type (int, float, list<int>, etc.)", peek_display(parser));
+                pinum_expected_at(STAGE_PARSER, found.line, found.col, "a data type (int, float, vec<int>, etc.)", peek_display(parser));
         }
 }
 ASTnode *parse_declaration(Parser *parser) {
@@ -282,7 +282,7 @@ ASTnode *parse_declaration(Parser *parser) {
                 modifier_token = parser->tokens->tokens[parser->current - 1];
         }
 
-        // Data Type (Required) - supports generic types like list<int>
+        // Data Type (Required) - supports generic types like vec<int>
         parse_type(parser, &data_type, &element_type);
 
         if (!is_valid_modifier(modifier, data_type)) {
@@ -416,7 +416,7 @@ ASTnode *parse_primary(Parser *parser) {
                                 elements[count++] = elem;
                         } while (match(parser, TOKEN_COMMA));
                 }
-                consume(parser, TOKEN_RSPAREN, "']' after list elements");
+                consume(parser, TOKEN_RSPAREN, "']' after vec elements");
                 ASTnode *list_node = make_list_literal_node(elements, count);
                 ast_set_loc(list_node, bracket_tok.line, bracket_tok.col);
                 return list_node;

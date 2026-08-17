@@ -103,13 +103,13 @@ struct ASTnode {
 
                 // NODE_VAR_DECL: Declaring a new variable.
                 struct {
-                        char *type_name; // e.g., "int", "float", "list"
+                        char *type_name; // e.g., "int", "float", "vec"
                         char *modifiers; // e.g., "unsigned", "long"
                         char *name;      // Variable name
                         ASTnode *value;  // Initial value expression (can be NULL)
                         bool is_array;
                         int array_size; // Size if it's an array, 0 otherwise
-                        char *element_type; // for generic types like list<int>, stores "int"
+                        char *element_type; // for generic types like vec<int>, stores "int"
                 } var_decl;
 
                 // NODE_ASSIGN: Assigning a value to an existing variable.

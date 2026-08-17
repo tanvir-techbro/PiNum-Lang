@@ -21,6 +21,8 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
+/* C code generation backend */
+
 #include "../include/codegen_c.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,8 +118,24 @@ static const char *codegen_specifier(ASTnode *node) {
 // maps a PiNum type name to its C equivalent
 static const char *codegen_type(const char *type_name) {
         if (strcmp(type_name, "string") == 0) return "char *";
-        if (strcmp(type_name, "list") == 0) return "list";
+        if (strcmp(type_name, "vec") == 0) return "vec";
         return type_name; // int, float, double, char, bool map 1:1
+}
+
+// maps a declaration to its concrete C type, resolving vec<T> → vec_T
+static const char *codegen_decl_type(ASTnode *node) {
+        if (node->data.var_decl.type_name && strcmp(node->data.var_decl.type_name, "vec") == 0) {
+                static char buf[32];
+                snprintf(buf, sizeof(buf), "vec_%s", node->data.var_decl.element_type ? node->data.var_decl.element_type : "int");
+                return buf;
+        }
+        return codegen_type(node->data.var_decl.type_name);
+}
+
+// true when a node holds a vec<T> value (resolved_type like "vec_int")
+static bool is_vec(ASTnode *node) {
+        const char *t = node->resolved_type;
+        return t && strncmp(t, "vec_", 4) == 0;
 }
 
 // maps a PiNum operator token to its C equivalent
@@ -148,8 +166,8 @@ static void codegen_for_param(ASTnode *node, FILE *output, int level) {
         }
         switch (node->type) {
         case NODE_VAR_DECL: {
-                // build the full C type, e.g. "long int" or "char *"
-                const char *base_type = codegen_type(node->data.var_decl.type_name);
+                // build the full C type, e.g. "long int" or "char *" or "vec_int"
+                const char *base_type = codegen_decl_type(node);
                 char full_type[64];
                 if (node->data.var_decl.modifiers) {
                         snprintf(full_type, sizeof(full_type), "%s %s", node->data.var_decl.modifiers, base_type);
@@ -199,7 +217,9 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 fprintf(output, "'%c'", node->data.char_literal.value);
                 break;
         case NODE_LIST_LITERAL: {
-                fprintf(output, "list_create(%d", node->data.list_literal.count);
+                // e.g. [1, 2] in a vec<int> decl → __pinum_vec_int_init(2, 1, 2)
+                const char *vec_type = node->resolved_type ? node->resolved_type : "vec_int";
+                fprintf(output, "__pinum_%s_init(%d", vec_type, node->data.list_literal.count);
                 for (int i = 0; i < node->data.list_literal.count; i++) {
                         fprintf(output, ", ");
                         codegen_node(node->data.list_literal.elements[i], output, level);
@@ -217,7 +237,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 if (node->data.binary_expression.op == TOKEN_STAR) {
                         if (is_char(node->data.binary_expression.left)) {
                                 // 'a' * 3  →  __pinum_repeat_char('a', 3)
-                                fprintf(output, "__pinum_repeat_char__(");
+                                fprintf(output, "__pinum_repeat_char(");
                                 codegen_node(node->data.binary_expression.left, output, level);
                                 fprintf(output, ", ");
                                 codegen_node(node->data.binary_expression.right, output, level);
@@ -225,7 +245,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                                 break;
                         } else if (is_char(node->data.binary_expression.right)) {
                                 // 3 * 'a'  →  __pinum_repeat_char('a', 3)  (args swapped!)
-                                fprintf(output, "__pinum_repeat_char__(");
+                                fprintf(output, "__pinum_repeat_char(");
                                 codegen_node(node->data.binary_expression.right, output, level);
                                 fprintf(output, ", ");
                                 codegen_node(node->data.binary_expression.left, output, level);
@@ -237,7 +257,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 if (node->data.binary_expression.op == TOKEN_STAR) {
                         if (is_string(node->data.binary_expression.left)) {
                                 // 'a' * 3  →  __pinum_repeat_char('a', 3)
-                                fprintf(output, "__pinum_repeat_string__(");
+                                fprintf(output, "__pinum_repeat_string(");
                                 codegen_node(node->data.binary_expression.left, output, level);
                                 fprintf(output, ", ");
                                 codegen_node(node->data.binary_expression.right, output, level);
@@ -245,7 +265,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                                 break;
                         } else if (is_string(node->data.binary_expression.right)) {
                                 // 3 * 'a'  →  __pinum_repeat_char('a', 3)  (args swapped!)
-                                fprintf(output, "__pinum_repeat_string__(");
+                                fprintf(output, "__pinum_repeat_string(");
                                 codegen_node(node->data.binary_expression.right, output, level);
                                 fprintf(output, ", ");
                                 codegen_node(node->data.binary_expression.left, output, level);
@@ -256,7 +276,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 // string addition
                 if (node->data.binary_expression.op == TOKEN_PLUS && is_string(node->data.binary_expression.left) && is_string(node->data.binary_expression.right)) {
                         // "a" + "b"  →  __pinum_add_string__("a", "b")
-                        fprintf(output, "__pinum_add_string__(");
+                        fprintf(output, "__pinum_add_string(");
                         codegen_node(node->data.binary_expression.left, output, level);
                         fprintf(output, ", ");
                         codegen_node(node->data.binary_expression.right, output, level);
@@ -290,8 +310,8 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 
         // ---- Declarations & assignment ----
         case NODE_VAR_DECL: {
-                // build the full C type, e.g. "long int" or "char *"
-                const char *base_type = codegen_type(node->data.var_decl.type_name);
+                // build the full C type, e.g. "long int" or "char *" or "vec_int"
+                const char *base_type = codegen_decl_type(node);
                 char full_type[64];
                 if (node->data.var_decl.modifiers) {
                         snprintf(full_type, sizeof(full_type), "%s %s", node->data.var_decl.modifiers, base_type);
@@ -378,20 +398,46 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break;
 
         // ---- Built-in statements ----
-        case NODE_PRINT:
-                fprintf(output, "printf(\"");
-                // gets the specifier and writes it to the print statement
-                for (int i = 0; i < node->data.print.arg_count; i++) {
-                        fprintf(output, "%s", codegen_specifier(node->data.print.args[i]));
+        case NODE_PRINT: {
+                int n = node->data.print.arg_count;
+                int group_start = 0;
+                for (int i = 0; i < n; i++) {
+                        if (is_vec(node->data.print.args[i])) {
+                                // flush the scalar group that came before this vec
+                                if (i > group_start) {
+                                        fprintf(output, "printf(\"");
+                                        for (int j = group_start; j < i; j++) {
+                                                fprintf(output, "%s", codegen_specifier(node->data.print.args[j]));
+                                        }
+                                        fprintf(output, "\"");
+                                        for (int j = group_start; j < i; j++) {
+                                                fprintf(output, ", ");
+                                                codegen_node(node->data.print.args[j], output, level);
+                                        }
+                                        fprintf(output, ");\n");
+                                }
+                                // vec args print their own "[1, 2]" via the runtime helper
+                                fprintf(output, "__pinum_%s_print(", node->data.print.args[i]->resolved_type);
+                                codegen_node(node->data.print.args[i], output, level);
+                                fprintf(output, ");\n");
+                                group_start = i + 1;
+                        }
                 }
-                fprintf(output, "\"");
-                // adds args for each specifier
-                for (int i = 0; i < node->data.print.arg_count; i++) {
-                        fprintf(output, ", ");
-                        codegen_node(node->data.print.args[i], output, level);
+                // flush any remaining scalar args
+                if (group_start < n) {
+                        fprintf(output, "printf(\"");
+                        for (int j = group_start; j < n; j++) {
+                                fprintf(output, "%s", codegen_specifier(node->data.print.args[j]));
+                        }
+                        fprintf(output, "\"");
+                        for (int j = group_start; j < n; j++) {
+                                fprintf(output, ", ");
+                                codegen_node(node->data.print.args[j], output, level);
+                        }
+                        fprintf(output, ");\n");
                 }
-                fprintf(output, ");\n");
                 break;
+        }
 
         // ---- Functions ----
         case NODE_FUNC_DEF:

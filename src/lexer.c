@@ -678,11 +678,11 @@ token lexer_tokenize_words(FILE *buffer) {
                 } else {
                         tokens.type = TOKEN_STRING;
                 }
-        } else if (strcmp(char_buffer, "list") == 0) {
+        } else if (strcmp(char_buffer, "vec") == 0) {
                 if (SQUOTE_MODE || DQUOTE_MODE) {
                         tokens.type = TOKEN_QSTRING;
                 } else {
-                        tokens.type = TOKEN_LIST;
+                        tokens.type = TOKEN_VEC;
                 }
         } else if (strcmp(char_buffer, "true") == 0) {
                 if (SQUOTE_MODE || DQUOTE_MODE) {
@@ -850,8 +850,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_CHAR";
         case TOKEN_STRING:
                 return "TOKEN_STRING";
-        case TOKEN_LIST:
-                return "TOKEN_LIST";
+        case TOKEN_VEC:
+                return "TOKEN_VEC";
         case TOKEN_TRUE:
                 return "TOKEN_TRUE";
         case TOKEN_FALSE:

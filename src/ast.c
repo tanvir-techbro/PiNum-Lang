@@ -114,7 +114,7 @@ const char *node_type_name(nodeType type) {
         case NODE_CONTINUE:
                 return "continue statement";
         case NODE_LIST_LITERAL:
-                return "list literal";
+                return "vec literal";
         default:
                 return "expression";
         }
