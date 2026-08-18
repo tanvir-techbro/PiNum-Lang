@@ -202,6 +202,13 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                 if (!type) {
                         pinum_error_at(STAGE_SEMANTIC, ERR_UNDECLARED_VAR, node->line, node->col, node->data.assign.name);
                 }
+                if (node->data.assign.index) {
+                        // arr[idx] = v — validate the array and analyze the index
+                        if (strncmp(type, "vec_", 4) != 0) {
+                                pinum_error_at(STAGE_SEMANTIC, ERR_UNKNOWN, node->line, node->col, node->data.assign.name);
+                        }
+                        sem_analyze_node(a, node->data.assign.index);
+                }
                 sem_analyze_node(a, node->data.assign.value);
                 break;
         }

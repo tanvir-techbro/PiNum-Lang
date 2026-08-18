@@ -677,6 +677,20 @@ ASTnode *parse_assignment(Parser *parser) {
         if (match(parser, TOKEN_EQUAL)) {
                 token trigger = parser->tokens->tokens[parser->current - 1];
                 ASTnode *value = parse_assignment(parser);
+                if (node->type == NODE_ARRAY_ACCESS) {
+                        // detach the borrowed fields so free_ast_node won't free them
+                        char *name = node->data.array_access.name;
+                        ASTnode *index = node->data.array_access.index;
+                        int line = node->line;
+                        int col = node->col;
+                        node->data.array_access.name = NULL;
+                        node->data.array_access.index = NULL;
+                        free_ast_node(node);
+                        ASTnode *assign = make_array_assign_node(name, index, value);
+                        ast_set_loc(assign, line, col);
+                        free(name);
+                        return assign;
+                }
                 if (node->type != NODE_IDENTIFIER) {
                         pinum_error_at(STAGE_PARSER, ERR_INVALID_ASSIGN_TARGET, trigger.line, trigger.col, node_type_name(node->type));
                 }

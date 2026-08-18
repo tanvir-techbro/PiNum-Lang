@@ -47,3 +47,21 @@ print("nums size: ", nums.size, "\n")
 int extra = 21
 nums.append(extra * 2)
 print(nums, "\n")
+
+# --- element assignment: arr[index] = value ---
+# writes are bounds-checked just like reads (panic on out-of-bounds)
+nums[0] = 99
+print("after nums[0] = 99: ", nums, "\n")
+
+# the index can be any expression; so can the value
+int idx = 1
+nums[idx] = nums[idx] * 10
+nums[2] = extra + 1
+print(nums, "\n")
+
+# works for every element type
+words[0] = "Pi"
+ratios[0] = 5.5
+letters[1] = 'Z'
+dbl[1] = dbl[1] + 1.0
+print(words, " ", ratios, " ", letters, " ", dbl, "\n")

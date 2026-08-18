@@ -210,6 +210,13 @@ ASTnode *make_assign_node(char *name, ASTnode *value) {
         node->data.assign.value = value;
         return node;
 }
+ASTnode *make_array_assign_node(char *name, ASTnode *index, ASTnode *value) {
+        ASTnode *node = create_ast_node(NODE_ASSIGN);
+        node->data.assign.name = strdup(name);
+        node->data.assign.index = index;
+        node->data.assign.value = value;
+        return node;
+}
 ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count) {
         ASTnode *node = create_ast_node(NODE_FUNC_CALL);
         node->data.func_call.name = strdup(name);
@@ -369,6 +376,7 @@ void free_ast_node(ASTnode *node) {
                 break;
         case NODE_ASSIGN:
                 free(node->data.assign.name);
+                if (node->data.assign.index) free_ast_node(node->data.assign.index);
                 free_ast_node(node->data.assign.value);
                 break;
         case NODE_FUNC_CALL:
@@ -518,6 +526,7 @@ void print_ast(ASTnode *node, int level) {
                 break;
         case NODE_ASSIGN:
                 printf("ASSIGN: %s\n", node->data.assign.name);
+                if (node->data.assign.index) print_ast(node->data.assign.index, level + 1);
                 print_ast(node->data.assign.value, level + 1);
                 break;
         case NODE_MEMBER_ACCESS:

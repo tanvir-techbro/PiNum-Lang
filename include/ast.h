@@ -115,6 +115,7 @@ struct ASTnode {
                 // NODE_ASSIGN: Assigning a value to an existing variable.
                 struct {
                         char *name;     // Variable name
+                        ASTnode *index; // Element index for arr[idx] = v, NULL for plain var
                         ASTnode *value; // New value expression
                 } assign;
 
@@ -271,6 +272,7 @@ ASTnode *make_for_node(ASTnode *init, ASTnode *condition, ASTnode *increment, AS
 ASTnode *make_directive_node(char *name, char *value);
 ASTnode *make_var_decl_node(char *type_name, char *modifiers, char *name, ASTnode *value, bool is_array, int array_size);
 ASTnode *make_assign_node(char *name, ASTnode *value);
+ASTnode *make_array_assign_node(char *name, ASTnode *index, ASTnode *value);
 ASTnode *make_func_call_node(char *name, ASTnode **args, int arg_count);
 ASTnode *make_func_def_node(char *return_type, char *name, ASTnode **params, int param_count, ASTnode *body);
 ASTnode *make_print_node(void);

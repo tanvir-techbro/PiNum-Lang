@@ -194,7 +194,13 @@ static void codegen_for_param(ASTnode *node, FILE *output, int level) {
                 break;
         }
         case NODE_ASSIGN:
-                fprintf(output, "%s = ", node->data.assign.name);
+                if (node->data.assign.index) {
+                        fprintf(output, "%s.data[__pinum_check_bounds(%s.size, ", node->data.assign.name, node->data.assign.name);
+                        codegen_node(node->data.assign.index, output, level);
+                        fprintf(output, ")] = ");
+                } else {
+                        fprintf(output, "%s = ", node->data.assign.name);
+                }
                 codegen_node(node->data.assign.value, output, level);
                 break;
         default:
@@ -345,7 +351,13 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 break;
         }
         case NODE_ASSIGN:
-                fprintf(output, "%s = ", node->data.assign.name);
+                if (node->data.assign.index) {
+                        fprintf(output, "%s.data[__pinum_check_bounds(%s.size, ", node->data.assign.name, node->data.assign.name);
+                        codegen_node(node->data.assign.index, output, level);
+                        fprintf(output, ")] = ");
+                } else {
+                        fprintf(output, "%s = ", node->data.assign.name);
+                }
                 codegen_node(node->data.assign.value, output, level);
                 fprintf(output, ";\n");
                 break;
