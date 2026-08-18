@@ -240,16 +240,17 @@ static void compile_to(const char *compiler, const char *c_path, const char *bin
         }
 
 #ifndef __wasm__
-        char *args[5];
+        char *args[6];
         args[0] = (char *)compiler;
+        args[1] = "-O3";
         if (bin_path) {
-                args[1] = "-o";
-                args[2] = (char *)bin_path;
-                args[3] = (char *)c_path;
-                args[4] = NULL;
+                args[2] = "-o";
+                args[3] = (char *)bin_path;
+                args[4] = (char *)c_path;
+                args[5] = NULL;
         } else {
-                args[1] = (char *)c_path;
-                args[2] = NULL;
+                args[2] = (char *)c_path;
+                args[3] = NULL;
         }
         if (run_cmd(NULL, compiler, args) != 0) {
                 pinum_error(STAGE_CODEGEN, ERR_COMPILE_FAILED, c_path);

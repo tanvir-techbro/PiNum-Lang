@@ -25,7 +25,7 @@
 CC ?= $CC
 RCFLAGS += -Wall -Wextra -O3    # cflags for release make
 DCFLAGS += -Wall -Wextra -g -O3 # cflags for default make
-SRC = src/main.c src/cli.c src/lexer.c src/lexer_filter.c src/parser.c \
+SRC = src/main.c src/cli.c src/lexer.c src/lexer_filter.c src/parser.c src/methods.c \
       src/ast.c src/codegen_c.c src/helper.c src/error.c src/_hashmap.c src/sema.c
 VERSION = $(shell cat VERSION)
 

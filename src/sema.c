@@ -25,6 +25,7 @@
 
 #include "../include/sema.h"
 #include "../include/error.h"
+#include "../include/methods.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -147,8 +148,8 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                 sem_analyze_node(a, node->data.member_access.object);
                 const char *obj_type = node->data.member_access.object->resolved_type;
                 if (node->data.member_access.arg_count > 0) {
-                        // method call: validate obj type vec_* and method append
-                        if (!obj_type || strncmp(obj_type, "vec_", 4) != 0 || strcmp(node->data.member_access.member, "append") != 0) {
+                        // method call: validate the method against the shared table
+                        if (!obj_type || !method_lookup(obj_type, node->data.member_access.member)) {
                                 pinum_error_at(STAGE_SEMANTIC, ERR_UNKNOWN, node->line, node->col, node->data.member_access.member);
                         }
                 }

@@ -21,12 +21,19 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
-#ifndef PINUM_VERSION_H
-#define PINUM_VERSION_H
+#ifndef METHODS_H
+#define METHODS_H
 
-#define PINUM_VERSION "1.2.18"
-// update 0.3.5 added semicolon after every expression like javascript and C.
-// update 0.6.0 supports other compilers too.
-// update 0.8.0 chnaged the compiler pipeline from line by line parsing to token stream paring.
+typedef struct {
+        const char *type_prefix;
+        const char *name;
+        const char *c_helper;
+        const char *specifier;
+} method_def;
 
-#endif // PINUM_VERSION_H
+extern const method_def METHODS[];
+extern const int METHOD_COUNT;
+
+const method_def *method_lookup(const char *obj_type, const char *name);
+
+#endif // !METHODS_H

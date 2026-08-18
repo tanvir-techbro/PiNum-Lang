@@ -21,12 +21,21 @@
  *  or contact <surjointelligence.team@gmail.com>                   *
  ********************************************************************/
 
-#ifndef PINUM_VERSION_H
-#define PINUM_VERSION_H
+#include "../include/methods.h"
+#include <string.h>
 
-#define PINUM_VERSION "1.2.18"
-// update 0.3.5 added semicolon after every expression like javascript and C.
-// update 0.6.0 supports other compilers too.
-// update 0.8.0 chnaged the compiler pipeline from line by line parsing to token stream paring.
+const method_def METHODS[] = {
+    {"vec_", "append", "__pinum_%s_append", NULL},
+};
+const int METHOD_COUNT = sizeof(METHODS) / sizeof(METHODS[0]);
 
-#endif // PINUM_VERSION_H
+// NOTE: hashmap will be implimented when the METHODS exceed 32 elements
+const method_def *method_lookup(const char *obj_type, const char *name) {
+        for (int i = 0; i < METHOD_COUNT; i++) {
+                if (strncmp(obj_type, METHODS[i].type_prefix, strlen(METHODS[i].type_prefix)) == 0 &&
+                    strcmp(name, METHODS[i].name) == 0) {
+                        return &METHODS[i];
+                }
+        }
+        return NULL;
+}

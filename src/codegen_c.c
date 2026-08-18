@@ -24,6 +24,7 @@
 /* C code generation backend */
 
 #include "../include/codegen_c.h"
+#include "../include/methods.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -453,8 +454,11 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 ASTnode *obj = node->data.member_access.object;
                 const char *member = node->data.member_access.member;
                 if (node->data.member_access.arg_count > 0) {
-                        // vec.append(x)  →  __pinum_vec_<t>_append(&obj, x);
-                        fprintf(output, "__pinum_%s_append(&", obj->resolved_type);
+                        const method_def *m = method_lookup(obj->resolved_type, member);
+                        // build helper name: __pinum_%_append
+                        char fn[64];
+                        snprintf(fn, sizeof(fn), m->c_helper, obj->resolved_type);
+                        fprintf(output, "%s(&", fn);
                         codegen_node(obj, output, level);
                         fprintf(output, ", ");
                         codegen_node(node->data.member_access.args[0], output, level);
