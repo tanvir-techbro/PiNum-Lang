@@ -216,6 +216,75 @@ run_codegen_tests() {
         done
 }
 
+# --- Runtime Testing Function ---
+# transpiles + compiles each .pn, runs the binary, and asserts:
+#   - `panic_*` files exit non-zero with "index out of bounds" on stderr
+#   - every other file runs and exits cleanly
+# Arguments:
+#   $1: Directory containing test files
+#   $2: Valgrind flag ('y' to enable)
+run_runtime_tests() {
+        local dir=$1
+        local use_valgrind=$2
+
+        if [ ! -d "$dir" ]; then
+                echo -e "${RED}Directory $dir does not exist.${NC}"
+                return
+        fi
+
+        files=$(ls "$dir"/*.pn 2>/dev/null)
+        if [ -z "$files" ]; then
+                echo -e "${YELLOW}No tests found in $dir.${NC}"
+                return
+        fi
+
+        echo -e "${CYAN}--- Running Runtime Tests ---${NC}"
+
+        for file in $files; do
+                test_name=$(basename "$file")
+                expect_fail=0
+                case "$test_name" in
+                panic_*) expect_fail=1 ;;
+                esac
+
+                echo -e "${GREEN}Testing: $test_name${NC}"
+                test_dir="payload/$test_name"
+                mkdir -p "$test_dir"
+
+                if [ "$use_valgrind" = "y" ]; then
+                        valgrind --leak-check=full --show-leak-kinds=all ./bin/pinum -oc "$test_dir/test result" "$file" >/dev/null
+                else
+                        ./bin/pinum -oc "$test_dir/test result" "$file" >/dev/null 2>&1
+                fi
+                if [ $? -ne 0 ]; then
+                        echo -e "${RED}Result: FAIL (transpile failed)${NC}"
+                        echo -e "${CYAN}----------------------------------------------------${NC}"
+                        echo ""
+                        continue
+                fi
+
+                if [ "$use_valgrind" = "y" ]; then
+                        output=$(valgrind --leak-check=full --show-leak-kinds=all "$test_dir/test result" 2>&1)
+                else
+                        output=$("$test_dir/test result" 2>&1)
+                fi
+                exit_code=$?
+
+                if [ "$expect_fail" -eq 1 ] && [ "$exit_code" -ne 0 ] && echo "$output" | grep -q "index out of bounds"; then
+                        echo -e "${GREEN}Result: PASS (correctly panicked, exit $exit_code)${NC}"
+                elif [ "$expect_fail" -eq 0 ] && [ "$exit_code" -eq 0 ]; then
+                        echo -e "${GREEN}Result: PASS (ran cleanly)${NC}"
+                elif [ "$expect_fail" -eq 1 ]; then
+                        echo -e "${RED}Result: FAIL (expected panic, got exit $exit_code)${NC}"
+                else
+                        echo -e "${RED}Result: FAIL (binary did not exit cleanly)${NC}"
+                fi
+
+                echo -e "${CYAN}----------------------------------------------------${NC}"
+                echo ""
+        done
+}
+
 # --- Main UI and Interaction ---
 
 # Clear screen for a clean user interface
@@ -246,19 +315,20 @@ echo "3) AST tests"
 echo "4) Parser tests"
 echo "5) Codegen tests"
 echo "6) Semantic tests"
-echo "7) Exit"
+echo "7) Runtime tests"
+echo "8) Exit"
 echo ""
 
-read -p "Enter your choice [1-7]: " choice
+read -p "Enter your choice [1-8]: " choice
 
 # Handle Exit choice
-if [ "$choice" -eq 7 ]; then
+if [ "$choice" -eq 8 ]; then
         echo "Exiting."
         exit 0
 fi
 
 # Input validation for menu choice
-if [[ ! "$choice" =~ ^[1-6]$ ]]; then
+if [[ ! "$choice" =~ ^[1-7]$ ]]; then
         echo -e "${RED}Invalid choice. Exiting.${NC}"
         exit 1
 fi
@@ -287,6 +357,7 @@ case $choice in
         run_tests "test/parser-tests" "$valgrind_choice" "Parser"
         run_codegen_tests "test/codegen-tests" "$valgrind_choice"
         run_semantic_tests "test/semantic" "$valgrind_choice"
+        run_runtime_tests "test/runtime-tests" "$valgrind_choice"
         ;;
 2)
         run_tests "test/lexer-tests" "$valgrind_choice" "Lexer"
@@ -302,6 +373,9 @@ case $choice in
         ;;
 6)
         run_semantic_tests "test/semantic" "$valgrind_choice"
+        ;;
+7)
+        run_runtime_tests "test/runtime-tests" "$valgrind_choice"
         ;;
 esac
 

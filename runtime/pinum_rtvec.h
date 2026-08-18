@@ -29,6 +29,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// bound checking for array access arr[idx]
+static inline void __pinum_panic_bounds(size_t len, long long idx) {
+        fprintf(stderr, "pinum: index out of bounds: %lld (size %zu)\n", idx, len);
+        exit(1);
+}
+#define __pinum_check_bounds(len, idx) \
+        ((unsigned long long)(idx) < (unsigned long long)(len) ? (idx) : (__pinum_panic_bounds(len, (long long)(idx)), 0))
+
 /* ---------- INT ---------- */
 typedef struct {
         int *data;

@@ -1,0 +1,18 @@
+# Codegen: arr[i] reads — every vec element type, in bounds
+vec<int> nums = [10, 20, 30];
+print(nums[0], " ", nums[2], "\n");
+
+# expression index
+print(nums[1 + 1], "\n");
+
+vec<string> words = ["PiNum", "rocks"];
+print(words[0], " ", words[1], "\n");
+
+vec<float> ratios = [1.5, 2.5];
+print(ratios[1], "\n");
+
+vec<char> letters = ['a', 'b', 'c'];
+print(letters[0], letters[1], letters[2], "\n");
+
+# bounds checking stays quiet in-bounds
+print("ok\n");

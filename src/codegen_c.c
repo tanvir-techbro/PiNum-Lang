@@ -111,6 +111,8 @@ static const char *codegen_specifier(ASTnode *node) {
                 const char *type = node->resolved_type;
                 return type ? specifier_for_type(type) : "%d";
         }
+        case NODE_ARRAY_ACCESS:
+                return specifier_for_type(node->resolved_type);
         case NODE_MEMBER_ACCESS:
                 // properties like .size / .capacity are size_t
                 return "%zu";
@@ -233,6 +235,12 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
         }
         case NODE_IDENTIFIER:
                 fprintf(output, "%s", node->data.identifier.name);
+                break;
+        case NODE_ARRAY_ACCESS:
+                // bound check using runtime function first
+                fprintf(output, "%s.data[__pinum_check_bounds(%s.size, ", node->data.array_access.name, node->data.array_access.name);
+                codegen_node(node->data.array_access.index, output, level);
+                fprintf(output, ")]");
                 break;
 
         // ---- Expressions ----

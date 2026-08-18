@@ -1,0 +1,3 @@
+# Runtime: OOB literal index must panic
+vec<int> nums = [10, 20, 30];
+print(nums[3], "\n");

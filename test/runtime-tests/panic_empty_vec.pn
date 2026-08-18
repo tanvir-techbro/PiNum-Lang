@@ -1,0 +1,3 @@
+# Runtime: index on an empty vec must panic
+vec<int> nums = [];
+print(nums[0], "\n");

@@ -1,0 +1,5 @@
+# Runtime: variable index out of bounds must panic
+vec<int> nums = [10, 20];
+nums.append(30);
+int i = 3;
+print(nums[i], "\n");

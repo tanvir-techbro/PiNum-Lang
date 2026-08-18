@@ -140,7 +140,13 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                 if (!type) {
                         pinum_error_at(STAGE_SEMANTIC, ERR_UNDECLARED_VAR, node->line, node->col, node->data.array_access.name);
                 }
-                node->resolved_type = strdup(type);
+                if (strncmp(type, "vec_", 4) == 0) {
+                        const char *elem = type + 4; // int, float, string...
+                        if (strcmp(elem, "string") == 0) node->resolved_type = strdup("char *");
+                        else node->resolved_type = strdup(elem);
+                } else {
+                        node->resolved_type = strdup(type);
+                }
                 sem_analyze_node(a, node->data.array_access.index);
                 break;
         }
