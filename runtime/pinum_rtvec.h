@@ -37,268 +37,66 @@ static inline void __pinum_panic_bounds(size_t len, long long idx) {
 #define __pinum_check_bounds(len, idx) \
         ((unsigned long long)(idx) < (unsigned long long)(len) ? (idx) : (__pinum_panic_bounds(len, (long long)(idx)), 0))
 
-/* ---------- INT ---------- */
-typedef struct {
-        int *data;
-        size_t size;
-        size_t capacity;
-} vec_int;
+/* ---------- GENERIC VEC TEMPLATE ---------- */
+// PINUM_VEC_DEFINE(T, ETYPE, PTRTYPE, VAPROMO, FMT)
+//   T        - name token used for the concrete type: vec_<T>, __pinum_vec_<T>_*
+//   ETYPE    - C type of a stored element (int, float, char, char *...)
+//   PTRTYPE  - C type of the data pointer field (int *, char **...)
+//   VAPROMO  - type va_arg promotes to for this element type
+//              (char/bool promote to int, float promotes to double)
+//   FMT      - printf format string for a single element
+#define PINUM_VEC_DEFINE(T, ETYPE, PTRTYPE, VAPROMO, FMT)                                      \
+        typedef struct {                                                                       \
+                PTRTYPE data;                                                                  \
+                size_t size;                                                                   \
+                size_t capacity;                                                               \
+        } vec_##T;                                                                             \
+                                                                                               \
+        static inline vec_##T __pinum_vec_##T##_init(int count, ...) {                         \
+                vec_##T v = {NULL, 0, 0};                                                      \
+                if (count > 0) {                                                               \
+                        v.data = (PTRTYPE)malloc(sizeof(ETYPE) * (size_t)count);               \
+                        if (v.data) {                                                          \
+                                v.size = v.capacity = (size_t)count;                           \
+                                va_list ap;                                                    \
+                                va_start(ap, count);                                           \
+                                for (int i = 0; i < count; i++) {                              \
+                                        v.data[i] = va_arg(ap, VAPROMO);                       \
+                                }                                                              \
+                                va_end(ap);                                                    \
+                        }                                                                      \
+                }                                                                              \
+                return v;                                                                      \
+        }                                                                                      \
+                                                                                               \
+        static inline void __pinum_vec_##T##_append(vec_##T *v, ETYPE item) {                  \
+                if (v->size >= v->capacity) {                                                  \
+                        size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;               \
+                        PTRTYPE new_data = (PTRTYPE)realloc(v->data, sizeof(ETYPE) * new_cap); \
+                        if (!new_data) {                                                       \
+                                return;                                                        \
+                        }                                                                      \
+                        v->data = new_data;                                                    \
+                        v->capacity = new_cap;                                                 \
+                }                                                                              \
+                v->data[v->size++] = item;                                                     \
+        }                                                                                      \
+                                                                                               \
+        static inline void __pinum_vec_##T##_print(vec_##T v) {                                \
+                printf("[");                                                                   \
+                for (size_t i = 0; i < v.size; i++) {                                          \
+                        if (i) printf(", ");                                                   \
+                        printf(FMT, v.data[i]);                                                \
+                }                                                                              \
+                printf("]");                                                                   \
+        }
 
-static inline vec_int __pinum_vec_int_init(int count, ...) {
-        vec_int v = {NULL, 0, 0};
-        if (count > 0) {
-                v.data = (int *)malloc(sizeof(int) * (size_t)count);
-                if (v.data) {
-                        v.size = v.capacity = (size_t)count;
-                        va_list ap;
-                        va_start(ap, count);
-                        for (int i = 0; i < count; i++) {
-                                v.data[i] = va_arg(ap, int);
-                        }
-                        va_end(ap);
-                }
-        }
-        return v;
-}
-static inline void __pinum_vec_int_append(vec_int *v, int item) {
-        if (v->size >= v->capacity) {
-                size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;
-                int *new_data = (int *)realloc(v->data, sizeof(int) * new_cap);
-                if (!new_data) {
-                        return;
-                }
-                v->data = new_data;
-                v->capacity = new_cap;
-        }
-        v->data[v->size++] = item;
-}
-static inline void __pinum_vec_int_print(vec_int v) {
-        printf("[");
-        for (size_t i = 0; i < v.size; i++) {
-                if (i) printf(", ");
-                printf("%d", v.data[i]);
-        }
-        printf("]");
-}
-
-/* ---------- FLOAT ---------- */
-typedef struct {
-        float *data;
-        size_t size;
-        size_t capacity;
-} vec_float;
-
-static inline vec_float __pinum_vec_float_init(int count, ...) {
-        vec_float v = {NULL, 0, 0};
-        if (count > 0) {
-                v.data = (float *)malloc(sizeof(float) * (size_t)count);
-                if (v.data) {
-                        v.size = v.capacity = (size_t)count;
-                        va_list ap;
-                        va_start(ap, count);
-                        for (int i = 0; i < count; i++) {
-                                v.data[i] = va_arg(ap, double);
-                        }
-                        va_end(ap);
-                }
-        }
-        return v;
-}
-static inline void __pinum_vec_float_append(vec_float *v, float item) {
-        if (v->size >= v->capacity) {
-                size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;
-                float *new_data = (float *)realloc(v->data, sizeof(float) * new_cap);
-                if (!new_data) {
-                        return;
-                }
-                v->data = new_data;
-                v->capacity = new_cap;
-        }
-        v->data[v->size++] = item;
-}
-static inline void __pinum_vec_float_print(vec_float v) {
-        printf("[");
-        for (size_t i = 0; i < v.size; i++) {
-                if (i) printf(", ");
-                printf("%f", v.data[i]);
-        }
-        printf("]");
-}
-
-/* ---------- DOUBLE --------- */
-typedef struct {
-        double *data;
-        size_t size;
-        size_t capacity;
-} vec_double;
-
-static inline vec_double __pinum_vec_double_init(int count, ...) {
-        vec_double v = {NULL, 0, 0};
-        if (count > 0) {
-                v.data = (double *)malloc(sizeof(double) * (size_t)count);
-                if (v.data) {
-                        v.size = v.capacity = (size_t)count;
-                        va_list ap;
-                        va_start(ap, count);
-                        for (int i = 0; i < count; i++) {
-                                v.data[i] = va_arg(ap, double);
-                        }
-                        va_end(ap);
-                }
-        }
-        return v;
-}
-static inline void __pinum_vec_double_append(vec_double *v, double item) {
-        if (v->size >= v->capacity) {
-                size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;
-                double *new_data = (double *)realloc(v->data, sizeof(double) * new_cap);
-                if (!new_data) {
-                        return;
-                }
-                v->data = new_data;
-                v->capacity = new_cap;
-        }
-        v->data[v->size++] = item;
-}
-static inline void __pinum_vec_double_print(vec_double v) {
-        printf("[");
-        for (size_t i = 0; i < v.size; i++) {
-                if (i) printf(", ");
-                printf("%lf", v.data[i]);
-        }
-        printf("]");
-}
-
-/* ---------- CHAR ---------- */
-typedef struct {
-        char *data;
-        size_t size;
-        size_t capacity;
-} vec_char;
-
-static inline vec_char __pinum_vec_char_init(int count, ...) {
-        vec_char v = {NULL, 0, 0};
-        if (count > 0) {
-                v.data = (char *)malloc(sizeof(char) * (size_t)count);
-                if (v.data) {
-                        v.size = v.capacity = (size_t)count;
-                        va_list ap;
-                        va_start(ap, count);
-                        for (int i = 0; i < count; i++) {
-                                v.data[i] = va_arg(ap, int);
-                        }
-                        va_end(ap);
-                }
-        }
-        return v;
-}
-static inline void __pinum_vec_char_append(vec_char *v, char item) {
-        if (v->size >= v->capacity) {
-                size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;
-                char *new_data = (char *)realloc(v->data, sizeof(char) * new_cap);
-                if (!new_data) {
-                        return;
-                }
-                v->data = new_data;
-                v->capacity = new_cap;
-        }
-        v->data[v->size++] = item;
-}
-static inline void __pinum_vec_char_print(vec_char v) {
-        printf("[");
-        for (size_t i = 0; i < v.size; i++) {
-                if (i) printf(", ");
-                printf("%c", v.data[i]);
-        }
-        printf("]");
-}
-
-/* ---------- BOOL ---------- */
-typedef struct {
-        int *data;
-        size_t size;
-        size_t capacity;
-} vec_bool;
-
-static inline vec_bool __pinum_vec_bool_init(int count, ...) {
-        vec_bool v = {NULL, 0, 0};
-        if (count > 0) {
-                v.data = (int *)malloc(sizeof(int) * (size_t)count);
-                if (v.data) {
-                        v.size = v.capacity = (size_t)count;
-                        va_list ap;
-                        va_start(ap, count);
-                        for (int i = 0; i < count; i++) {
-                                v.data[i] = va_arg(ap, int);
-                        }
-                        va_end(ap);
-                }
-        }
-        return v;
-}
-static inline void __pinum_vec_bool_append(vec_bool *v, int item) {
-        if (v->size >= v->capacity) {
-                size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;
-                int *new_data = (int *)realloc(v->data, sizeof(int) * new_cap);
-                if (!new_data) {
-                        return;
-                }
-                v->data = new_data;
-                v->capacity = new_cap;
-        }
-        v->data[v->size++] = item;
-}
-static inline void __pinum_vec_bool_print(vec_bool v) {
-        printf("[");
-        for (size_t i = 0; i < v.size; i++) {
-                if (i) printf(", ");
-                printf("%d", v.data[i]);
-        }
-        printf("]");
-}
-
-/* ---------- SRING ---------- */
-typedef struct {
-        char **data;
-        size_t size;
-        size_t capacity;
-} vec_string;
-
-static inline vec_string __pinum_vec_string_init(int count, ...) {
-        vec_string v = {NULL, 0, 0};
-        if (count > 0) {
-                v.data = (char **)malloc(sizeof(char *) * (size_t)count);
-                if (v.data) {
-                        v.size = v.capacity = (size_t)count;
-                        va_list ap;
-                        va_start(ap, count);
-                        for (int i = 0; i < count; i++) {
-                                v.data[i] = va_arg(ap, char *);
-                        }
-                        va_end(ap);
-                }
-        }
-        return v;
-}
-static inline void __pinum_vec_string_append(vec_string *v, char *item) {
-        if (v->size >= v->capacity) {
-                size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;
-                char **new_data = (char **)realloc(v->data, sizeof(char *) * new_cap);
-                if (!new_data) {
-                        return;
-                }
-                v->data = new_data;
-                v->capacity = new_cap;
-        }
-        v->data[v->size++] = item;
-}
-static inline void __pinum_vec_string_print(vec_string v) {
-        printf("[");
-        for (size_t i = 0; i < v.size; i++) {
-                if (i) printf(", ");
-                printf("%s", v.data[i]);
-        }
-        printf("]");
-}
+/* ---------- CONCRETE VECS ---------- */
+PINUM_VEC_DEFINE(int, int, int *, int, "%d")
+PINUM_VEC_DEFINE(float, float, float *, double, "%f")
+PINUM_VEC_DEFINE(double, double, double *, double, "%lf")
+PINUM_VEC_DEFINE(char, char, char *, int, "%c")
+PINUM_VEC_DEFINE(bool, int, int *, int, "%d")
+PINUM_VEC_DEFINE(string, char *, char **, char *, "%s")
 
 #endif // !PINUM_RTVEC_H
