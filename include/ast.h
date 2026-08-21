@@ -241,6 +241,7 @@ struct ASTnode {
                 struct {
                         ASTnode **args;
                         int arg_count;
+                        bool newline; // true for println (append trailing '\n')
                 } print;
                 struct {
                         char *name;

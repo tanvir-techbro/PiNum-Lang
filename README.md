@@ -2,7 +2,7 @@
   <img src="extras/assets/pinum_logo.svg" alt="PiNum Logo" width="200" />
 </p>
 
-# PiNum-Lang 1.2.4-beta
+# PiNum-Lang 1.3.0-beta
 
 https://pinum-project.github.io - official site for pinum. check for documentation and other info.
 PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programming language currently under development.
@@ -198,8 +198,8 @@ PiNum is currently in its early stages:
 - [x] ast
 - [x] Parser
 - [x] Code Generation (print, read, variables, if/else, while, return, break, continue)
-- [ ] For loops, functions, data structures (in progress)
-- [ ] Runtime Library (later)
+- [x] Runtime Library (later)
+- [ ] object oriented programming, data structures (in progress)
 
 ## 🤝 Contributing
 

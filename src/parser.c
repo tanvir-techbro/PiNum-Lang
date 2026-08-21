@@ -25,6 +25,7 @@
 #include "../include/parser.h"
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 // --- initialization function (main) ---
 ASTnode *parse(token_list *tokens) {
@@ -41,9 +42,13 @@ ASTnode *parse_program(Parser *parser) {
         ASTnode *program = create_ast_node(NODE_PROGRAM);
         while (!check(parser, TOKEN_EOF)) {
                 // Skip newlines between statements
-                if (match(parser, TOKEN_NLINE))
+                if (match(parser, TOKEN_NLINE)) {
                         continue;
-
+                }
+                if (match(parser, TOKEN_FN)) {
+                        ast_add_statement(program, parse_func_def(parser));
+                        continue;
+                }
                 ast_add_statement(program, parse_statement(parser));
         }
         return program;
@@ -63,6 +68,21 @@ ASTnode *parse_statement(Parser *parser) {
                 consume(parser, TOKEN_LRPAREN, "'(' after print");
                 ASTnode *node = make_print_node();
                 ast_set_loc(node, print_token.line, print_token.col);
+                if (!check(parser, TOKEN_RRPAREN)) {
+                        do {
+                                ast_add_print_arg(node, parse_expression(parser));
+                        } while (match(parser, TOKEN_COMMA));
+                }
+                consume(parser, TOKEN_RRPAREN, "')' after arguments");
+                consume_end_of_statement(parser);
+                return node;
+        }
+        if (match(parser, TOKEN_PRINTLN)) {
+                token println_token = parser->tokens->tokens[parser->current - 1];
+                consume(parser, TOKEN_LRPAREN, "'(' after println");
+                ASTnode *node = make_print_node();
+                node->data.print.newline = true;
+                ast_set_loc(node, println_token.line, println_token.col);
                 if (!check(parser, TOKEN_RRPAREN)) {
                         do {
                                 ast_add_print_arg(node, parse_expression(parser));
@@ -338,14 +358,59 @@ ASTnode *parse_block(Parser *parser) {
 }
 
 // - Function parsing -
-// TODO: implement this
-/*
-ASTnode *parse_func_def(Parser *parser) {
-}
 ASTnode *parse_func_def_param(Parser *parser) {
-        // return make_var_decl_node(char *type_name, char *modifiers, char *name, ASTnode *value, bool is_array, int array_size);
+        char *modifier = NULL;
+        if (match(parser, TOKEN_UNSIGNED)) modifier = "unsigned";
+        else if (match(parser, TOKEN_SIGNED)) modifier = "signed";
+        else if (match(parser, TOKEN_LONG)) modifier = "long";
+        else if (match(parser, TOKEN_SHORT)) modifier = "short";
+
+        char *type_name = NULL;
+        char *element_type = NULL;
+        parse_type(parser, &type_name, &element_type);
+
+        token name_token = consume(parser, TOKEN_ID, "a parameter name");
+        ASTnode *param = make_var_decl_node(type_name, modifier, name_token.value, NULL, false, 0);
+        if (element_type) {
+                param->data.var_decl.element_type = strdup(element_type);
+        }
+        ast_set_loc(param, name_token.line, name_token.col);
+        return param;
 }
-*/
+ASTnode *parse_func_def(Parser *parser) {
+        token fn_token = parser->tokens->tokens[parser->current - 1]; // the matched 'fn'
+        token func_name = consume(parser, TOKEN_ID, "function name");
+        consume(parser, TOKEN_LRPAREN, "'(' after function name");
+
+        // add parameters to the parameter list
+        ASTnode **params = NULL;
+        int param_count = 0;
+        int param_capacity = 0;
+        if (!check(parser, TOKEN_RRPAREN)) {
+                do {
+                        if (param_count >= param_capacity) {
+                                param_capacity = param_capacity == 0 ? 4 : param_capacity * 2;
+                                params = realloc(params, sizeof(ASTnode *) * param_capacity);
+                        }
+                        params[param_count++] = parse_func_def_param(parser);
+                } while (match(parser, TOKEN_COMMA));
+        }
+        consume(parser, TOKEN_RRPAREN, "')' after function parameters");
+
+        char *return_type = NULL;
+        // optional '->' return type; omitting it means void
+        if (check(parser, TOKEN_MINUS)) {
+                advance(parser); // consume '-'
+                consume(parser, TOKEN_RABRACKET, "'>' after '-'");
+                parse_type(parser, &return_type, &(char *){0});
+        } else {
+                return_type = "void";
+        }
+
+        ASTnode *body = parse_block(parser);
+        ASTnode *def = make_func_def_node(return_type, func_name.value, params, param_count, body);
+        return def;
+}
 
 // - Expression parsing -
 // Takes the parsed binary node and makes a specific node

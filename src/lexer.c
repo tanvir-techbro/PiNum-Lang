@@ -576,6 +576,12 @@ token lexer_tokenize_words(FILE *buffer) {
                 } else {
                         tokens.type = TOKEN_PRINT;
                 }
+        } else if (strcmp(char_buffer, "println") == 0) {
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_PRINTLN;
+                }
         } else if (strcmp(char_buffer, "if") == 0) {
                 if (SQUOTE_MODE || DQUOTE_MODE) {
                         tokens.type = TOKEN_QSTRING;
@@ -623,6 +629,12 @@ token lexer_tokenize_words(FILE *buffer) {
                         tokens.type = TOKEN_QSTRING;
                 } else {
                         tokens.type = TOKEN_CONTINUE;
+                }
+        } else if (strcmp(char_buffer, "fn") == 0) {
+                if (SQUOTE_MODE || DQUOTE_MODE) {
+                        tokens.type = TOKEN_QSTRING;
+                } else {
+                        tokens.type = TOKEN_FN;
                 }
         } else if (strcmp(char_buffer, "read") == 0) {
                 if (SQUOTE_MODE || DQUOTE_MODE) {
@@ -822,6 +834,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_FOR";
         case TOKEN_PRINT:
                 return "TOKEN_PRINT";
+        case TOKEN_PRINTLN:
+                return "TOKEN_PRINTLN";
         case TOKEN_READ:
                 return "TOKEN_READ";
         case TOKEN_RETURN:
@@ -830,6 +844,8 @@ const char *lexer_token_type_to_string(tokenType type) {
                 return "TOKEN_BREAK";
         case TOKEN_CONTINUE:
                 return "TOKEN_CONTINUE";
+        case TOKEN_FN:
+                return "TOKEN_FN";
         case TOKEN_LONG:
                 return "TOKEN_LONG";
         case TOKEN_SHORT:

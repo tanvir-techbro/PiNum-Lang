@@ -31,6 +31,9 @@
 
 // function definitions
 static void codegen_node(ASTnode *node, FILE *output, int level);
+// like codegen_node, but adds a ';' when used as a bare statement
+// (e.g. a NODE_FUNC_CALL used as a statement: foo();)
+static void codegen_stmt(ASTnode *node, FILE *output, int level);
 
 static bool is_char(ASTnode *node) {
         if (node->type == NODE_CHAR_LITERAL) {
@@ -366,7 +369,7 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
         case NODE_BLOCK: {
                 fprintf(output, "{\n");
                 for (int i = 0; i < node->data.blocks.count; i++) {
-                        codegen_node(node->data.blocks.statements[i], output, level + 1);
+                        codegen_stmt(node->data.blocks.statements[i], output, level + 1);
                 }
                 fprintf(output, "}\n");
                 break;
@@ -460,14 +463,35 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                         }
                         fprintf(output, ");\n");
                 }
+                if (node->data.print.newline) {
+                        fprintf(output, "printf(\"\\n\");\n");
+                }
                 break;
         }
 
         // ---- Functions ----
-        case NODE_FUNC_DEF:
-                break; // TODO
-        case NODE_FUNC_CALL:
-                break; // TODO
+        case NODE_FUNC_DEF: {
+                // return type void if no return type
+                const char *ret = codegen_type(node->data.func_def.return_type ? node->data.func_def.return_type : "void");
+                fprintf(output, "%s %s(", ret, node->data.func_def.name);
+                for (int i = 0; i < node->data.func_def.param_count; i++) {
+                        if (i) fprintf(output, ", ");
+                        // each param is a NODE_VAR_DECL; codegen_for_param prints "type name" (no ';')
+                        codegen_for_param(node->data.func_def.params[i], output, level);
+                }
+                fprintf(output, ") ");
+                codegen_node(node->data.func_def.body, output, level); // NODE_BLOCK prints { ... }
+                break;
+        }
+        case NODE_FUNC_CALL: {
+                fprintf(output, "%s(", node->data.func_call.name);
+                for (int i = 0; i < node->data.func_call.arg_count; i++) {
+                        if (i) fprintf(output, ", ");
+                        codegen_node(node->data.func_call.args[i], output, level);
+                }
+                fprintf(output, ")");
+                break;
+        }
 
         // ---- Member access & method calls ----
         case NODE_MEMBER_ACCESS: {
@@ -518,9 +542,30 @@ void codegen_c(ASTnode *program, FILE *output) {
 #else
         fprintf(output, "#include \"pinum_runtime.h\"\n");
 #endif
+        // Pass 1: function definitions at file scope (real C functions)
+        for (int i = 0; i < program->data.program.count; i++) {
+                ASTnode *stmt = program->data.program.statements[i];
+                if (stmt && stmt->type == NODE_FUNC_DEF) {
+                        codegen_node(stmt, output, 0);
+                }
+        }
+        // Pass 2: everything else goes inside main
         fprintf(output, "int main(void) {\n");
         for (int i = 0; i < program->data.program.count; i++) {
-                codegen_node(program->data.program.statements[i], output, 1);
+                ASTnode *stmt = program->data.program.statements[i];
+                if (stmt && stmt->type != NODE_FUNC_DEF) {
+                        codegen_stmt(stmt, output, 1);
+                }
         }
+
         fprintf(output, "\nreturn 0;\n}\n");
+}
+
+// wraps codegen_node with a trailing ';' for expression statements
+// that don't self-terminate (currently only NODE_FUNC_CALL).
+static void codegen_stmt(ASTnode *node, FILE *output, int level) {
+        codegen_node(node, output, level);
+        if (node && node->type == NODE_FUNC_CALL) {
+                fprintf(output, ";\n");
+        }
 }

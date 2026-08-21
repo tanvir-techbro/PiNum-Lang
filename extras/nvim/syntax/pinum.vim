@@ -36,11 +36,11 @@ highlight link pinumDirective PreProc
 highlight link pinumLib Special
 
 " 2. Keywords
-syntax keyword pinumKeyword if else while for break continue return
+syntax keyword pinumKeyword if else while for break continue return fn
 highlight link pinumKeyword Statement
 
 " 3. Builtins
-syntax keyword pinumBuiltin print read
+syntax keyword pinumBuiltin print read println
 highlight link pinumBuiltin Function
 
 " 4. Data Types & Prefixes

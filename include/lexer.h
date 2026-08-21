@@ -47,10 +47,12 @@ typedef enum {
         TOKEN_WHILE,    // keyword while
         TOKEN_FOR,      // keyword for
         TOKEN_PRINT,    // keyword print
+        TOKEN_PRINTLN,  // keyword println, print with a trailing newline
         TOKEN_READ,     // keyword read, takes input from user
         TOKEN_RETURN,   // keyword return
         TOKEN_BREAK,    // keyword break
         TOKEN_CONTINUE, // keyword continue
+        TOKEN_FN,       // keyword fn, defines a function
         // Data types
         TOKEN_LONG,     // long prefix
         TOKEN_SHORT,    // short prefix
