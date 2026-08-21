@@ -541,6 +541,8 @@ void codegen_c(ASTnode *program, FILE *output) {
         fprintf(output, "#include \"%s/.pinum-lang/runtime/pinum_runtime.h\"\n", home_dir);
 #else
         fprintf(output, "#include \"pinum_runtime.h\"\n");
+        fprintf(output, "#include \"pinum_rtvec.h\"\n");
+        fprintf(output, "#include \"pinum_rtstrchr.h\"\n");
 #endif
         // Pass 1: function definitions at file scope (real C functions)
         for (int i = 0; i < program->data.program.count; i++) {
