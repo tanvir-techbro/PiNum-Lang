@@ -93,6 +93,20 @@ static char *sem_fulltype(const char *type_name, const char *modifiers, const ch
         return out;
 }
 
+// free funcSig struct
+static void funcSig_free(void *p) {
+        funcSig *fs = (funcSig *)p;
+        if (!fs) {
+                return;
+        }
+        free(fs->return_type);
+        for (size_t i = 0; i < fs->param_count; i++) {
+                free(fs->param_types[i]);
+        }
+        free(fs->param_types);
+        free(fs);
+}
+
 // - Walker -
 static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
         switch (node->type) {
@@ -263,21 +277,46 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                 break;
 
         // ---- Functions ----
-        case NODE_FUNC_DEF:
-                sem_push_scope(a);
-                for (int i = 0; i < node->data.func_def.param_count; i++) {
-                        sem_analyze_node(a, node->data.func_def.params[i]);
+        case NODE_FUNC_DEF: {
+                funcSig *fs = malloc(sizeof(funcSig));
+                fs->return_type = node->data.func_def.return_type ? strdup(node->data.func_def.return_type) : strdup("void");
+                fs->param_count = node->data.func_def.param_count;
+                fs->param_types = NULL;
+                // add functions parameter types if there are
+                if (fs->param_count > 0) {
+                        fs->param_types = malloc(sizeof(char *) * fs->param_count);
+                        for (int i = 0; i < (int)fs->param_count; i++) {
+                                ASTnode *p = node->data.func_def.params[i];
+                                // sem_fulltype returns a freshly-allocated string
+                                fs->param_types[i] = sem_fulltype(p->data.var_decl.type_name, p->data.var_decl.modifiers, p->data.var_decl.element_type);
+                        }
                 }
-                if (node->data.func_def.body) {
-                        sem_analyze_node(a, node->data.func_def.body);
+
+                // register in global function name. note: key = name
+                if (!hashmap_insert(a->functions, strdup(node->data.func_def.name), fs)) {
+                        // duplicate function name
+                        funcSig_free(fs);
+                        pinum_error_at(STAGE_SEMANTIC, ERR_DUPLICATED_FUNC, node->line, node->col, node->data.func_def.name);
                 }
-                sem_pop_scope(a);
+
                 break;
-        case NODE_FUNC_CALL:
-                for (int i = 0; i < node->data.func_call.arg_count; i++) {
-                        sem_analyze_node(a, node->data.func_call.args[i]);
+        }
+        case NODE_FUNC_CALL: {
+                bool found = false;
+                funcSig *fs = hashmap_get(a->functions, node->data.func_call.name, &found);
+                if (found) {
+                        node->resolved_type = fs->return_type ? strdup(fs->return_type) : NULL;
+                        if (node->data.func_call.arg_count != (int)fs->param_count) {
+                                char message[128];
+                                snprintf(message, sizeof message, "function '%s' expects %d argument(s), got %d",
+                                         node->data.func_call.name,
+                                         (int)fs->param_count,
+                                         (int)node->data.func_call.arg_count);
+                                pinum_error_at(STAGE_SEMANTIC, ERR_ARG_COUNT, node->line, node->col, message);
+                                // optional later: compare each arg->resolved_type to s->param_types[i]
+                        }
                 }
-                break;
+        }
 
         // ---- Directives & other ----
         case NODE_IMPORT: break;
@@ -291,6 +330,8 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
 // --- MAIN ---
 void semantic_analyze(ASTnode *program) {
         SemAnalyzer a = {0};
+        a.functions = hashmap_create(hm_hash_str, hm_eq_str, free, funcSig_free);
         sem_analyze_node(&a, program);
+        hashmap_free(a.functions);
         free(a.frames);
 }

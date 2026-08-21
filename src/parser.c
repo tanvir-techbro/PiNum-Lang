@@ -378,7 +378,6 @@ ASTnode *parse_func_def_param(Parser *parser) {
         return param;
 }
 ASTnode *parse_func_def(Parser *parser) {
-        token fn_token = parser->tokens->tokens[parser->current - 1]; // the matched 'fn'
         token func_name = consume(parser, TOKEN_ID, "function name");
         consume(parser, TOKEN_LRPAREN, "'(' after function name");
 

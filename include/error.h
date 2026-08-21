@@ -61,6 +61,8 @@ typedef enum {
         // Semantic analysis errors
         ERR_UNDECLARED_VAR, // used a variable that was never declared
         ERR_REDECLARED_VAR, // declared a variable already in scope
+        ERR_ARG_COUNT,      // function called with wrong number of args
+        ERR_DUPLICATED_FUNC, // function name defined more than once
 
         // File / CLI errors
         ERR_NO_INPUT_FILE,     // no input file provided

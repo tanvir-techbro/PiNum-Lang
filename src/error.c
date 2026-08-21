@@ -153,6 +153,12 @@ static void print_error_message(ErrorStage stage, ErrorCode code, int line, int 
         case ERR_REDECLARED_VAR:
                 fprintf(stderr, "variable '%s' already declared in this scope", d);
                 break;
+        case ERR_ARG_COUNT:
+                fprintf(stderr, "%s", d);
+                break;
+        case ERR_DUPLICATED_FUNC:
+                fprintf(stderr, "function '%s' is already defined", d);
+                break;
         case ERR_NO_INPUT_FILE:
                 fprintf(stderr, "no input file provided");
                 break;

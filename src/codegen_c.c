@@ -84,6 +84,13 @@ static const char *specifier_for_type(const char *type) {
         return "%d"; // int, bool, and everything else
 }
 
+// maps a PiNum type name to its C equivalent
+static const char *codegen_type(const char *type_name) {
+        if (strcmp(type_name, "string") == 0) return "char *";
+        if (strcmp(type_name, "vec") == 0) return "vec";
+        return type_name; // int, float, double, char, bool map 1:1
+}
+
 // returns the printf format specifier that matches a node's value type
 static const char *codegen_specifier(ASTnode *node) {
         switch (node->type) {
@@ -119,16 +126,11 @@ static const char *codegen_specifier(ASTnode *node) {
         case NODE_MEMBER_ACCESS:
                 // properties like .size / .capacity are size_t
                 return "%zu";
+        case NODE_FUNC_CALL:
+                return specifier_for_type(node->resolved_type ? codegen_type(node->resolved_type) : "int");
         default:
                 return "%d";
         }
-}
-
-// maps a PiNum type name to its C equivalent
-static const char *codegen_type(const char *type_name) {
-        if (strcmp(type_name, "string") == 0) return "char *";
-        if (strcmp(type_name, "vec") == 0) return "vec";
-        return type_name; // int, float, double, char, bool map 1:1
 }
 
 // maps a declaration to its concrete C type, resolving vec<T> → vec_T
