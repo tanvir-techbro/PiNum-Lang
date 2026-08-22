@@ -2,13 +2,20 @@
   <img src="extras/assets/pinum_logo.svg" alt="PiNum Logo" width="200" />
 </p>
 
-# PiNum-Lang 1.3.0-beta
+# PiNum-Lang 1.3.0-beta2
 
 https://pinum-project.github.io - official site for pinum. check for documentation and other info.
 PiNum (represented by the `.pn` extension) is a lightweight, C-inspired programming language currently under development.
 ## ✨ Features
 
-- **C-Style Syntax:** Familiar data types (`int`, `float`, `char`, `string`, `bool`) and control structures (`if`, `else`, `return`).
+- **C-Style Syntax:** Familiar data types (`int`, `float`, `double`, `char`, `string`, `bool`) and control structures (`if`, `else`, `return`, `while`, `for`).
+- **Type Modifiers:** `long`, `short`, `unsigned`, `signed`, and `long double` are supported on the appropriate base types.
+- **Rich Expressions:** Arithmetic (`+ - * / %`), unary minus and logical not (`!`), comparisons and logical operators (`> < == != && ||`), and a ternary operator (`a > b ? a : b`).
+- **Compound Assignment & Increment:** `+= -= *= /= %=` plus `++` and `--`.
+- **Loop Sugar:** Three-part `for` loops plus a `for (N)` range form that runs the body N times with a hidden counter.
+- **Vectors:** A growable, monomorphized `vec<T>` container with `append`, `size`, and indexed read/write.
+- **Functions:** First-class `fn` definitions with optional return types and recursion.
+- **Runtime Library Helpers:** Char repetition (`'c' * n`) and string concatenation (`"a" + "b"`).
 - **Standard Library Support:** Includes a modular system using the `@import` directive (e.g., `@import stdlib`, `@import math`).
 - **Editor Support:** Built-in syntax highlighting for:
   - **VS Code:** Extension available in `extras/vscode/`.
@@ -111,34 +118,85 @@ int c = 1; print(c, "\n"); c = c + 1; print(c, "\n");
 @for engine
 ```
 
-### Veriable declaration
+### Variable declaration
 ```pinum
 # it has keywords like long, short, unsigned and signed
 
-# declares an intager veriable
+# declares an integer variable
 int number = 10
-# declares floating point veriable
+# declares a floating point variable
 float num = 3.14
-# declares a duble type verible
+# declares a double type variable
 double numero = 2.718
-# declares a string veriable
+# declares a character variable
+char letter = 'P'
+# declares a string variable
 string name = "pinum"
-# declares a boolean veriable
+# declares a boolean variable
 bool ready = true
+
+# type modifiers
+unsigned int big = 4000000000
+long int li = 123456789
+short int sh = -30000
+long double ld = 0.123456789
+signed char sc = -5
+
+# compound assignment operators
+int amount = 10
+amount += 5       # same as amount = amount + 5
+amount -= 3
+amount *= 2
+amount /= 3
+amount %= 4
+
+# increment / decrement
+amount++
+amount--
 ```
 
 ### Output & input
 ```pinum
-# print accepts any number of arguments
+# print accepts any number of arguments; println adds a newline
 print("hello ", name, "\n")
+println("count = ", number)
 
-# read stores user input into an existing veriable
+# read stores user input into an existing variable
 int data
 read(data)
 print(data, "\n")
 
-# multiple statements on one line
+# multiple statements on one line (requires semicolons)
 int n = 2; n = n + 3; print(n, "\n")
+
+# char repetition: 'c' * n repeats the char n times
+println('=' * 30)
+println('*' * (number - 3))
+
+# string concatenation: "a" + "b" joins two strings
+println("Hello, " + name + "!")
+```
+
+### Expressions
+```pinum
+int a = 10
+int b = 3
+
+# arithmetic and unary
+println("a + b = ", a + b)
+println("a % b = ", a % b)
+println("neg = ", -a)
+println("!flag = ", !false)
+
+# comparisons and logicals
+println("a > b = ", a > b)
+println("a > b && b > 0 = ", a > b && b > 0)
+
+# ternary
+int max = a > b ? a : b
+
+# expressions in assignment
+int result = (a + b) * 2
 ```
 
 ### Conditions
@@ -164,11 +222,71 @@ while (condition) {
                 continue;   # skip to the next iteration
         }
 }
+
+# three-part for loop
+for (int f = 0; f < 5; f++) {
+        println("f = ", f)
+}
+
+# counted loop with a step
+for (int step = 0; step < 10; step += 2) {
+        println("step = ", step)
+}
+
+# for (N) range sugar: runs the body N times with a hidden counter
+for (5) {
+        println("beep")
+}
+
+# nested range loops each get a unique hidden counter
+for (3) {
+        for (2) {
+                print("*")
+        }
+        println()
+}
+```
+
+### Vectors
+```pinum
+# a growable vector, monomorphized per element type
+vec<int> nums = [3, 5, 6]
+vec<float> ratios = [1.5, 2.5]
+vec<string> words = ["PiNum", "rocks"]
+vec<int> empty = []
+
+# methods and properties
+nums.append(7)
+println("nums has ", nums.size, " elements")
+
+# element access (read and write)
+println("nums[0] = ", nums[0])
+nums[1] = 99
+```
+
+### Functions
+```pinum
+# define with: fn name(params) -> returnType { ... }
+# the '-> returnType' is optional; omit it for a void function.
+fn square(int n) -> int {
+        return n * n
+}
+fn greet() {
+        println("Hello from a function!")
+}
+
+# recursion
+fn factorial(int n) -> int {
+        if (n <= 1) {
+                return 1
+        }
+        return n * factorial(n - 1)
+}
 ```
 
 ### Return
 ```pinum
-# exits the program with the given value
+# exits the program (or current function) with the given value
 return 0
 ```
 
@@ -195,10 +313,12 @@ Tests cover the lexer, parser, AST, and codegen stages. Codegen tests transpile 
 
 PiNum is currently in its early stages:
 - [x] Lexer / Tokenizer
-- [x] ast
+- [x] AST
 - [x] Parser
-- [x] Code Generation (print, read, variables, if/else, while, return, break, continue)
-- [x] Runtime Library (later)
+- [x] Code Generation (print, read, variables, type modifiers, arithmetic, comparisons, logicals, ternary, compound assignment, increment/decrement, if/else, while, for, break, continue, return)
+- [x] Vectors (`vec<T>`) with methods and indexed access
+- [x] Functions (definitions, return types, recursion)
+- [x] Runtime Library (char repetition, string concatenation)
 - [ ] object oriented programming, data structures (in progress)
 
 ## 🤝 Contributing
