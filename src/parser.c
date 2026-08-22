@@ -397,17 +397,27 @@ ASTnode *parse_func_def(Parser *parser) {
         consume(parser, TOKEN_RRPAREN, "')' after function parameters");
 
         char *return_type = NULL;
+        char *ret_element = NULL;
         // optional '->' return type; omitting it means void
         if (check(parser, TOKEN_MINUS)) {
                 advance(parser); // consume '-'
                 consume(parser, TOKEN_RABRACKET, "'>' after '-'");
-                parse_type(parser, &return_type, &(char *){0});
+                parse_type(parser, &return_type, &ret_element);
         } else {
                 return_type = "void";
         }
 
+        // resolve vec<T> → vec_T for the return type (mirrors codegen_decl_type)
+        char *ret_storage = NULL;
+        if (strcmp(return_type, "vec") == 0 && ret_element) {
+                ret_storage = malloc(strlen("vec_") + strlen(ret_element) + 1);
+                sprintf(ret_storage, "vec_%s", ret_element);
+                return_type = ret_storage;
+        }
+
         ASTnode *body = parse_block(parser);
         ASTnode *def = make_func_def_node(return_type, func_name.value, params, param_count, body);
+        free(ret_storage);
         return def;
 }
 

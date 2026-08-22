@@ -234,11 +234,20 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
                 fprintf(output, "'%c'", node->data.char_literal.value);
                 break;
         case NODE_LIST_LITERAL: {
-                // e.g. [1, 2] in a vec<int> decl → __pinum_vec_int_init(2, 1, 2)
+                // e.g. [1, 2] in a vec<int> decl → __pinum_vec_int_init(2, (int)1, (int)2)
+                // each element is cast to the vec's element type so the variadic
+                // init() reads the correct C type (e.g. int literals in a vec<double>
+                // must be passed as double, not int — otherwise va_arg misreads them).
                 const char *vec_type = node->resolved_type ? node->resolved_type : "vec_int";
+                const char *elem = vec_type;
+                if (strncmp(vec_type, "vec_", 4) == 0) {
+                        elem = codegen_type(vec_type + 4);
+                } else {
+                        elem = "int";
+                }
                 fprintf(output, "__pinum_%s_init(%d", vec_type, node->data.list_literal.count);
                 for (int i = 0; i < node->data.list_literal.count; i++) {
-                        fprintf(output, ", ");
+                        fprintf(output, ", (%s)", elem);
                         codegen_node(node->data.list_literal.elements[i], output, level);
                 }
                 fprintf(output, ")");

@@ -26,6 +26,7 @@
 #include "../include/sema.h"
 #include "../include/error.h"
 #include "../include/methods.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -298,6 +299,18 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
                         funcSig_free(fs);
                         pinum_error_at(STAGE_SEMANTIC, ERR_DUPLICATED_FUNC, node->line, node->col, node->data.func_def.name);
                 }
+
+                // make params visible inside the function, in the function's OWN scope
+                sem_push_scope(a);
+                for (size_t i = 0; i < fs->param_count; i++) {
+                        ASTnode *p = node->data.func_def.params[i];
+                        char *pt = sem_fulltype(p->data.var_decl.type_name, p->data.var_decl.modifiers, p->data.var_decl.element_type);
+                        sem_declare(a, p->data.var_decl.name, pt, p->line, p->col);
+                        free(pt); // sem_fulltype returns a fresh string; sem_declare strdup'd it
+                }
+                // body block pushes/pops its own scope INSIDE this function scope
+                sem_analyze_node(a, node->data.func_def.body);
+                sem_pop_scope(a);
 
                 break;
         }
