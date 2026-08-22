@@ -1,3 +1,4 @@
+fn main() {
 # AST: blocks and statements
 int a = 5;
 int i = 0;
@@ -11,3 +12,5 @@ if (a == 5) {
         print("a is five\n");
 }
 print(i, "\n");
+
+}

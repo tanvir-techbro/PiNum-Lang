@@ -1,3 +1,17 @@
+fn square(int n) -> int {
+        return n * n
+}
+fn greet() {
+        println("Hello from a function!")
+}
+fn factorial(int n) -> int {
+        if (n <= 1) {
+                return 1
+        }
+        return n * factorial(n - 1)
+}
+
+fn main() {
 # PiNum-Lang feature demonstration
 # Literally every feature of the language lives in this one file.
 
@@ -200,19 +214,7 @@ println("nums[1] now = ", nums[1])
 # --- functions ---
 # define with: fn name(params) -> returnType { ... }
 # the '-> returnType' is optional; omit it for a void function.
-fn square(int n) -> int {
-        return n * n
-}
-fn greet() {
-        println("Hello from a function!")
-}
 # recursion
-fn factorial(int n) -> int {
-        if (n <= 1) {
-                return 1
-        }
-        return n * factorial(n - 1)
-}
 
 int s = square(9)
 println("square(9) = ", s)
@@ -235,3 +237,5 @@ while (m < 10) {
         m = m + 1
 }
 println("never reached")
+
+}

@@ -1,3 +1,4 @@
+fn main() {
 # Codegen: if / else / else if
 int a = 10;
 int b = 3;
@@ -15,4 +16,6 @@ if (a < b) {
         print("a is bigger (else if)\n");
 } else {
         print("equal\n");
+}
+
 }

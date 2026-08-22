@@ -159,6 +159,12 @@ static void print_error_message(ErrorStage stage, ErrorCode code, int line, int 
         case ERR_DUPLICATED_FUNC:
                 fprintf(stderr, "function '%s' is already defined", d);
                 break;
+        case ERR_NO_MAIN:
+                fprintf(stderr, "no 'fn main()' entry point defined");
+                break;
+        case ERR_TOP_LEVEL_STMT:
+                fprintf(stderr, "statement not allowed at top level; put it inside 'fn main()'");
+                break;
         case ERR_NO_INPUT_FILE:
                 fprintf(stderr, "no input file provided");
                 break;

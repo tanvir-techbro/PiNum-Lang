@@ -1,3 +1,4 @@
+fn main() {
 # Parser: control flow (if-else)
 int x = 10;
 if (x > 10) {
@@ -6,4 +7,6 @@ if (x > 10) {
         print("Equal\n");
 } else {
         print("Lesser\n");
+}
+
 }

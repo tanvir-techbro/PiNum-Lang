@@ -1,3 +1,4 @@
+fn main() {
 # Codegen: for (RANGE) sugar  →  for (int __pinum_iN = 0; __pinum_iN < RANGE; __pinum_iN++)
 # 1. all four for-loop forms still compile
 for (5) {
@@ -41,3 +42,4 @@ for (int k = 0; k < 2; k = k + 1) {
     print(";");
 }
 print("\n");
+}

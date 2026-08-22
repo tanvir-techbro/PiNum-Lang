@@ -1,3 +1,4 @@
+fn main() {
 # Parser: loops
 int count = 0;
 while (count < 5) {
@@ -16,3 +17,5 @@ while (running == 1) {
         }
 }
 print(count, "\n");
+
+}

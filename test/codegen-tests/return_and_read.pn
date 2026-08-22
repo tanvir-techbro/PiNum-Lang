@@ -1,3 +1,4 @@
+fn main() {
 # Codegen: return and read
 int i = 0;
 while (i < 5) {
@@ -11,3 +12,5 @@ if (data > 0) {
         return 0;
 }
 return 1;
+
+}

@@ -482,6 +482,13 @@ static void codegen_node(ASTnode *node, FILE *output, int level) {
 
         // ---- Functions ----
         case NODE_FUNC_DEF: {
+                // 'main' is the program entry point → emit as C's int main(void)
+                if (strcmp(node->data.func_def.name, "main") == 0) {
+                        fprintf(output, "int main(void) ");
+                        codegen_node(node->data.func_def.body, output, level); // body prints { ... }
+                        break;
+                }
+
                 // return type void if no return type
                 const char *ret = codegen_type(node->data.func_def.return_type ? node->data.func_def.return_type : "void");
                 fprintf(output, "%s %s(", ret, node->data.func_def.name);
@@ -555,23 +562,14 @@ void codegen_c(ASTnode *program, FILE *output) {
         fprintf(output, "#include \"pinum_rtvec.h\"\n");
         fprintf(output, "#include \"pinum_rtstrchr.h\"\n");
 #endif
-        // Pass 1: function definitions at file scope (real C functions)
+        // emit every top-level declaration at file scope
         for (int i = 0; i < program->data.program.count; i++) {
                 ASTnode *stmt = program->data.program.statements[i];
-                if (stmt && stmt->type == NODE_FUNC_DEF) {
+                if (stmt->type == NODE_FUNC_DEF || stmt->type == NODE_VAR_DECL) {
                         codegen_node(stmt, output, 0);
                 }
+                // sema already rejected any other top-level statement
         }
-        // Pass 2: everything else goes inside main
-        fprintf(output, "int main(void) {\n");
-        for (int i = 0; i < program->data.program.count; i++) {
-                ASTnode *stmt = program->data.program.statements[i];
-                if (stmt && stmt->type != NODE_FUNC_DEF) {
-                        codegen_stmt(stmt, output, 1);
-                }
-        }
-
-        fprintf(output, "\nreturn 0;\n}\n");
 }
 
 // wraps codegen_node with a trailing ';' for expression statements

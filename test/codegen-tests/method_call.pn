@@ -1,3 +1,4 @@
+fn main() {
 # Codegen: method calls — obj.append(x)  →  __pinum_vec_<t>_append(&obj, x)
 vec<int> nums = [1, 2];
 nums.append(3);
@@ -23,3 +24,4 @@ print(letters, "\n");
 int step = 10;
 nums.append(step + 100);
 print(nums, "\n");
+}

@@ -1,3 +1,4 @@
+fn main() {
 # Semantic invalid: undeclared variable inside a while-loop body
 int count = 0
 while (count < 3) {
@@ -5,3 +6,4 @@ while (count < 3) {
         print(count, " ", broken_var, "\n")
 }
 print(count, "\n")
+}

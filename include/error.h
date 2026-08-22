@@ -63,6 +63,8 @@ typedef enum {
         ERR_REDECLARED_VAR, // declared a variable already in scope
         ERR_ARG_COUNT,      // function called with wrong number of args
         ERR_DUPLICATED_FUNC, // function name defined more than once
+        ERR_NO_MAIN,        // program has no 'fn main()' entry point
+        ERR_TOP_LEVEL_STMT, // statement at file scope that isn't a declaration
 
         // File / CLI errors
         ERR_NO_INPUT_FILE,     // no input file provided

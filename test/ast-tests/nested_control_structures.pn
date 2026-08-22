@@ -1,3 +1,4 @@
+fn main() {
 # AST: nested control structures
 int outer = 5;
 int inner = 3;
@@ -10,4 +11,6 @@ if (outer > 0) {
         }
 } else {
         print("else\n");
+}
+
 }

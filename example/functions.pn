@@ -1,25 +1,12 @@
-# Functions in PiNum-Lang
-#
-# Define a function with the `fn` keyword:
-#   fn name(params) -> returnType { ... }
-# The `-> returnType` part is optional; omit it for a void function.
-
-# --- a void function (no return value) ---
 fn greet() {
         println("Hello from a function!")
 }
-
-# --- a function with parameters that returns a value ---
 fn add(int a, int b) -> int {
         return a + b
 }
-
-# --- a function that calls another function ---
 fn sum_three(int a, int b, int c) -> int {
         return add(add(a, b), c)
 }
-
-# --- recursion: factorial ---
 fn factorial(int n) -> int {
         if (n <= 1) {
                 return 1
@@ -27,7 +14,22 @@ fn factorial(int n) -> int {
         return n * factorial(n - 1)
 }
 
-# --- usage: statements outside functions run inside main() ---
+fn main() {
+# Functions in PiNum-Lang
+#
+# Define a function with the `fn` keyword:
+#   fn name(params) -> returnType { ... }
+# The `-> returnType` part is optional; omit it for a void function.
+
+# --- a void function (no return value) ---
+
+# --- a function with parameters that returns a value ---
+
+# --- a function that calls another function ---
+
+# --- recursion: factorial ---
+
+# --- usage: top-level statements live in fn main() ---
 greet()
 
 int total = add(3, 4)
@@ -36,3 +38,5 @@ println("3 + 4 = ", total)
 println("1 + 2 + 3 = ", sum_three(1, 2, 3))
 
 println("5! = ", factorial(5))
+
+}

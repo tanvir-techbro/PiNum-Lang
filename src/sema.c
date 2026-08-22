@@ -116,7 +116,14 @@ static void sem_analyze_node(SemAnalyzer *a, ASTnode *node) {
         case NODE_PROGRAM:
                 sem_push_scope(a);
                 for (int i = 0; i < node->data.program.count; i++) {
-                        sem_analyze_node(a, node->data.program.statements[i]);
+                        ASTnode *stmt = node->data.program.statements[i];
+                        // file scope may only hold declarations/directives;
+                        // executables must live inside 'fn main()'
+                        if (stmt->type != NODE_FUNC_DEF && stmt->type != NODE_VAR_DECL &&
+                            stmt->type != NODE_IMPORT && stmt->type != NODE_DIRECTIVE) {
+                                pinum_error_at(STAGE_SEMANTIC, ERR_TOP_LEVEL_STMT, stmt->line, stmt->col, NULL);
+                        }
+                        sem_analyze_node(a, stmt);
                 }
                 sem_pop_scope(a);
                 break;
@@ -345,6 +352,14 @@ void semantic_analyze(ASTnode *program) {
         SemAnalyzer a = {0};
         a.functions = hashmap_create(hm_hash_str, hm_eq_str, free, funcSig_free);
         sem_analyze_node(&a, program);
+
+        // check for fn main()
+        bool found = false;
+        hashmap_get(a.functions, "main", &found); // note: 'a' is a value here → a.functions
+        if (!found) {
+                pinum_error_at(STAGE_SEMANTIC, ERR_NO_MAIN, program->line, program->col, NULL);
+        }
+
         hashmap_free(a.functions);
         free(a.frames);
 }

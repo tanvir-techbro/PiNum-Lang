@@ -1,3 +1,4 @@
+fn main() {
 # AST: expressions and precedence
 int a = 10;
 int b = 3;
@@ -8,3 +9,5 @@ int max = a > b ? a : b;
 print(max, "\n");
 bool check = (a > b && b < c) || !(a == b);
 print(check, "\n");
+
+}

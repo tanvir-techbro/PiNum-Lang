@@ -1,3 +1,4 @@
+fn main() {
 # vec<T> — a growable vector, monomorphized per element type.
 #
 # Each `vec<T>` compiles to its own C struct with by-value contiguous
@@ -65,3 +66,5 @@ ratios[0] = 5.5
 letters[1] = 'Z'
 dbl[1] = dbl[1] + 1.0
 print(words, " ", ratios, " ", letters, " ", dbl, "\n")
+
+}

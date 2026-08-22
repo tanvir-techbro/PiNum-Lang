@@ -1,3 +1,4 @@
+fn main() {
 # Semicolons are optional — a newline ends a statement.
 # They ARE required to put multiple statements on one line:
 #   int x = 1; print(x, "\n");   # two statements, one line
@@ -37,4 +38,6 @@ if (a > 0) {
         if (b < 5) {
                 print("a positive and b less than 5\n")
         }
+}
+
 }

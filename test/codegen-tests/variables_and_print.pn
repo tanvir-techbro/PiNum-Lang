@@ -1,3 +1,4 @@
+fn main() {
 # Codegen: variables and print
 int count = 10;
 float ratio = 3.5;
@@ -11,3 +12,5 @@ print(pi, "\n");
 print(letter, "\n");
 print(name, "\n");
 print(done, "\n");
+
+}

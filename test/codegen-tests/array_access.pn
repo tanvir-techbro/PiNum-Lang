@@ -1,3 +1,4 @@
+fn main() {
 # Codegen: arr[i] reads — every vec element type, in bounds
 vec<int> nums = [10, 20, 30];
 print(nums[0], " ", nums[2], "\n");
@@ -37,3 +38,4 @@ ratios[0] = 9.5;
 print(ratios[0], "\n");
 letters[0] = 'z';
 print(letters[0], "\n");
+}

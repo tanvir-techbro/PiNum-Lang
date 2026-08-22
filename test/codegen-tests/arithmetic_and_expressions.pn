@@ -1,3 +1,4 @@
+fn main() {
 # Codegen: arithmetic and expressions
 int a = 10;
 int b = 3;
@@ -10,3 +11,5 @@ print(a % b, "\n");
 print((a + b) * c, "\n");
 int max = a > b ? a : b;
 print(max, "\n");
+
+}

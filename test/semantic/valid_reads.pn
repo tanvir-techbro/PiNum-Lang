@@ -1,3 +1,4 @@
+fn main() {
 # Semantic valid: unresolved reads and assignment chains
 int x = 1
 int y = x + 1
@@ -5,3 +6,4 @@ x = y * 2
 print(x, "\n")
 read(y)
 print(y, "\n")
+}

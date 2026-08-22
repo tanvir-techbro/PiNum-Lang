@@ -1,3 +1,4 @@
+fn main() {
 # Semicolons are optional — a newline ends a statement.
 # They ARE required to put multiple statements on one line:
 #   int x = 1; print(x, "\n");   # two statements, one line
@@ -41,3 +42,4 @@ for (int k = 1; k <= 5; k++) {
         acc += k
 }
 print(acc, "\n") # 15
+}

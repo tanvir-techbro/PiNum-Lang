@@ -1,3 +1,4 @@
+fn main() {
 # for (RANGE) — run a body a fixed number of times.
 #
 # `for (N) { body }` expands at parse time to a classic for loop:
@@ -38,4 +39,5 @@ while (width <= 7) {
         }
         print("\n")
         width = width + 2
+}
 }

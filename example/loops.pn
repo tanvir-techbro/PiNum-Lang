@@ -1,3 +1,4 @@
+fn main() {
 # Semicolons are optional — a newline ends a statement.
 # They ARE required to put multiple statements on one line:
 #   int x = 1; print(x, "\n");   # two statements, one line
@@ -91,3 +92,5 @@ while (m < 10) {
         m = m + 1
 }
 print("never reached\n")
+
+}
